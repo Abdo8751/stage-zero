@@ -1,0 +1,167 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase'
+import { useUser } from '@/hooks/useUser'
+import { validateRequired, validateUrl } from '@/lib/validation'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { Input } from '@/components/ui/Input'
+import { Textarea } from '@/components/ui/Textarea'
+import { useToast } from '@/components/ui/Toast'
+
+export default function InvestorVerifyPage() {
+  const router = useRouter()
+  const { user, investor, loading, refresh } = useUser()
+  const { showToast } = useToast()
+
+  const [linkedin, setLinkedin] = useState('')
+  const [bio, setBio] = useState('')
+  const [chequeSize, setChequeSize] = useState('')
+  const [location, setLocation] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    if (investor) {
+      setLinkedin(investor.linkedin_url ?? '')
+      setBio(investor.bio ?? '')
+      setChequeSize(investor.cheque_size ?? '')
+      setLocation(investor.location ?? '')
+    }
+  }, [investor])
+
+  useEffect(() => {
+    if (
+      investor?.verification_status === 'approved' &&
+      user?.is_verified
+    ) {
+      router.push('/browse')
+    }
+  }, [investor, user, router])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!user) return
+
+    const errs: Record<string, string> = {}
+    const linkedinErr = validateRequired(linkedin, 'LinkedIn URL')
+    const bioErr = validateRequired(bio, 'Bio')
+    const chequeErr = validateRequired(chequeSize, 'Cheque size')
+    const locationErr = validateRequired(location, 'Location')
+    const urlErr = validateUrl(linkedin, 'LinkedIn')
+    if (linkedinErr) errs.linkedin = linkedinErr
+    if (bioErr) errs.bio = bioErr
+    if (chequeErr) errs.cheque = chequeErr
+    if (locationErr) errs.location = locationErr
+    if (urlErr) errs.linkedin = urlErr
+    setErrors(errs)
+    if (Object.keys(errs).length > 0) return
+
+    setSaving(true)
+    try {
+      const supabase = createClient()
+      const payload = {
+        linkedin_url: linkedin.trim(),
+        bio: bio.trim(),
+        cheque_size: chequeSize.trim(),
+        location: location.trim(),
+        verification_status: 'pending' as const,
+      }
+
+      const { error } = investor
+        ? await supabase.from('investors').update(payload).eq('user_id', user.id)
+        : await supabase.from('investors').insert({ user_id: user.id, credits: 0, ...payload })
+
+      if (error) throw error
+      showToast('Verification submitted for review', 'success')
+      await refresh()
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Submit failed', 'error')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (loading) return <div className="py-16 text-center text-muted">Loading…</div>
+
+  const isPending = investor?.verification_status === 'pending' && !user?.is_verified
+  const isRejected = investor?.verification_status === 'rejected'
+
+  if (isPending && investor?.linkedin_url) {
+    return (
+      <div className="mx-auto w-full max-w-lg px-4 py-16 text-center">
+        <Card>
+          <h1 className="text-2xl sm:text-3xl">Verification pending</h1>
+          <p className="mt-4 text-muted">
+            Your application is under review. We&apos;ll notify you once approved.
+          </p>
+          <p className="mt-4 text-sm text-muted">
+            To simulate approval: in Supabase, set{' '}
+            <code className="text-navy">investors.verification_status</code> to{' '}
+            <code className="text-navy">approved</code> and{' '}
+            <code className="text-navy">users.is_verified</code> to{' '}
+            <code className="text-navy">true</code>.
+          </p>
+        </Card>
+      </div>
+    )
+  }
+
+  if (isRejected) {
+    return (
+      <div className="mx-auto w-full max-w-lg px-4 py-16 text-center">
+        <Card>
+          <h1 className="text-2xl">Verification declined</h1>
+          <p className="mt-4 text-muted">Please contact support or resubmit your details.</p>
+          <Button className="mt-6" onClick={() => window.location.reload()}>
+            Resubmit
+          </Button>
+        </Card>
+      </div>
+    )
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-lg px-4 py-8 sm:py-12">
+      <h1 className="text-3xl sm:text-4xl">Investor verification</h1>
+      <p className="mt-2 text-muted">Verify your credentials to access startup listings</p>
+
+      <Card className="mt-8">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <Input
+            label="LinkedIn URL"
+            value={linkedin}
+            onChange={(e) => setLinkedin(e.target.value)}
+            placeholder="https://linkedin.com/in/..."
+            error={errors.linkedin}
+          />
+          <Textarea
+            label="Bio"
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            error={errors.bio}
+          />
+          <Input
+            label="Typical cheque size"
+            value={chequeSize}
+            onChange={(e) => setChequeSize(e.target.value)}
+            placeholder="e.g. EGP 500K – 2M"
+            error={errors.cheque}
+          />
+          <Input
+            label="Location"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            placeholder="Cairo, Egypt"
+            error={errors.location}
+          />
+          <Button type="submit" fullWidth disabled={saving}>
+            {saving ? 'Submitting…' : 'Submit for review'}
+          </Button>
+        </form>
+      </Card>
+    </div>
+  )
+}
