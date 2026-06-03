@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import type { UserRole } from '@/lib/types'
 
 export async function GET(request: Request) {
@@ -67,27 +68,30 @@ export async function GET(request: Request) {
     .eq('id', user.id)
     .maybeSingle()
 
-  // If no profile exists and we have a role from signup, create one
+  // If no profile exists and we have a role from signup, create one using service key (bypasses RLS)
   if (!existingUser && roleParam) {
-    const { error: insertError } = await supabase.from('users').insert({
+    const svcKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const svc = svcKey ? createServiceClient(supabaseUrl, svcKey, { auth: { persistSession: false } }) : supabase
+
+    const { error: insertError } = await svc.from('users').upsert({
       id: user.id,
       email: user.email ?? '',
       role: roleParam,
       full_name: (user.user_metadata.full_name as string | undefined) ?? null,
       avatar_url: (user.user_metadata.avatar_url as string | undefined) ?? null,
       is_verified: roleParam === 'founder',
-    })
+      is_banned: false,
+    }, { onConflict: 'id' })
 
     if (insertError) {
-      console.error('[auth/callback] Failed to insert user profile:', insertError.message)
+      console.error('[auth/callback] Failed to upsert user profile:', insertError.message)
     }
 
     if (roleParam === 'investor') {
-      await supabase.from('investors').insert({
-        user_id: user.id,
-        verification_status: 'pending',
-        credits: 3,
-      })
+      const { data: existingInv } = await svc.from('investors').select('id').eq('user_id', user.id).maybeSingle()
+      if (!existingInv) {
+        await svc.from('investors').insert({ user_id: user.id, verification_status: 'pending', credits: 0 })
+      }
     }
   }
 
