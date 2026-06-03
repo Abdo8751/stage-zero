@@ -80,46 +80,39 @@ function SignUpForm() {
         return
       }
 
-      // Insert into public.users immediately after auth signup
-      const { error: profileError } = await supabase
-        .from('users')
-        .insert({
-          id: data.user.id,
-          email: data.user.email ?? email.trim(),
-          role,
-          full_name: fullName.trim(),
-          is_verified: role === 'founder',
-        })
+      // Get the session token to pass to the API route
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
 
-      if (profileError) {
-        setError(profileError.message)
-        showToast(profileError.message, 'error')
+      if (!token) {
+        // Session may not exist yet if email confirmation is required —
+        // still redirect to the right page; the trigger created the user row
+        if (role === 'founder') router.push('/onboarding')
+        else router.push('/investor/verify')
+        router.refresh()
         return
       }
 
-      if (role === 'investor') {
-        const { error: investorError } = await supabase
-          .from('investors')
-          .insert({
-            user_id: data.user.id,
-            verification_status: 'pending',
-            credits: 3,
-          })
-        if (investorError) {
-          setError(investorError.message)
-          showToast(investorError.message, 'error')
-          return
-        }
+      // Use the server-side API route (service role key, bypasses RLS)
+      const res = await fetch('/api/auth/setup-profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ role, full_name: fullName.trim(), email: email.trim() }),
+      })
+
+      const result = await res.json() as { error?: string }
+      if (!res.ok) {
+        setError(result.error ?? 'Profile setup failed')
+        showToast(result.error ?? 'Profile setup failed', 'error')
+        return
       }
 
       showToast('Account created successfully!', 'success')
-      
-      // Then redirect based on role
-      if (role === 'founder') {
-        router.push('/onboarding')
-      } else {
-        router.push('/investor/verify')
-      }
+      if (role === 'founder') router.push('/onboarding')
+      else router.push('/investor/verify')
       router.refresh()
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Sign up failed'
