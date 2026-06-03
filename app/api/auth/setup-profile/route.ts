@@ -44,7 +44,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
-    // Upsert the user row (handles both trigger-created and fresh rows)
+    // Upsert the user row — only columns that exist in the original schema.
+    // is_banned is intentionally omitted; the DB default (false) handles it.
     const { error: userError } = await supabase
       .from('users')
       .upsert({
@@ -53,11 +54,14 @@ export async function POST(request: Request) {
         role,
         full_name: full_name?.trim() ?? null,
         is_verified: role === 'founder',
-        is_banned: false,
       }, { onConflict: 'id' })
 
     if (userError) {
-      return NextResponse.json({ error: userError.message }, { status: 400 })
+      // Return the exact Supabase message so it's visible in the UI
+      return NextResponse.json(
+        { error: `DB error: ${userError.message} (code: ${userError.code})` },
+        { status: 400 },
+      )
     }
 
     // Create investor row if needed
@@ -74,7 +78,10 @@ export async function POST(request: Request) {
           .insert({ user_id: userId, verification_status: 'pending', credits: 0 })
 
         if (investorError) {
-          return NextResponse.json({ error: investorError.message }, { status: 400 })
+          return NextResponse.json(
+            { error: `Investor DB error: ${investorError.message} (code: ${investorError.code})` },
+            { status: 400 },
+          )
         }
       }
     }
