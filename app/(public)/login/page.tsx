@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { useToast } from '@/components/ui/Toast'
+import type { UserRole } from '@/lib/types'
+import { Rocket, Briefcase } from 'lucide-react'
 
 function LoginForm() {
   const router = useRouter()
@@ -26,6 +28,8 @@ function LoginForm() {
     authError ? 'Authentication failed. Please try again.' : null
   )
   const [resetSent, setResetSent] = useState(false)
+  const [showRoleSelector, setShowRoleSelector] = useState(false)
+  const [loggedInUser, setLoggedInUser] = useState<any>(null)
 
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {}
@@ -35,6 +39,102 @@ function LoginForm() {
     if (passwordErr) errors.password = passwordErr
     setFieldErrors(errors)
     return Object.keys(errors).length === 0
+  }
+
+  const handlePostLogin = async (
+    user: any,
+    profile: { role: UserRole; is_verified: boolean }
+  ) => {
+    const supabase = createClient()
+    let hasStartup = false
+    let investorApproved = profile.is_verified
+
+    if (profile.role === 'founder') {
+      const { data: startup, error: startupError } = await supabase
+        .from('startups')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle()
+
+      if (startupError) {
+        setError(startupError.message)
+        return
+      }
+      hasStartup = !!startup
+    } else {
+      const { data: investor, error: investorError } = await supabase
+        .from('investors')
+        .select('verification_status')
+        .eq('user_id', user.id)
+        .maybeSingle()
+
+      if (investorError) {
+        setError(investorError.message)
+        return
+      }
+      investorApproved =
+        profile.is_verified && investor?.verification_status === 'approved'
+    }
+
+    const destination =
+      redirect ??
+      getLoginRedirect(profile.role, profile.is_verified, investorApproved, hasStartup)
+
+    showToast('Welcome back!', 'success')
+    router.refresh()
+    router.replace(destination)
+  }
+
+  const handleRoleSelection = async (selectedRole: UserRole) => {
+    if (!loggedInUser) return
+    setLoading(true)
+    setError(null)
+
+    try {
+      const supabase = createClient()
+      
+      const { error: insertError } = await supabase
+        .from('users')
+        .insert({
+          id: loggedInUser.id,
+          email: loggedInUser.email,
+          role: selectedRole,
+          full_name: loggedInUser.user_metadata?.full_name || loggedInUser.email,
+          is_verified: selectedRole === 'founder',
+        })
+
+      if (insertError) {
+        setError(insertError.message)
+        showToast(insertError.message, 'error')
+        return
+      }
+
+      if (selectedRole === 'investor') {
+        const { error: investorError } = await supabase
+          .from('investors')
+          .insert({
+            user_id: loggedInUser.id,
+            verification_status: 'pending',
+            credits: 3,
+          })
+        if (investorError) {
+          setError(investorError.message)
+          showToast(investorError.message, 'error')
+          return
+        }
+      }
+
+      await handlePostLogin(loggedInUser, {
+        role: selectedRole,
+        is_verified: selectedRole === 'founder',
+      })
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to create profile'
+      setError(message)
+      showToast(message, 'error')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleEmailLogin = async (e: React.FormEvent) => {
@@ -71,46 +171,12 @@ function LoginForm() {
         }
 
         if (!profile) {
-          router.push('/signup')
+          setLoggedInUser(data.user)
+          setShowRoleSelector(true)
           return
         }
 
-        let hasStartup = false
-        let investorApproved = profile.is_verified
-
-        if (profile.role === 'founder') {
-          const { data: startup, error: startupError } = await supabase
-            .from('startups')
-            .select('id')
-            .eq('user_id', data.user.id)
-            .maybeSingle()
-
-          if (startupError) {
-            setError(startupError.message)
-            return
-          }
-          hasStartup = !!startup
-        } else {
-          const { data: investor, error: investorError } = await supabase
-            .from('investors')
-            .select('verification_status')
-            .eq('user_id', data.user.id)
-            .maybeSingle()
-
-          if (investorError) {
-            setError(investorError.message)
-            return
-          }
-          investorApproved =
-            profile.is_verified && investor?.verification_status === 'approved'
-        }
-
-        showToast('Welcome back!', 'success')
-        router.push(
-          redirect ??
-            getLoginRedirect(profile.role, profile.is_verified, investorApproved, hasStartup)
-        )
-        router.refresh()
+        await handlePostLogin(data.user, profile)
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Login failed'
@@ -181,92 +247,148 @@ function LoginForm() {
     }
   }
 
-  return (
-    <div className="mx-auto w-full max-w-md px-4 py-12 sm:py-16">
-      <div className="mb-10 text-center">
-        <h1 className="text-3xl sm:text-4xl">Welcome back</h1>
-        <p className="mt-3 text-muted">Log in to your Stage Zero account</p>
-      </div>
-
-      <Card>
-        <form onSubmit={handleEmailLogin} className="space-y-5">
-          <Input
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            autoComplete="email"
-            error={fieldErrors.email}
-          />
-          <Input
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Your password"
-            autoComplete="current-password"
-            error={fieldErrors.password}
-          />
-
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={handleForgotPassword}
-              className="text-sm text-muted hover:text-navy"
-              disabled={loading}
-            >
-              Forgot password?
-            </button>
-          </div>
-
-          {resetSent && (
-            <p className="rounded border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-              Reset link sent. Check your inbox.
-            </p>
-          )}
-
-          {error && (
-            <p className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
-            </p>
-          )}
-
-          <Button type="submit" fullWidth disabled={loading}>
-            {loading ? 'Logging in…' : 'Log in'}
-          </Button>
-        </form>
-
-        <div className="my-6 flex items-center gap-4">
-          <div className="h-px flex-1 bg-muted/30" />
-          <span className="text-xs uppercase tracking-wider text-muted">or</span>
-          <div className="h-px flex-1 bg-muted/30" />
+  if (showRoleSelector) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center px-5 py-16">
+        <div className="mb-10 text-center">
+          <h1 className="text-[30px] font-bold tracking-[-0.03em] text-text-primary sm:text-[36px]">Complete your profile</h1>
+          <p className="mt-2.5 text-[14px] text-text-secondary">Select your role to continue.</p>
         </div>
 
-        <Button
-          type="button"
-          variant="secondary"
-          fullWidth
-          disabled={loading}
-          onClick={handleGoogleLogin}
-        >
-          Continue with Google
-        </Button>
-      </Card>
+        <div className="grid w-full max-w-lg gap-4 sm:grid-cols-2">
+          <button type="button" onClick={() => handleRoleSelection('founder')} disabled={loading} className="w-full text-left focus:outline-none">
+            <Card hoverable className="h-full">
+              <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[rgba(212,168,83,0.12)] border border-[rgba(212,168,83,0.20)]">
+                <Rocket className="h-5 w-5 text-gold" />
+              </div>
+              <h2 className="mt-4 text-[17px] font-semibold tracking-[-0.02em] text-text-primary">I&apos;m a Founder</h2>
+              <p className="mt-1.5 text-[13px] leading-relaxed text-text-secondary">List your startup and connect with verified investors.</p>
+            </Card>
+          </button>
+          <button type="button" onClick={() => handleRoleSelection('investor')} disabled={loading} className="w-full text-left focus:outline-none">
+            <Card hoverable className="h-full">
+              <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[rgba(212,168,83,0.12)] border border-[rgba(212,168,83,0.20)]">
+                <Briefcase className="h-5 w-5 text-gold" />
+              </div>
+              <h2 className="mt-4 text-[17px] font-semibold tracking-[-0.02em] text-text-primary">I&apos;m an Investor</h2>
+              <p className="mt-1.5 text-[13px] leading-relaxed text-text-secondary">Browse curated startups and express verified interest.</p>
+            </Card>
+          </button>
+        </div>
 
-      <p className="mt-8 text-center text-sm text-muted">
-        Don&apos;t have an account?{' '}
-        <Link href="/signup" className="font-medium text-navy underline-offset-4 hover:underline">
-          Sign up
-        </Link>
-      </p>
+        {error && (
+          <p className="mt-6 w-full max-w-lg rounded-input border border-[rgba(255,69,58,0.25)] bg-[rgba(255,69,58,0.08)] px-4 py-3 text-[13px] text-[#FF453A] text-center">
+            {error}
+          </p>
+        )}
+
+        <div className="mt-8 text-center">
+          <button
+            type="button"
+            onClick={async () => {
+              const supabase = createClient()
+              await supabase.auth.signOut()
+              setShowRoleSelector(false)
+              setLoggedInUser(null)
+              setError(null)
+            }}
+            className="text-[13px] text-text-tertiary hover:text-text-secondary transition-colors underline underline-offset-4 cursor-pointer"
+          >
+            Cancel and log out
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center px-5 py-16">
+      {/* Glow behind card */}
+      <div className="pointer-events-none absolute h-[400px] w-[400px] rounded-full bg-[radial-gradient(circle,rgba(212,168,83,0.05)_0%,transparent_65%)] blur-3xl" />
+
+      <div className="relative w-full max-w-sm">
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-5 flex items-center justify-center gap-1">
+            <span className="text-[15px] font-black tracking-[-0.04em] text-cream uppercase">STAGE ZERO</span>
+          </div>
+          <h1 className="text-[28px] font-black tracking-tightest text-cream">Welcome back</h1>
+          <p className="mt-1.5 text-[13px] text-cream-muted">Sign in to your account</p>
+        </div>
+
+        <Card>
+          <form onSubmit={handleEmailLogin} className="space-y-4">
+            <Input
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              autoComplete="email"
+              error={fieldErrors.email}
+            />
+            <Input
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Your password"
+              autoComplete="current-password"
+              error={fieldErrors.password}
+            />
+
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                className="text-[12px] text-text-tertiary hover:text-gold transition-colors cursor-pointer"
+                disabled={loading}
+              >
+                Forgot password?
+              </button>
+            </div>
+
+            {resetSent && (
+              <p className="rounded-input border border-[rgba(52,199,89,0.22)] bg-[rgba(52,199,89,0.08)] px-4 py-3 text-[13px] text-[#30D158]">
+                Reset link sent — check your inbox.
+              </p>
+            )}
+
+            {error && (
+              <p className="rounded-input border border-[rgba(255,69,58,0.25)] bg-[rgba(255,69,58,0.08)] px-4 py-3 text-[13px] text-[#FF453A]">
+                {error}
+              </p>
+            )}
+
+            <Button type="submit" fullWidth disabled={loading}>
+              {loading ? 'Signing in…' : 'Sign in'}
+            </Button>
+          </form>
+
+          <div className="my-5 flex items-center gap-3">
+            <div className="h-px flex-1 bg-glass-border" />
+            <span className="text-[11px] uppercase tracking-[0.10em] text-text-tertiary">or</span>
+            <div className="h-px flex-1 bg-glass-border" />
+          </div>
+
+          <Button type="button" variant="secondary" fullWidth disabled={loading} onClick={handleGoogleLogin}>
+            Continue with Google
+          </Button>
+        </Card>
+
+        <p className="mt-6 text-center text-[13px] text-text-secondary">
+          No account?{' '}
+          <Link href="/signup" className="font-medium text-text-primary hover:text-gold transition-colors underline underline-offset-4">
+            Sign up free
+          </Link>
+        </p>
+      </div>
     </div>
   )
 }
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="py-16 text-center text-muted">Loading…</div>}>
+    <Suspense fallback={<div className="py-16 text-center text-text-secondary font-body">Loading...</div>}>
       <LoginForm />
     </Suspense>
   )

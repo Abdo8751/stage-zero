@@ -1,25 +1,19 @@
 import type { Metadata } from 'next'
-import { Cormorant_Garamond, DM_Sans } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import { Navbar } from '@/components/Navbar'
 import { ToastProvider } from '@/components/ui/Toast'
 import './globals.css'
 
-const cormorant = Cormorant_Garamond({
+const inter = Inter({
   subsets: ['latin'],
-  weight: ['400', '600', '700'],
-  variable: '--font-cormorant',
-})
-
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  weight: ['300', '400', '500'],
-  variable: '--font-dm-sans',
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-inter',
 })
 
 export const metadata: Metadata = {
-  title: 'Stage Zero Egypt',
+  title: 'Stage Zero — Where Capital Meets Vision',
   description:
-    'Connect young Egyptian founders with verified investors. Your startup\'s first stage.',
+    "Egypt's premier marketplace connecting verified investors with the next generation of founders.",
 }
 
 export default function RootLayout({
@@ -28,8 +22,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${dmSans.variable}`}>
-      <body className="min-h-screen bg-cream font-body font-light text-navy antialiased">
+    <html lang="en" className={inter.variable}>
+      <body className="min-h-screen bg-bg-base font-sans antialiased">
         <ToastProvider>
           <Navbar />
           <main>{children}</main>

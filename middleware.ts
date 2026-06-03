@@ -2,10 +2,12 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import type { UserRole } from '@/lib/types'
 
-const PUBLIC_ROUTES = ['/', '/login', '/signup', '/auth/reset-password']
+const PUBLIC_ROUTES = ['/', '/login', '/signup', '/auth/reset-password', '/suspended']
 const FOUNDER_ROUTES = ['/onboarding', '/dashboard', '/profile/edit', '/interests']
+// Founders can access /browse and /startup/:id — they're blocked only from investor-only paths
+const INVESTOR_ONLY_ROUTES = ['/saved', '/upgrade', '/investor/verify']
 const INVESTOR_ROUTES = ['/browse', '/saved', '/upgrade', '/investor/verify']
-const SHARED_ROUTES = ['/chat', '/notifications', '/settings']
+const SHARED_ROUTES = ['/chat', '/notifications', '/settings', '/explore']
 
 function matchesRoute(pathname: string, routes: string[]) {
   return routes.some((route) => pathname === route || pathname.startsWith(`${route}/`))
@@ -24,6 +26,27 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
   if (pathname.startsWith('/auth/callback')) {
+    return supabaseResponse
+  }
+
+  // Admin routes — simple cookie-based auth, separate from Supabase
+  if (pathname.startsWith('/admin')) {
+    const isAdminLogin = pathname === '/admin/login'
+    const hasAdminAuth = request.cookies.get('admin_auth')?.value === 'true'
+
+    if (!hasAdminAuth && !isAdminLogin) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/admin/login'
+      return NextResponse.redirect(url)
+    }
+
+    if (hasAdminAuth && isAdminLogin) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/admin'
+      return NextResponse.redirect(url)
+    }
+
+    // Admin routes don't need Supabase session checks
     return supabaseResponse
   }
 
@@ -57,6 +80,7 @@ export async function middleware(request: NextRequest) {
     matchesRoute(pathname, INVESTOR_ROUTES) || pathname.startsWith('/startup/')
   const isSharedRoute = matchesRoute(pathname, SHARED_ROUTES)
   const isProtected = isFounderRoute || isInvestorRoute || isSharedRoute
+  const isInvestorOnly = matchesRoute(pathname, INVESTOR_ONLY_ROUTES)
 
   if (!user && isProtected) {
     const url = request.nextUrl.clone()
@@ -68,7 +92,7 @@ export async function middleware(request: NextRequest) {
   if (user) {
     const { data: profile, error: profileError } = await supabase
       .from('users')
-      .select('role, is_verified')
+      .select('role, is_verified, is_banned')
       .eq('id', user.id)
       .maybeSingle()
 
@@ -77,6 +101,13 @@ export async function middleware(request: NextRequest) {
     }
 
     if (profile) {
+      // ── Banned user ──────────────────────────────────────────
+      if ((profile as any).is_banned) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/suspended'
+        return NextResponse.redirect(url)
+      }
+
       let investorApproved = profile.is_verified
 
       if (profile.role === 'investor') {
@@ -90,7 +121,8 @@ export async function middleware(request: NextRequest) {
           profile.is_verified && investor?.verification_status === 'approved'
       }
 
-      if (profile.role === 'founder' && isInvestorRoute) {
+      // Founders can browse startups — only block investor-only management routes
+      if (profile.role === 'founder' && matchesRoute(pathname, INVESTOR_ONLY_ROUTES)) {
         const url = request.nextUrl.clone()
         url.pathname = '/dashboard'
         return NextResponse.redirect(url)
@@ -157,5 +189,8 @@ export const config = {
     '/chat/:path*',
     '/notifications/:path*',
     '/settings/:path*',
+    '/explore/:path*',
+    '/admin/:path*',
+    '/admin',
   ],
 }

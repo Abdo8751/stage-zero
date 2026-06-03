@@ -84,7 +84,7 @@ export default function InvestorVerifyPage() {
     }
   }
 
-  if (loading) return <div className="py-16 text-center text-muted">Loading…</div>
+  if (loading) return <div className="py-16 text-center text-text-secondary font-body">Loading...</div>
 
   const isPending = investor?.verification_status === 'pending' && !user?.is_verified
   const isRejected = investor?.verification_status === 'rejected'
@@ -93,16 +93,16 @@ export default function InvestorVerifyPage() {
     return (
       <div className="mx-auto w-full max-w-lg px-4 py-16 text-center">
         <Card>
-          <h1 className="text-2xl sm:text-3xl">Verification pending</h1>
-          <p className="mt-4 text-muted">
+          <h1 className="text-2xl sm:text-3xl text-text-primary font-heading">Verification pending</h1>
+          <p className="mt-4 text-text-secondary font-body font-light">
             Your application is under review. We&apos;ll notify you once approved.
           </p>
-          <p className="mt-4 text-sm text-muted">
+          <p className="mt-4 text-xs text-text-tertiary font-body font-light">
             To simulate approval: in Supabase, set{' '}
-            <code className="text-navy">investors.verification_status</code> to{' '}
-            <code className="text-navy">approved</code> and{' '}
-            <code className="text-navy">users.is_verified</code> to{' '}
-            <code className="text-navy">true</code>.
+            <code className="text-gold bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.1)] px-1.5 py-0.5 rounded font-mono">investors.verification_status</code> to{' '}
+            <code className="text-gold bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.1)] px-1.5 py-0.5 rounded font-mono">approved</code> and{' '}
+            <code className="text-gold bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.1)] px-1.5 py-0.5 rounded font-mono">users.is_verified</code> to{' '}
+            <code className="text-gold bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.1)] px-1.5 py-0.5 rounded font-mono">true</code>.
           </p>
         </Card>
       </div>
@@ -113,8 +113,8 @@ export default function InvestorVerifyPage() {
     return (
       <div className="mx-auto w-full max-w-lg px-4 py-16 text-center">
         <Card>
-          <h1 className="text-2xl">Verification declined</h1>
-          <p className="mt-4 text-muted">Please contact support or resubmit your details.</p>
+          <h1 className="text-2xl text-text-primary font-heading">Verification declined</h1>
+          <p className="mt-4 text-text-secondary font-body font-light">Please contact support or resubmit your details.</p>
           <Button className="mt-6" onClick={() => window.location.reload()}>
             Resubmit
           </Button>
@@ -125,11 +125,11 @@ export default function InvestorVerifyPage() {
 
   return (
     <div className="mx-auto w-full max-w-lg px-4 py-8 sm:py-12">
-      <h1 className="text-3xl sm:text-4xl">Investor verification</h1>
-      <p className="mt-2 text-muted">Verify your credentials to access startup listings</p>
+      <h1 className="text-3xl sm:text-4xl text-text-primary">Investor verification</h1>
+      <p className="mt-2 text-text-secondary font-body font-light">Verify your credentials to access startup listings</p>
 
       <Card className="mt-8">
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <Input
             label="LinkedIn URL"
             value={linkedin}
@@ -158,7 +158,7 @@ export default function InvestorVerifyPage() {
             error={errors.location}
           />
           <Button type="submit" fullWidth disabled={saving}>
-            {saving ? 'Submitting…' : 'Submit for review'}
+            {saving ? 'Submitting...' : 'Submit for review'}
           </Button>
         </form>
       </Card>

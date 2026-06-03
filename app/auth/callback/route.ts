@@ -1,39 +1,75 @@
 import { NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { createServerClient } from '@supabase/ssr'
 import type { UserRole } from '@/lib/types'
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url)
-  const code = searchParams.get('code')
-  const roleParam = searchParams.get('role') as UserRole | null
+  const requestUrl = new URL(request.url)
+  const code = requestUrl.searchParams.get('code')
+  const roleParam = requestUrl.searchParams.get('role') as UserRole | null
+  const origin = requestUrl.origin
 
   if (!code) {
-    return NextResponse.redirect(`${origin}/login?error=auth`)
+    return NextResponse.redirect(`${origin}/login?error=missing_code`)
   }
 
-  const supabase = createServerSupabaseClient()
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return NextResponse.redirect(`${origin}/login?error=server_config`)
+  }
+
+  // Build the redirect response first — cookies will be set on this response
+  let redirectTo = `${origin}/login?error=auth`
+  const cookiesToApply: { name: string; value: string; options?: Record<string, unknown> }[] = []
+
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        // Parse cookies from the incoming request
+        const cookieHeader = request.headers.get('cookie') ?? ''
+        return cookieHeader.split(';').filter(Boolean).map((c) => {
+          const [name, ...rest] = c.trim().split('=')
+          return { name, value: rest.join('=') }
+        })
+      },
+      setAll(cookies) {
+        // Collect cookies to apply to the outgoing response
+        cookies.forEach((cookie) => {
+          cookiesToApply.push(cookie)
+        })
+      },
+    },
+  })
+
+  // Exchange the auth code for a session — this triggers setAll with session cookies
   const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
   if (exchangeError) {
-    return NextResponse.redirect(`${origin}/login?error=auth`)
+    console.error('[auth/callback] exchangeCodeForSession error:', exchangeError.message)
+    return NextResponse.redirect(`${origin}/login?error=exchange_failed`)
   }
 
+  // Now get the user — session cookies are already stored in the client
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return NextResponse.redirect(`${origin}/login?error=auth`)
+    console.error('[auth/callback] No user after code exchange')
+    return NextResponse.redirect(`${origin}/login?error=no_user`)
   }
 
+  // Check if user has a profile row in public.users
   const { data: existingUser } = await supabase
     .from('users')
     .select('role, is_verified')
     .eq('id', user.id)
     .maybeSingle()
 
+  // If no profile exists and we have a role from signup, create one
   if (!existingUser && roleParam) {
-    await supabase.from('users').insert({
+    const { error: insertError } = await supabase.from('users').insert({
       id: user.id,
       email: user.email ?? '',
       role: roleParam,
@@ -41,6 +77,10 @@ export async function GET(request: Request) {
       avatar_url: (user.user_metadata.avatar_url as string | undefined) ?? null,
       is_verified: roleParam === 'founder',
     })
+
+    if (insertError) {
+      console.error('[auth/callback] Failed to insert user profile:', insertError.message)
+    }
 
     if (roleParam === 'investor') {
       await supabase.from('investors').insert({
@@ -51,6 +91,7 @@ export async function GET(request: Request) {
     }
   }
 
+  // Re-fetch profile (may have just been created)
   const { data: profile } = await supabase
     .from('users')
     .select('role, is_verified')
@@ -58,25 +99,33 @@ export async function GET(request: Request) {
     .maybeSingle()
 
   if (!profile) {
-    return NextResponse.redirect(`${origin}/signup`)
-  }
-
-  if (profile.role === 'founder') {
+    // No profile and no role param — send to signup to pick a role
+    redirectTo = `${origin}/signup`
+  } else if (profile.role === 'founder') {
     const { data: startup } = await supabase
       .from('startups')
       .select('id')
       .eq('user_id', user.id)
       .maybeSingle()
 
-    return NextResponse.redirect(`${origin}${startup ? '/dashboard' : '/onboarding'}`)
+    redirectTo = `${origin}${startup ? '/dashboard' : '/onboarding'}`
+  } else {
+    // Investor
+    const { data: investor } = await supabase
+      .from('investors')
+      .select('verification_status')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    const approved = profile.is_verified && investor?.verification_status === 'approved'
+    redirectTo = `${origin}${approved ? '/browse' : '/investor/verify'}`
   }
 
-  const { data: investor } = await supabase
-    .from('investors')
-    .select('verification_status')
-    .eq('user_id', user.id)
-    .maybeSingle()
+  // Create the redirect response and apply all session cookies to it
+  const response = NextResponse.redirect(redirectTo)
+  cookiesToApply.forEach(({ name, value, options }) => {
+    response.cookies.set(name, value, options as Record<string, string>)
+  })
 
-  const approved = profile.is_verified && investor?.verification_status === 'approved'
-  return NextResponse.redirect(`${origin}${approved ? '/browse' : '/investor/verify'}`)
+  return response
 }

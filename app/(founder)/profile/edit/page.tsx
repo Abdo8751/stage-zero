@@ -65,6 +65,10 @@ export default function EditProfilePage() {
         if (uploaded) pitchDeckUrl = uploaded
       }
 
+      // If rejected or changes_requested, resubmit resets status to pending_review
+      const wasRejected =
+        startup.status === 'rejected' || startup.status === 'changes_requested'
+
       const { error } = await supabase
         .from('startups')
         .update({
@@ -79,6 +83,7 @@ export default function EditProfilePage() {
           traction: traction.trim() || null,
           pitch_deck_url: pitchDeckUrl,
           is_active: isActive,
+          ...(wasRejected ? { status: 'pending_review', rejection_reason: null } : {}),
         })
         .eq('id', startup.id)
 
@@ -93,34 +98,36 @@ export default function EditProfilePage() {
     }
   }
 
-  if (loading) return <div className="py-16 text-center text-muted">Loading…</div>
+  if (loading) return <div className="py-16 text-center text-text-secondary font-body">Loading...</div>
 
   if (!startup) {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
-        <p className="text-muted">Complete onboarding first.</p>
+        <p className="text-text-secondary font-body">Complete onboarding first.</p>
       </div>
     )
   }
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:py-12">
-      <h1 className="text-3xl sm:text-4xl">Edit profile</h1>
+      <h1 className="text-3xl sm:text-4xl text-text-primary">Edit profile</h1>
 
       <Card className="mt-8">
-        <form onSubmit={handleSave} className="space-y-5">
+        <form onSubmit={handleSave} className="space-y-6">
           <Input label="Startup name" value={name} onChange={(e) => setName(e.target.value)} required />
           <Input label="Tagline" value={tagline} onChange={(e) => setTagline(e.target.value)} />
           <div>
-            <p className="mb-2 text-sm font-medium text-navy">Sector</p>
+            <p className="mb-2.5 text-xs font-normal font-body text-[rgba(255,255,255,0.6)]">Sector</p>
             <div className="flex flex-wrap gap-2">
               {SECTORS.map((s) => (
                 <button
                   key={s}
                   type="button"
                   onClick={() => toggleSector(s)}
-                  className={`rounded border px-3 py-1 text-xs ${
-                    sector.includes(s) ? 'border-gold bg-gold/20' : 'border-muted/40'
+                  className={`rounded-[8px] border px-3 py-1.5 text-xs transition-all font-body ${
+                    sector.includes(s)
+                      ? 'border-gold bg-gold/20 text-gold shadow-[0_0_8px_rgba(201,168,76,0.2)]'
+                      : 'border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)] text-text-secondary hover:text-text-primary'
                   }`}
                 >
                   {s}
@@ -128,17 +135,20 @@ export default function EditProfilePage() {
               ))}
             </div>
           </div>
-          <select
-            value={stage}
-            onChange={(e) => setStage(e.target.value as StartupStage)}
-            className="w-full border border-muted/40 bg-white/60 px-4 py-3"
-          >
-            {STARTUP_STAGES.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
-          </select>
+          <div>
+            <label className="mb-1.5 block text-xs font-normal font-body text-[rgba(255,255,255,0.6)]">Stage</label>
+            <select
+              value={stage}
+              onChange={(e) => setStage(e.target.value as StartupStage)}
+              className="w-full bg-[rgba(255,255,255,0.06)] backdrop-blur-[10px] border border-[rgba(255,255,255,0.12)] rounded-[8px] px-4 py-3 font-body font-light text-sm text-[rgba(255,255,255,0.9)] placeholder:text-[rgba(255,255,255,0.35)] focus:border-[rgba(201,168,76,0.6)] focus:ring-[3px] focus:ring-[rgba(201,168,76,0.1)] focus:outline-none transition-all [&>option]:bg-[#0a0f1a] [&>option]:text-white"
+            >
+              {STARTUP_STAGES.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+          </div>
           <Textarea label="Problem" value={problem} onChange={(e) => setProblem(e.target.value)} />
           <Textarea label="Solution" value={solution} onChange={(e) => setSolution(e.target.value)} />
           <Input
@@ -150,28 +160,28 @@ export default function EditProfilePage() {
           <Input label="Website" value={websiteUrl} onChange={(e) => setWebsiteUrl(e.target.value)} />
           <Textarea label="Traction" value={traction} onChange={(e) => setTraction(e.target.value)} />
           <div>
-            <label className="mb-2 block text-sm font-medium text-navy">Pitch deck (PDF)</label>
+            <label className="mb-1.5 block text-xs font-normal font-body text-[rgba(255,255,255,0.6)]">Pitch deck (PDF)</label>
             <input
               type="file"
               accept=".pdf"
               onChange={(e) => setPitchFile(e.target.files?.[0] ?? null)}
-              className="w-full text-sm"
+              className="w-full text-sm text-text-secondary font-body file:mr-4 file:py-2 file:px-4 file:rounded-[8px] file:border-0 file:text-xs file:font-semibold file:bg-[rgba(255,255,255,0.08)] file:text-text-primary file:hover:bg-[rgba(255,255,255,0.12)] file:cursor-pointer"
             />
             {startup.pitch_deck_url && (
-              <p className="mt-1 text-xs text-muted">Current deck uploaded</p>
+              <p className="mt-1.5 text-xs text-gold font-body">Current deck uploaded</p>
             )}
           </div>
-          <label className="flex items-center gap-3 text-sm">
+          <label className="flex items-center gap-3 text-sm text-text-secondary font-body cursor-pointer">
             <input
               type="checkbox"
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
-              className="accent-navy"
+              className="accent-gold rounded border-[rgba(255,255,255,0.15)] bg-[rgba(255,255,255,0.06)]"
             />
             Listing active (uncheck to pause)
           </label>
           <Button type="submit" fullWidth disabled={saving}>
-            {saving ? 'Saving…' : 'Save changes'}
+            {saving ? 'Saving...' : 'Save changes'}
           </Button>
         </form>
       </Card>
