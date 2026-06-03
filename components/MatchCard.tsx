@@ -24,25 +24,25 @@ export function MatchCard({ match, view, onAccept, onDecline, loading }: MatchCa
   const expired = match.status === 'pending' && isExpired(match.created_at)
 
   return (
-    <Card>
+    <Card hoverable>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-navy/10 text-lg">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.15)] text-white font-medium text-lg">
             {view === 'founder'
               ? investorUser?.full_name?.[0] ?? '?'
               : startup?.name?.[0] ?? '?'}
           </div>
           <div>
-            <h3 className="text-lg font-heading">
+            <h3 className="text-lg font-heading text-white">
               {view === 'founder'
                 ? investorUser?.full_name ?? 'Investor'
                 : startup?.name ?? 'Startup'}
             </h3>
             {view === 'founder' && match.investors?.bio && (
-              <p className="mt-1 line-clamp-2 text-sm text-muted">{match.investors.bio}</p>
+              <p className="mt-1 line-clamp-2 text-sm text-[rgba(255,255,255,0.55)] font-body font-light">{match.investors.bio}</p>
             )}
             {view === 'founder' && match.investors?.cheque_size && (
-              <p className="mt-1 text-sm text-navy">Cheque: {match.investors.cheque_size}</p>
+              <p className="mt-1 text-sm text-gold font-body font-normal">Cheque: {match.investors.cheque_size}</p>
             )}
             <div className="mt-2 flex flex-wrap gap-2">
               <Badge
@@ -50,8 +50,8 @@ export function MatchCard({ match, view, onAccept, onDecline, loading }: MatchCa
                   match.status === 'accepted'
                     ? 'success'
                     : match.status === 'declined'
-                      ? 'muted'
-                      : 'warning'
+                      ? 'rejected'
+                      : 'pending'
                 }
               >
                 {match.status}
@@ -66,7 +66,7 @@ export function MatchCard({ match, view, onAccept, onDecline, loading }: MatchCa
             <Button size="sm" disabled={loading} onClick={() => onAccept(match.id)}>
               Accept
             </Button>
-            <Button size="sm" variant="secondary" disabled={loading} onClick={() => onDecline(match.id)}>
+            <Button size="sm" variant="destructive" disabled={loading} onClick={() => onDecline(match.id)}>
               Decline
             </Button>
           </div>

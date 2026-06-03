@@ -2,6 +2,7 @@ import { type HTMLAttributes } from 'react'
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   padding?: 'sm' | 'md' | 'lg'
+  hoverable?: boolean
 }
 
 const paddingMap = {
@@ -10,10 +11,10 @@ const paddingMap = {
   lg: 'p-8',
 }
 
-export function Card({ padding = 'md', className = '', children, ...props }: CardProps) {
+export function Card({ padding = 'md', hoverable = false, className = '', children, ...props }: CardProps) {
   return (
     <div
-      className={`border border-muted/30 bg-white/40 backdrop-blur-sm ${paddingMap[padding]} ${className}`}
+      className={`glass-card ${hoverable ? 'glass-card-hover cursor-pointer' : ''} ${paddingMap[padding]} ${className}`}
       {...props}
     >
       {children}
