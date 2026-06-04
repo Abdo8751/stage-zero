@@ -24,16 +24,12 @@ function formatDate(d: string) {
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    pending: 'bg-amber-100 text-amber-800',
-    accepted: 'bg-emerald-100 text-emerald-800',
-    declined: 'bg-red-100 text-red-800',
+    pending:  'bg-[rgba(232,165,60,0.15)] text-amber border-[rgba(232,165,60,0.30)]',
+    accepted: 'bg-[rgba(52,199,89,0.15)] text-[#30D158] border-[rgba(52,199,89,0.30)]',
+    declined: 'bg-[rgba(255,69,58,0.15)] text-[#FF6B6B] border-[rgba(255,69,58,0.30)]',
   }
   return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 text-xs font-medium uppercase tracking-wider rounded ${
-        styles[status] ?? 'bg-muted/20 text-muted'
-      }`}
-    >
+    <span className={`inline-flex items-center px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] rounded-[4px] border ${styles[status] ?? 'bg-[rgba(240,230,208,0.08)] text-cream-subtle border-[rgba(240,230,208,0.12)]'}`}>
       {status}
     </span>
   )
@@ -46,7 +42,7 @@ function SkeletonRows({ rows = 8 }: { rows?: number }) {
         <tr key={i}>
           {Array.from({ length: 6 }).map((_, j) => (
             <td key={j} className="px-4 py-3">
-              <div className="h-4 w-full animate-pulse rounded bg-muted/20" />
+              <div className="h-4 w-full rounded bg-[rgba(240,230,208,0.06)] shimmer" />
             </td>
           ))}
         </tr>
@@ -129,27 +125,26 @@ export default function AdminMatchesPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-heading text-3xl font-bold text-navy">Matches</h1>
-          <p className="mt-1 text-sm text-muted">
+          <h1 className="text-[26px] font-black tracking-tight text-cream">Matches</h1>
+          <p className="mt-1 text-[13px] text-cream-muted">
             {filtered.length} match{filtered.length !== 1 ? 'es' : ''}
           </p>
         </div>
         <button
           onClick={fetchData}
           disabled={loading}
-          className="inline-flex items-center gap-2 border border-muted/40 bg-white/60 px-4 py-2 rounded text-sm font-medium text-navy transition-colors hover:bg-white disabled:opacity-50"
+          className="inline-flex items-center gap-2 border border-[rgba(240,230,208,0.14)] bg-[rgba(240,230,208,0.06)] px-4 py-2 rounded-[10px] text-[13px] font-medium text-cream-muted hover:text-cream hover:bg-[rgba(240,230,208,0.10)] transition-colors disabled:opacity-40 cursor-pointer"
         >
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
           Refresh
         </button>
       </div>
 
-      {/* Filter */}
       <div className="flex gap-3">
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="border border-muted/40 bg-white/60 px-4 py-2.5 rounded text-sm text-navy focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+          className="border border-[rgba(255,255,255,0.10)] bg-[rgba(4,11,26,0.80)] px-4 py-2.5 rounded-[10px] text-[13px] text-cream focus:outline-none focus:border-[rgba(75,124,246,0.45)] transition-colors cursor-pointer [&>option]:bg-[#070F24]"
         >
           <option value="">All Status</option>
           <option value="pending">Pending</option>

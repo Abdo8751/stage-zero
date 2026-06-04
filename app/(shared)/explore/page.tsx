@@ -6,7 +6,6 @@ import { useUser } from '@/hooks/useUser'
 import { Badge } from '@/components/ui/Badge'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
 import { Lock, TrendingUp, Search, ArrowRight, MapPin, Users, Globe } from 'lucide-react'
 import { STARTUP_STAGES, type StartupStage } from '@/lib/types'
 
@@ -237,33 +236,43 @@ export default function ExplorePage() {
     <div className="mx-auto w-full max-w-7xl px-4 pt-20 pb-16 sm:px-6">
 
       {/* Header */}
-      <div className="mb-10">
-        <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.14em] text-cream-muted">Marketplace</p>
-        <h1 className="text-[36px] font-black tracking-tightest text-cream sm:text-[48px]">
-          Explore startups
-        </h1>
-        <p className="mt-2 max-w-lg text-[14px] leading-relaxed text-cream-muted">
-          Discover what Egyptian founders are building.
-          {isInvestor
-            ? ' Click any card to view the full profile and express interest.'
-            : ' Full contact details are available to verified investors.'}
-        </p>
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-cream-muted">Marketplace</p>
+          <h1 className="text-[30px] font-black tracking-tightest text-cream sm:text-[40px]">
+            What&apos;s building in Egypt
+          </h1>
+          <p className="mt-2 max-w-md text-[13px] leading-relaxed text-cream-muted">
+            {isInvestor
+              ? 'Click any card to view the full profile and express interest.'
+              : 'Discover Egyptian startups raising right now. Sign up as an investor for full access.'}
+          </p>
+        </div>
+        {!isInvestor && (
+          <Link href="/signup?role=investor" className="shrink-0">
+            <Button size="sm">
+              Get full access <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+            </Button>
+          </Link>
+        )}
       </div>
 
       {/* Filters */}
-      <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end">
-        <div className="flex-1">
-          <Input
-            placeholder="Search by name or description…"
+      <div className="mb-6 flex flex-col gap-2.5 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-cream-subtle" />
+          <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search startups…"
+            className="w-full bg-[rgba(4,11,26,0.7)] border border-[rgba(255,255,255,0.10)] rounded-[10px] pl-9 pr-4 py-2.5 text-[13px] text-cream placeholder:text-cream-subtle focus:border-[rgba(75,124,246,0.45)] focus:outline-none transition-colors"
           />
         </div>
 
         <select
           value={sectorFilter}
           onChange={(e) => setSectorFilter(e.target.value)}
-          className="bg-[rgba(4,11,26,0.7)] border border-glass-border rounded-input px-4 py-3 text-[14px] text-cream focus:border-[rgba(75,124,246,0.5)] focus:outline-none transition-all [&>option]:bg-navy cursor-pointer"
+          className="bg-[rgba(4,11,26,0.80)] border border-[rgba(255,255,255,0.10)] rounded-[10px] px-3 py-2.5 text-[13px] text-cream focus:border-[rgba(75,124,246,0.45)] focus:outline-none transition-colors cursor-pointer [&>option]:bg-[#070F24] sm:w-36"
         >
           <option value="">All sectors</option>
           {ALL_SECTORS.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -272,7 +281,7 @@ export default function ExplorePage() {
         <select
           value={stageFilter}
           onChange={(e) => setStageFilter(e.target.value as StartupStage | '')}
-          className="bg-[rgba(4,11,26,0.7)] border border-glass-border rounded-input px-4 py-3 text-[14px] text-cream focus:border-[rgba(75,124,246,0.5)] focus:outline-none transition-all [&>option]:bg-navy cursor-pointer"
+          className="bg-[rgba(4,11,26,0.80)] border border-[rgba(255,255,255,0.10)] rounded-[10px] px-3 py-2.5 text-[13px] text-cream focus:border-[rgba(75,124,246,0.45)] focus:outline-none transition-colors cursor-pointer [&>option]:bg-[#070F24] sm:w-32"
         >
           <option value="">All stages</option>
           {STARTUP_STAGES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
@@ -280,19 +289,19 @@ export default function ExplorePage() {
       </div>
 
       {/* Count */}
-      <p className="mb-6 text-[13px] text-cream-subtle">
-        {filtered.length} startup{filtered.length !== 1 ? 's' : ''} found
+      <p className="mb-5 text-[12px] text-cream-subtle">
+        {filtered.length} startup{filtered.length !== 1 ? 's' : ''}
       </p>
 
       {/* Grid */}
       {filtered.length === 0 ? (
-        <div className="glass-card flex flex-col items-center justify-center py-20 text-center">
-          <Search className="mb-3 h-8 w-8 text-cream-subtle" />
-          <p className="text-[16px] font-bold text-cream">No startups match your filters</p>
+        <div className="glass-card flex flex-col items-center justify-center py-16 text-center">
+          <Search className="mb-3 h-7 w-7 text-cream-subtle" />
+          <p className="text-[15px] font-bold text-cream">No startups match your filters</p>
           <p className="mt-1 text-[13px] text-cream-muted">Try adjusting your search or clearing filters.</p>
         </div>
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((startup, i) => (
             <div
               key={startup.id}

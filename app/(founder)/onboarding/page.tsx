@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import { uploadAvatar } from '@/lib/auth'
 import { notify } from '@/lib/notify'
@@ -13,7 +14,7 @@ import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
 import { useToast } from '@/components/ui/Toast'
-import { CheckCircle2 } from 'lucide-react'
+import { CheckCircle2, ArrowRight, Clock } from 'lucide-react'
 
 const DRAFT_KEY = 'stage-zero-onboarding-draft'
 
@@ -44,12 +45,14 @@ export default function OnboardingPage() {
   const { showToast } = useToast()
 
   const [step, setStep] = useState(1)
+  const [done, setDone] = useState(false)
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [step1, setStep1] = useState<Step1Data>(defaultStep1)
   const [step2, setStep2] = useState<Step2Data>(defaultStep2)
   const [step3, setStep3] = useState<Step3Data>(defaultStep3)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const initialCheckDone = useRef(false)
 
   // Resume from draft
   useEffect(() => {
@@ -64,10 +67,13 @@ export default function OnboardingPage() {
     }
   }, [user])
 
-  // Redirect if already completed onboarding
+  // Redirect away from onboarding only on initial page load — not mid-flow after step 2 creates the startup
   useEffect(() => {
+    if (userLoading) return
+    if (initialCheckDone.current) return
+    initialCheckDone.current = true
     if (startup) router.push('/dashboard')
-  }, [startup, router])
+  }, [userLoading, startup, router])
 
   const persistDraft = (overrides: Partial<Draft> = {}) => {
     saveDraft({ step, step1, step2, step3, ...overrides })
@@ -98,7 +104,7 @@ export default function OnboardingPage() {
         .from('users')
         .update({ full_name: step1.full_name.trim(), avatar_url: avatarUrl })
         .eq('id', user.id)
-      if (error) throw error
+      if (error) throw new Error(error.message)
 
       persistDraft({ step: 2 })
       setStep(2)
@@ -124,7 +130,8 @@ export default function OnboardingPage() {
     try {
       const supabase = createClient()
       const { data: existing } = await supabase
-        .from('startups').select('id').eq('user_id', user.id).maybeSingle()
+        .from('startups').select('id').eq('user_id', user.id)
+        .order('created_at', { ascending: false }).limit(1).maybeSingle()
 
       const payload = {
         user_id: user.id,
@@ -141,7 +148,7 @@ export default function OnboardingPage() {
       const { error } = existing
         ? await supabase.from('startups').update(payload).eq('id', existing.id)
         : await supabase.from('startups').insert(payload)
-      if (error) throw error
+      if (error) throw new Error(error.message)
 
       persistDraft({ step: 3 })
       setStep(3)
@@ -170,8 +177,9 @@ export default function OnboardingPage() {
       ].filter(Boolean).join('\n\n')
 
       const { data: s, error: fetchErr } = await supabase
-        .from('startups').select('id').eq('user_id', user.id).maybeSingle()
-      if (fetchErr) throw fetchErr
+        .from('startups').select('id').eq('user_id', user.id)
+        .order('created_at', { ascending: false }).limit(1).maybeSingle()
+      if (fetchErr) throw new Error(fetchErr.message)
 
       const { error } = await supabase.from('startups').update({
         raise_amount: parseInt(step3.raise_amount.replace(/\D/g, ''), 10) || null,
@@ -180,7 +188,7 @@ export default function OnboardingPage() {
         status:       'pending_review',
         is_active:    false,
       }).eq('user_id', user.id)
-      if (error) throw error
+      if (error) throw new Error(error.message)
 
       // DB notification for founder
       if (s) {
@@ -207,14 +215,33 @@ export default function OnboardingPage() {
       })
 
       clearDraft()
-      showToast('Onboarding complete! Your listing is pending review.', 'success')
       await refresh()
-      router.push('/dashboard')
+      setDone(true)
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Save failed', 'error')
     } finally {
       setSaving(false)
     }
+  }
+
+  if (done) {
+    return (
+      <div className="mx-auto w-full max-w-lg px-4 pt-24 pb-12 flex flex-col items-center text-center">
+        <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[rgba(52,199,89,0.12)] border border-[rgba(52,199,89,0.25)]">
+          <Clock className="h-7 w-7 text-[#30D158]" />
+        </div>
+        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-cream-muted">Submitted</p>
+        <h1 className="mt-2 text-[28px] font-black tracking-tightest text-cream">Your startup is under review</h1>
+        <p className="mt-3 text-[14px] leading-relaxed text-cream-muted max-w-sm">
+          We&apos;ll review your listing within 2–3 business days. You can track the status from your dashboard.
+        </p>
+        <Link href="/dashboard" className="mt-8">
+          <Button>
+            View your listing <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </Link>
+      </div>
+    )
   }
 
   if (userLoading) {

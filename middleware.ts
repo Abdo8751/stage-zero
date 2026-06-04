@@ -29,12 +29,17 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse
   }
 
-  // Admin routes — simple cookie-based auth, separate from Supabase
-  if (pathname.startsWith('/admin')) {
+  // Admin routes + admin API routes — cookie-based auth, separate from Supabase
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
     const isAdminLogin = pathname === '/admin/login'
+    const isAdminApi   = pathname.startsWith('/api/admin')
     const hasAdminAuth = request.cookies.get('admin_auth')?.value === 'true'
 
     if (!hasAdminAuth && !isAdminLogin) {
+      // API routes: return 401 JSON instead of redirect
+      if (isAdminApi) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
       const url = request.nextUrl.clone()
       url.pathname = '/admin/login'
       return NextResponse.redirect(url)
@@ -147,12 +152,9 @@ export async function middleware(request: NextRequest) {
       if (isPublic && (pathname === '/login' || pathname === '/signup')) {
         const url = request.nextUrl.clone()
         if (profile.role === 'founder') {
-          const { data: startup } = await supabase
-            .from('startups')
-            .select('id')
-            .eq('user_id', user.id)
-            .maybeSingle()
-          url.pathname = startup ? '/dashboard' : '/onboarding'
+          // Always send founders to /dashboard — it handles both has-startup and no-startup states
+          // (Avoid a startup DB lookup here because RLS blocks pending/inactive startups on the anon key)
+          url.pathname = '/dashboard'
         } else {
           url.pathname = investorApproved ? '/browse' : '/investor/verify'
         }
@@ -192,5 +194,6 @@ export const config = {
     '/explore/:path*',
     '/admin/:path*',
     '/admin',
+    '/api/admin/:path*',
   ],
 }

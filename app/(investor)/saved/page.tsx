@@ -2,13 +2,16 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { getSavedStartupIds, toggleSavedStartup } from '@/lib/auth'
 import { StartupCard } from '@/components/StartupCard'
 import { Button } from '@/components/ui/Button'
 import type { Startup } from '@/lib/types'
+import { ArrowLeft } from 'lucide-react'
 
 export default function SavedPage() {
+  const router = useRouter()
   const [startups, setStartups] = useState<Startup[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -51,6 +54,14 @@ export default function SavedPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-12">
+      <button
+        type="button"
+        onClick={() => router.push('/browse')}
+        className="mb-5 flex items-center gap-1.5 text-[13px] text-text-secondary hover:text-text-primary transition-colors"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" />
+        Back to browse
+      </button>
       <h1 className="text-3xl sm:text-4xl">Saved list</h1>
       <p className="mt-2 text-muted">Startups you bookmarked</p>
 

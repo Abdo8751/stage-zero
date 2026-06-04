@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
 import { useToast } from '@/components/ui/Toast'
+import { ArrowLeft } from 'lucide-react'
 
 export default function EditProfilePage() {
   const router = useRouter()
@@ -104,12 +105,27 @@ export default function EditProfilePage() {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
         <p className="text-text-secondary font-body">Complete onboarding first.</p>
+        <button
+          type="button"
+          onClick={() => router.push('/onboarding')}
+          className="mt-4 flex items-center gap-1.5 mx-auto text-[13px] text-blue-bright hover:underline"
+        >
+          Go to onboarding <ArrowLeft className="h-3.5 w-3.5 rotate-180" />
+        </button>
       </div>
     )
   }
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:py-12">
+      <button
+        type="button"
+        onClick={() => router.push('/dashboard')}
+        className="mb-5 flex items-center gap-1.5 text-[13px] text-cream-muted hover:text-cream transition-colors"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" />
+        Back to dashboard
+      </button>
       <h1 className="text-3xl sm:text-4xl text-text-primary">Edit profile</h1>
 
       <Card className="mt-8">
