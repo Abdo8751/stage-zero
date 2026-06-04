@@ -19,14 +19,19 @@ alter table startups
 alter table startups
   add constraint startups_user_id_unique unique (user_id);
 
--- ── 0b. Fix startups RLS — founders must be able to read, create, and update their own listing ──
--- Without these policies the onboarding UPDATE (step 3) is blocked and "Save failed" is shown,
--- and the dashboard cannot fetch a pending (is_active=false) startup.
+-- ── 0b. Fix startups RLS — founders manage own listing; investors browse approved ones ──
+-- Without these policies:
+--   • onboarding UPDATE (step 3) is blocked → "Save failed"
+--   • dashboard cannot fetch a pending (is_active=false) startup
+--   • investors see zero startups in /browse even after approval
 
-drop policy if exists "Founders can view own startup"   on startups;
-drop policy if exists "Founders can insert own startup" on startups;
-drop policy if exists "Founders can update own startup" on startups;
+drop policy if exists "Founders can view own startup"       on startups;
+drop policy if exists "Founders can insert own startup"     on startups;
+drop policy if exists "Founders can update own startup"     on startups;
+drop policy if exists "Investors can browse active startups" on startups;
+drop policy if exists "Authenticated browse active startups" on startups;
 
+-- Founders: full access to their own startup (any status)
 create policy "Founders can view own startup"
   on startups for select
   using (auth.uid() = user_id);
@@ -39,6 +44,23 @@ create policy "Founders can update own startup"
   on startups for update
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+-- Investors (and any authenticated user): can read approved active startups
+create policy "Authenticated browse active startups"
+  on startups for select
+  using (
+    auth.uid() is not null
+    and status = 'active'
+    and is_active = true
+  );
+
+-- ── 0c. Approve existing test startups (Rosheta and Helper) ──
+-- These were submitted via onboarding but need admin approval to appear in /browse.
+-- Run this block once to activate them; future approvals go through the admin panel.
+update startups
+set status = 'active', is_active = true, rejection_reason = null
+where lower(name) in ('rosheta', 'helper')
+  and status = 'pending_review';
 
 -- ── 1. startups table additions ──────────────────────────────
 alter table startups
