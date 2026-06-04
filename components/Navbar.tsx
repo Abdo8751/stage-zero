@@ -11,7 +11,7 @@ import { getNotifications } from '@/lib/auth'
 import {
   Bell, Menu, X, LogOut, Settings,
   LayoutDashboard, Compass, MessageSquare,
-  Inbox, BookmarkIcon, Search, Zap,
+  Inbox, BookmarkIcon, Search, Zap, RefreshCw,
 } from 'lucide-react'
 
 type NavLink = { href: string; label: string; icon: React.ElementType; badge?: boolean }
@@ -61,7 +61,8 @@ export function Navbar() {
     const run = async () => {
       const supabase = createClient()
       const { data: startup } = await supabase
-        .from('startups').select('id').eq('user_id', user.id).maybeSingle()
+        .from('startups').select('id').eq('user_id', user.id)
+        .order('created_at', { ascending: false }).limit(1).maybeSingle()
       if (!startup) return
       const { count } = await supabase
         .from('matches').select('id', { count: 'exact', head: true })
@@ -149,7 +150,17 @@ export function Navbar() {
           {/* Right section */}
           <div className="ml-auto flex items-center gap-2">
 
-            {user && !loading ? (
+            {/* Explore link for unauthenticated visitors */}
+          {!user && !loading && !isAuthPage && (
+            <Link
+              href="/explore"
+              className="text-[13px] font-medium text-cream-muted hover:text-cream transition-colors"
+            >
+              Explore startups
+            </Link>
+          )}
+
+          {user && !loading ? (
               <>
                 {/* Notification bell — #1 Visibility of System Status */}
                 <Link
@@ -168,7 +179,7 @@ export function Navbar() {
                 {/* Divider */}
                 <div className="h-5 w-px bg-[rgba(240,230,208,0.08)]" />
 
-                {/* User identity card — #6 Recognition Rather than Recall */}
+                {/* User identity card */}
                 <Link
                   href="/settings"
                   title="Profile & Settings"
@@ -177,7 +188,10 @@ export function Navbar() {
                   <Avatar name={user.full_name} />
                   <div className="leading-none">
                     <p className="text-[13px] font-semibold text-cream">{firstName}</p>
-                    <p className="mt-0.5 text-[10px] font-medium capitalize text-cream-subtle">{user.role}</p>
+                    <p className="mt-0.5 text-[10px] font-medium capitalize text-cream-subtle">
+                      {user.role}
+                      <span className="ml-1.5 text-[9px] text-cream-subtle opacity-0 group-hover:opacity-70 transition-opacity">· switch</span>
+                    </p>
                   </div>
                   <Settings className="ml-1 h-3.5 w-3.5 text-cream-subtle opacity-0 group-hover:opacity-60 transition-opacity" />
                 </Link>
@@ -195,6 +209,19 @@ export function Navbar() {
             ) : (
               !loading && !isAuthPage && (
                 <div className="flex items-center gap-3">
+                  <a
+                    href="https://instagram.com/stagezero.eg"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="@stagezero.eg on Instagram"
+                    className="flex items-center justify-center text-cream-subtle hover:text-cream transition-colors"
+                  >
+                    <svg className="h-[15px] w-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                      <circle cx="12" cy="12" r="4" />
+                      <circle cx="17.5" cy="6.5" r="0.7" fill="currentColor" stroke="none" />
+                    </svg>
+                  </a>
                   <Link href="/login" className="px-3.5 py-1.5 text-[13px] font-medium text-cream-muted hover:text-cream transition-colors">
                     Log in
                   </Link>
@@ -282,7 +309,14 @@ export function Navbar() {
                   <Settings className="h-4 w-4 text-cream-subtle" />
                   Settings
                 </Link>
-                {/* Sign out — visible & clearly labeled #3 User Control and Freedom */}
+                <Link
+                  href="/settings#switch-role"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-3 rounded-[10px] px-4 py-3 text-[14px] font-medium text-cream-muted hover:text-amber hover:bg-[rgba(232,165,60,0.06)] transition-colors"
+                >
+                  <RefreshCw className="h-4 w-4 text-cream-subtle" />
+                  Switch to {user?.role === 'founder' ? 'investor' : 'founder'} mode
+                </Link>
                 <button
                   onClick={handleSignOut}
                   className="flex items-center gap-3 rounded-[10px] px-4 py-3 text-[14px] font-medium text-cream-muted hover:text-[#FF6B6B] hover:bg-[rgba(255,69,58,0.06)] transition-colors cursor-pointer"

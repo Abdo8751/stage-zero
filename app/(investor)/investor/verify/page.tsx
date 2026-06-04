@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
 import { useToast } from '@/components/ui/Toast'
+import { ArrowLeft } from 'lucide-react'
 
 export default function InvestorVerifyPage() {
   const router = useRouter()
@@ -22,6 +23,7 @@ export default function InvestorVerifyPage() {
   const [location, setLocation] = useState('')
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [forceShowForm, setForceShowForm] = useState(false)
 
   useEffect(() => {
     if (investor) {
@@ -87,7 +89,7 @@ export default function InvestorVerifyPage() {
   if (loading) return <div className="py-16 text-center text-text-secondary font-body">Loading...</div>
 
   const isPending = investor?.verification_status === 'pending' && !user?.is_verified
-  const isRejected = investor?.verification_status === 'rejected'
+  const isRejected = !forceShowForm && investor?.verification_status === 'rejected'
 
   if (isPending && investor?.linkedin_url) {
     return (
@@ -104,6 +106,14 @@ export default function InvestorVerifyPage() {
             <code className="text-gold bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.1)] px-1.5 py-0.5 rounded font-mono">users.is_verified</code> to{' '}
             <code className="text-gold bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.1)] px-1.5 py-0.5 rounded font-mono">true</code>.
           </p>
+          <button
+            type="button"
+            onClick={() => router.push('/')}
+            className="mt-6 flex items-center gap-1.5 mx-auto text-[13px] text-text-secondary hover:text-text-primary transition-colors"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to home
+          </button>
         </Card>
       </div>
     )
@@ -114,10 +124,24 @@ export default function InvestorVerifyPage() {
       <div className="mx-auto w-full max-w-lg px-4 py-16 text-center">
         <Card>
           <h1 className="text-2xl text-text-primary font-heading">Verification declined</h1>
-          <p className="mt-4 text-text-secondary font-body font-light">Please contact support or resubmit your details.</p>
-          <Button className="mt-6" onClick={() => window.location.reload()}>
-            Resubmit
+          <p className="mt-4 text-text-secondary font-body font-light">Please update your details and resubmit.</p>
+          <Button className="mt-6" onClick={() => {
+            setLinkedin(investor?.linkedin_url ?? '')
+            setBio(investor?.bio ?? '')
+            setChequeSize(investor?.cheque_size ?? '')
+            setLocation(investor?.location ?? '')
+            setForceShowForm(true)
+          }}>
+            Edit &amp; resubmit
           </Button>
+          <button
+            type="button"
+            onClick={() => router.push('/')}
+            className="mt-4 flex items-center gap-1.5 mx-auto text-[13px] text-text-secondary hover:text-text-primary transition-colors"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to home
+          </button>
         </Card>
       </div>
     )
@@ -125,6 +149,14 @@ export default function InvestorVerifyPage() {
 
   return (
     <div className="mx-auto w-full max-w-lg px-4 py-8 sm:py-12">
+      <button
+        type="button"
+        onClick={() => router.push('/')}
+        className="mb-5 flex items-center gap-1.5 text-[13px] text-text-secondary hover:text-text-primary transition-colors"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" />
+        Back to home
+      </button>
       <h1 className="text-3xl sm:text-4xl text-text-primary">Investor verification</h1>
       <p className="mt-2 text-text-secondary font-body font-light">Verify your credentials to access startup listings</p>
 

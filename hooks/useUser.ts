@@ -62,14 +62,34 @@ export function useUser(): UseUserReturn {
       setUser(profile as User)
 
       if (profile.role === 'founder') {
-        const { data: startupData, error: startupError } = await supabase
-          .from('startups')
-          .select('*')
-          .eq('user_id', currentSession.user.id)
-          .maybeSingle()
+        let startupData: Startup | null = null
 
-        if (startupError) throw startupError
-        setStartup(startupData as Startup | null)
+        // Try the service-role API route first (bypasses RLS, shows pending/inactive startups)
+        try {
+          const res = await fetch('/api/founder/startup', {
+            headers: { Authorization: `Bearer ${currentSession.access_token}` },
+          })
+          if (res.ok) {
+            const body = (await res.json()) as { startup: Startup | null }
+            startupData = body.startup
+          }
+        } catch {
+          // API unavailable — fall through to direct query below
+        }
+
+        // Fallback: direct Supabase query (works once the RLS fix in supabase_migrations.sql is applied)
+        if (!startupData) {
+          const { data } = await supabase
+            .from('startups')
+            .select('*')
+            .eq('user_id', currentSession.user.id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle()
+          startupData = (data as Startup | null)
+        }
+
+        setStartup(startupData)
         setInvestor(null)
       } else {
         const { data: investorData, error: investorError } = await supabase

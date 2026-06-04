@@ -3,6 +3,43 @@
 -- Run this entire file in Supabase SQL Editor (once only).
 -- ============================================================
 
+-- ── 0a. Remove duplicate startup rows (keep the most recent one per founder) ──
+-- These duplicates were created because RLS blocked the SELECT in saveStep2,
+-- causing it to always INSERT instead of UPDATE.
+delete from startups
+where id not in (
+  select distinct on (user_id) id
+  from startups
+  order by user_id, created_at desc
+);
+
+-- Prevent duplicates from ever happening again
+alter table startups
+  drop constraint if exists startups_user_id_unique;
+alter table startups
+  add constraint startups_user_id_unique unique (user_id);
+
+-- ── 0b. Fix startups RLS — founders must be able to read, create, and update their own listing ──
+-- Without these policies the onboarding UPDATE (step 3) is blocked and "Save failed" is shown,
+-- and the dashboard cannot fetch a pending (is_active=false) startup.
+
+drop policy if exists "Founders can view own startup"   on startups;
+drop policy if exists "Founders can insert own startup" on startups;
+drop policy if exists "Founders can update own startup" on startups;
+
+create policy "Founders can view own startup"
+  on startups for select
+  using (auth.uid() = user_id);
+
+create policy "Founders can insert own startup"
+  on startups for insert
+  with check (auth.uid() = user_id);
+
+create policy "Founders can update own startup"
+  on startups for update
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
 -- ── 1. startups table additions ──────────────────────────────
 alter table startups
   add column if not exists status text not null default 'pending_review'

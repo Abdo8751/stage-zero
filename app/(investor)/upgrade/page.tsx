@@ -1,9 +1,11 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useUser } from '@/hooks/useUser'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { useToast } from '@/components/ui/Toast'
+import { ArrowLeft } from 'lucide-react'
 
 const PACKS = [
   { name: '5 intros', price: '3,000 EGP', credits: 5, url: 'https://paymob.com/placeholder-5' },
@@ -18,6 +20,7 @@ const MONTHLY = {
 }
 
 export default function UpgradePage() {
+  const router = useRouter()
   const { investor, loading } = useUser()
   const { showToast } = useToast()
 
@@ -25,6 +28,14 @@ export default function UpgradePage() {
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:py-12">
+      <button
+        type="button"
+        onClick={() => router.push('/browse')}
+        className="mb-5 flex items-center gap-1.5 text-[13px] text-text-secondary hover:text-text-primary transition-colors"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" />
+        Back to browse
+      </button>
       <h1 className="text-3xl sm:text-4xl">Upgrade</h1>
       <p className="mt-2 text-muted">Purchase intro credits to connect with founders</p>
 

@@ -4,6 +4,7 @@ import { Suspense, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { validatePassword } from '@/lib/validation'
+import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
@@ -49,6 +50,12 @@ function ResetPasswordForm() {
   return (
     <div className="mx-auto w-full max-w-md px-4 py-12 sm:py-16">
       <div className="mb-10 text-center">
+        <Link
+          href="/login"
+          className="mb-6 inline-flex items-center gap-1.5 text-[13px] text-text-secondary hover:text-text-primary transition-colors"
+        >
+          ← Back to login
+        </Link>
         <h1 className="text-3xl sm:text-4xl">Reset password</h1>
         <p className="mt-3 text-muted">Enter your new password</p>
       </div>

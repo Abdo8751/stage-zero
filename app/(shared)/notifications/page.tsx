@@ -7,7 +7,7 @@ import type { Notification } from '@/lib/types'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { Bell, ArrowRight } from 'lucide-react'
+import { Bell, ArrowRight, ArrowLeft } from 'lucide-react'
 
 function timeAgo(iso: string) {
   const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
@@ -58,6 +58,14 @@ export default function NotificationsPage() {
     <div className="mx-auto w-full max-w-2xl px-4 pt-20 pb-16 sm:px-6">
       <div className="mb-8 flex items-start justify-between gap-4">
         <div>
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="mb-3 flex items-center gap-1.5 text-[13px] text-cream-muted hover:text-cream transition-colors"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back
+          </button>
           <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-cream-muted">Activity</p>
           <h1 className="text-[32px] font-black tracking-tightest text-cream">Notifications</h1>
         </div>

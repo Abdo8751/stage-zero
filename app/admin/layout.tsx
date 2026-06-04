@@ -5,31 +5,44 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
-import { BarChart3, Users, Briefcase, Handshake, MessageSquare, LogOut } from 'lucide-react'
+import { BarChart3, Users, Briefcase, Handshake, MessageSquare, LogOut, UserCog } from 'lucide-react'
 
 interface SidebarStats {
   founders: number
   investors: number
   matches: number
   messages: number
+  users: number
 }
 
 const NAV_ITEMS = [
-  { href: '/admin', label: 'Overview', icon: BarChart3 },
-  { href: '/admin/founders', label: 'Founders', icon: Users, statKey: 'founders' as const },
-  { href: '/admin/investors', label: 'Investors', icon: Briefcase, statKey: 'investors' as const },
-  { href: '/admin/matches', label: 'Matches', icon: Handshake, statKey: 'matches' as const },
-  { href: '/admin/messages', label: 'Messages', icon: MessageSquare, statKey: 'messages' as const },
+  { href: '/admin',          label: 'Overview',  icon: BarChart3 },
+  { href: '/admin/users',    label: 'Users',     icon: UserCog,      statKey: 'users'     as const },
+  { href: '/admin/founders', label: 'Startups',  icon: Users,        statKey: 'founders'  as const },
+  { href: '/admin/investors',label: 'Investors', icon: Briefcase,    statKey: 'investors' as const },
+  { href: '/admin/matches',  label: 'Matches',   icon: Handshake,    statKey: 'matches'   as const },
+  { href: '/admin/messages', label: 'Messages',  icon: MessageSquare,statKey: 'messages'  as const },
 ]
 
 function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
+
+  // Client-side guard: redirect to login if admin cookie is missing
+  // This is a second line of defence behind the middleware
+  useEffect(() => {
+    const hasAdminCookie = document.cookie.split(';').some((c) => c.trim() === 'admin_auth=true')
+    if (!hasAdminCookie) {
+      router.replace('/admin/login')
+    }
+  }, [router])
+
   const [stats, setStats] = useState<SidebarStats>({
     founders: 0,
     investors: 0,
     matches: 0,
     messages: 0,
+    users: 0,
   })
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -37,17 +50,20 @@ function AdminShell({ children }: { children: React.ReactNode }) {
     const fetchStats = async () => {
       const supabase = createClient()
       const [
+        { count: usersCount },
         { count: foundersCount },
         { count: investorsCount },
         { count: matchesCount },
         { count: messagesCount },
       ] = await Promise.all([
+        supabase.from('users').select('*', { count: 'exact', head: true }),
         supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'founder'),
         supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'investor'),
         supabase.from('matches').select('*', { count: 'exact', head: true }),
         supabase.from('messages').select('*', { count: 'exact', head: true }),
       ])
       setStats({
+        users: usersCount ?? 0,
         founders: foundersCount ?? 0,
         investors: investorsCount ?? 0,
         matches: matchesCount ?? 0,

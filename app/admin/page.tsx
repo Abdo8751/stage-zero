@@ -35,24 +35,33 @@ function StatCard({
   value,
   icon: Icon,
   loading,
+  accent = 'amber',
 }: {
   label: string
   value: number
   icon: React.ComponentType<{ className?: string }>
   loading: boolean
+  accent?: 'amber' | 'blue' | 'green' | 'cream'
 }) {
+  const colors = {
+    amber: { num: 'text-amber', icon: 'bg-[rgba(232,165,60,0.12)] border-[rgba(232,165,60,0.22)] text-amber', top: 'border-t-[rgba(232,165,60,0.55)]' },
+    blue:  { num: 'text-blue-bright', icon: 'bg-[rgba(75,124,246,0.12)] border-[rgba(75,124,246,0.22)] text-blue-bright', top: 'border-t-[rgba(75,124,246,0.55)]' },
+    green: { num: 'text-[#30D158]', icon: 'bg-[rgba(52,199,89,0.12)] border-[rgba(52,199,89,0.22)] text-[#30D158]', top: 'border-t-[rgba(52,199,89,0.45)]' },
+    cream: { num: 'text-cream', icon: 'bg-[rgba(240,230,208,0.10)] border-[rgba(240,230,208,0.18)] text-cream-muted', top: 'border-t-[rgba(240,230,208,0.30)]' },
+  }[accent]
   return (
-    <div className="glass-card border-t-2 border-t-[rgba(201,168,76,0.6)] p-6 backdrop-blur-md">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="font-body font-light text-[12px] text-[rgba(255,255,255,0.5)] tracking-[2px] uppercase">{label}</p>
-          {loading ? (
-            <div className="mt-2 h-9 w-20 shimmer rounded-[4px]" />
-          ) : (
-            <p className="mt-2 font-heading font-black text-[48px] leading-none text-[#C9A84C]">{value}</p>
-          )}
+    <div className={`glass-card border-t-2 ${colors.top} p-5`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-cream-subtle">{label}</p>
+          {loading
+            ? <div className="mt-2.5 h-9 w-16 shimmer rounded-[6px]" />
+            : <p className={`mt-2 text-[40px] font-black leading-none tracking-tight ${colors.num}`}>{value}</p>
+          }
         </div>
-        <Icon className="h-5 w-5 text-[rgba(255,255,255,0.4)]" />
+        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border ${colors.icon}`}>
+          <Icon className="h-4 w-4" />
+        </div>
       </div>
     </div>
   )
@@ -84,16 +93,12 @@ function formatDate(dateStr: string) {
 
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
-    pending: 'bg-amber-100 text-amber-800',
-    accepted: 'bg-emerald-100 text-emerald-800',
-    declined: 'bg-red-100 text-red-800',
+    pending:  'bg-[rgba(232,165,60,0.15)] text-amber border-[rgba(232,165,60,0.30)]',
+    accepted: 'bg-[rgba(52,199,89,0.15)] text-[#30D158] border-[rgba(52,199,89,0.30)]',
+    declined: 'bg-[rgba(255,69,58,0.15)] text-[#FF6B6B] border-[rgba(255,69,58,0.30)]',
   }
   return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 text-xs font-medium uppercase tracking-wider rounded ${
-        colors[status] ?? 'bg-muted/20 text-muted'
-      }`}
-    >
+    <span className={`inline-flex items-center px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] rounded-[4px] border ${colors[status] ?? 'bg-[rgba(240,230,208,0.08)] text-cream-subtle border-[rgba(240,230,208,0.12)]'}`}>
       {status}
     </span>
   )
@@ -101,13 +106,11 @@ function StatusBadge({ status }: { status: string }) {
 
 function RoleBadge({ role }: { role: string }) {
   return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 text-xs font-medium uppercase tracking-wider rounded ${
-        role === 'founder'
-          ? 'bg-navy/10 text-navy'
-          : 'bg-gold/20 text-navy border border-gold/40'
-      }`}
-    >
+    <span className={`inline-flex items-center px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] rounded-[4px] border ${
+      role === 'founder'
+        ? 'bg-[rgba(75,124,246,0.15)] text-blue-bright border-[rgba(75,124,246,0.30)]'
+        : 'bg-[rgba(232,165,60,0.15)] text-amber border-[rgba(232,165,60,0.30)]'
+    }`}>
       {role}
     </span>
   )
@@ -172,15 +175,15 @@ export default function AdminOverviewPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-heading text-3xl font-bold text-navy">Dashboard Overview</h1>
-          <p className="mt-1 text-sm text-muted">Platform-wide statistics and recent activity</p>
+          <h1 className="text-[26px] font-black tracking-tight text-cream">Dashboard Overview</h1>
+          <p className="mt-1 text-[13px] text-cream-muted">Platform-wide statistics and recent activity</p>
         </div>
         <button
           onClick={fetchData}
           disabled={loading}
-          className="inline-flex items-center gap-2 border border-muted/40 bg-white/60 px-4 py-2 rounded text-sm font-medium text-navy transition-colors hover:bg-white disabled:opacity-50"
+          className="inline-flex items-center gap-2 border border-[rgba(240,230,208,0.14)] bg-[rgba(240,230,208,0.06)] px-4 py-2 rounded-[10px] text-[13px] font-medium text-cream-muted hover:text-cream hover:bg-[rgba(240,230,208,0.10)] transition-colors disabled:opacity-40 cursor-pointer"
         >
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
           Refresh
         </button>
       </div>
@@ -206,99 +209,76 @@ export default function AdminOverviewPage() {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total Founders" value={stats.totalFounders} icon={Rocket} loading={loading} />
-        <StatCard label="Total Investors" value={stats.totalInvestors} icon={Briefcase} loading={loading} />
-        <StatCard label="Total Matches" value={stats.totalMatches} icon={Handshake} loading={loading} />
-        <StatCard label="Deals Closed" value={stats.dealsClosed} icon={CheckSquare} loading={loading} />
+        <StatCard label="Total Founders" value={stats.totalFounders} icon={Rocket}     loading={loading} accent="blue" />
+        <StatCard label="Total Investors" value={stats.totalInvestors} icon={Briefcase} loading={loading} accent="amber" />
+        <StatCard label="Total Matches" value={stats.totalMatches} icon={Handshake}     loading={loading} accent="green" />
+        <StatCard label="Deals Closed" value={stats.dealsClosed} icon={CheckSquare}     loading={loading} accent="cream" />
       </div>
 
       {/* Recent Signups */}
-      <div className="border border-muted/30 bg-white/40 backdrop-blur-sm rounded shadow-sm">
-        <div className="border-b border-muted/20 px-6 py-4">
-          <h2 className="font-heading text-xl font-bold text-navy">Recent Signups</h2>
+      <div className="glass-card overflow-hidden">
+        <div className="border-b border-[rgba(240,230,208,0.08)] px-6 py-4">
+          <h2 className="text-[16px] font-black tracking-tight text-cream">Recent signups</h2>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-muted/20 text-left text-xs uppercase tracking-wider text-muted">
-                <th className="px-4 py-3 font-medium">Name</th>
-                <th className="px-4 py-3 font-medium">Email</th>
-                <th className="px-4 py-3 font-medium">Role</th>
-                <th className="px-4 py-3 font-medium">Joined</th>
+              <tr className="border-b border-[rgba(255,255,255,0.06)] text-[10px] tracking-[0.14em] uppercase text-cream-subtle font-medium">
+                <th className="px-4 py-3">Name</th>
+                <th className="px-4 py-3">Email</th>
+                <th className="px-4 py-3">Role</th>
+                <th className="px-4 py-3">Joined</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-muted/10">
+            <tbody className="divide-y divide-[rgba(255,255,255,0.05)]">
               {loading ? (
                 <SkeletonRows cols={4} />
               ) : recentUsers.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-4 py-10 text-center text-muted">
-                    No users yet.
-                  </td>
+                <tr><td colSpan={4} className="px-4 py-10 text-center text-[13px] text-cream-subtle">No users yet.</td></tr>
+              ) : recentUsers.map((u) => (
+                <tr key={u.id} className="hover:bg-[rgba(240,230,208,0.03)] transition-colors">
+                  <td className="px-4 py-3 text-[13px] font-semibold text-cream">{u.full_name ?? '—'}</td>
+                  <td className="px-4 py-3 text-[12px] text-cream-muted">{u.email}</td>
+                  <td className="px-4 py-3"><RoleBadge role={u.role} /></td>
+                  <td className="px-4 py-3 text-[12px] text-cream-subtle whitespace-nowrap">{formatDate(u.created_at)}</td>
                 </tr>
-              ) : (
-                recentUsers.map((u) => (
-                  <tr key={u.id} className="transition-colors hover:bg-white/30">
-                    <td className="px-4 py-3 font-medium text-navy">
-                      {u.full_name ?? '—'}
-                    </td>
-                    <td className="px-4 py-3 text-muted">{u.email}</td>
-                    <td className="px-4 py-3">
-                      <RoleBadge role={u.role} />
-                    </td>
-                    <td className="px-4 py-3 text-muted">{formatDate(u.created_at)}</td>
-                  </tr>
-                ))
-              )}
+              ))}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Recent Matches */}
-      <div className="border border-muted/30 bg-white/40 backdrop-blur-sm rounded shadow-sm">
-        <div className="border-b border-muted/20 px-6 py-4">
-          <h2 className="font-heading text-xl font-bold text-navy">Recent Matches</h2>
+      <div className="glass-card overflow-hidden">
+        <div className="border-b border-[rgba(240,230,208,0.08)] px-6 py-4">
+          <h2 className="text-[16px] font-black tracking-tight text-cream">Recent matches</h2>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-muted/20 text-left text-xs uppercase tracking-wider text-muted">
-                <th className="px-4 py-3 font-medium">Startup</th>
-                <th className="px-4 py-3 font-medium">Investor</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Date</th>
+              <tr className="border-b border-[rgba(255,255,255,0.06)] text-[10px] tracking-[0.14em] uppercase text-cream-subtle font-medium">
+                <th className="px-4 py-3">Startup</th>
+                <th className="px-4 py-3">Investor</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-muted/10">
+            <tbody className="divide-y divide-[rgba(255,255,255,0.05)]">
               {loading ? (
                 <SkeletonRows cols={4} />
               ) : recentMatches.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-4 py-10 text-center text-muted">
-                    No matches yet.
+                <tr><td colSpan={4} className="px-4 py-10 text-center text-[13px] text-cream-subtle">No matches yet.</td></tr>
+              ) : recentMatches.map((m) => (
+                <tr key={m.id} className="hover:bg-[rgba(240,230,208,0.03)] transition-colors">
+                  <td className="px-4 py-3 text-[13px] font-semibold text-cream">
+                    {(m.startups as { name: string } | null)?.name ?? '—'}
                   </td>
+                  <td className="px-4 py-3 text-[12px] text-cream-muted">
+                    {(m.investors as { users: { full_name: string | null } | null } | null)?.users?.full_name ?? '—'}
+                  </td>
+                  <td className="px-4 py-3"><StatusBadge status={m.status} /></td>
+                  <td className="px-4 py-3 text-[12px] text-cream-subtle whitespace-nowrap">{formatDate(m.created_at)}</td>
                 </tr>
-              ) : (
-                recentMatches.map((m) => (
-                  <tr key={m.id} className="transition-colors hover:bg-white/30">
-                    <td className="px-4 py-3 font-medium text-navy">
-                      {(m.startups as { name: string } | null)?.name ?? '—'}
-                    </td>
-                    <td className="px-4 py-3 text-muted">
-                      {(
-                        m.investors as {
-                          users: { full_name: string | null } | null
-                        } | null
-                      )?.users?.full_name ?? '—'}
-                    </td>
-                    <td className="px-4 py-3">
-                      <StatusBadge status={m.status} />
-                    </td>
-                    <td className="px-4 py-3 text-muted">{formatDate(m.created_at)}</td>
-                  </tr>
-                ))
-              )}
+              ))}
             </tbody>
           </table>
         </div>

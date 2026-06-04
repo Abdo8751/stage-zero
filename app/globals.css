@@ -13,11 +13,21 @@
   --blue-bright:   #7BA4FF;
   --amber:         #E8A53C;
 
+  /* ── Extended cream/white scale ───────── */
+  --white:         #FFFFFF;
+  --cream-100:     rgba(255, 255, 255, 0.95);   /* near-white */
+  --cream-200:     rgba(255, 255, 255, 0.80);   /* soft white */
+  --cream-light:   rgba(240, 230, 208, 0.88);   /* bright cream */
+  --cream-medium:  rgba(240, 230, 208, 0.72);   /* between cream and muted */
+  --cream-dim:     rgba(240, 230, 208, 0.20);   /* very faint cream surface */
+
   /* ── Glass ────────────────────────────── */
-  --glass-bg:       rgba(6, 14, 36, 0.55);
-  --glass-bg-hover: rgba(10, 20, 50, 0.70);
-  --glass-border:   rgba(255, 255, 255, 0.08);
-  --glass-border-bright: rgba(255, 255, 255, 0.16);
+  --glass-bg:            rgba(6, 14, 36, 0.52);
+  --glass-bg-hover:      rgba(10, 20, 50, 0.68);
+  --glass-bg-light:      rgba(240, 230, 208, 0.04);   /* cream-tinted surface */
+  --glass-border:        rgba(255, 255, 255, 0.08);
+  --glass-border-bright: rgba(255, 255, 255, 0.18);
+  --glass-border-cream:  rgba(240, 230, 208, 0.18);   /* warm border */
 }
 
 @layer base {
@@ -25,13 +35,14 @@
 
   body {
     background-color: var(--navy);
-    /* Cream orb top-right as the "light source", blue mid-left, amber bottom */
+    /* Brighter cream light source top-right, cool blue mid-left, warm amber bottom */
     background-image:
-      radial-gradient(ellipse at 72% 0%,   rgba(240,230,208,0.16) 0%, transparent 48%),
-      radial-gradient(ellipse at 100% 35%,  rgba(240,230,208,0.07) 0%, transparent 38%),
-      radial-gradient(ellipse at 15% 50%, rgba(75,124,246,0.13)   0%, transparent 50%),
-      radial-gradient(ellipse at 80% 80%, rgba(75,124,246,0.07)   0%, transparent 42%),
-      radial-gradient(ellipse at 38% 92%, rgba(232,165,60,0.07)   0%, transparent 38%);
+      radial-gradient(ellipse at 70% 0%,    rgba(255,252,245,0.18) 0%, transparent 40%),
+      radial-gradient(ellipse at 72% 0%,    rgba(240,230,208,0.22) 0%, transparent 50%),
+      radial-gradient(ellipse at 100% 30%,  rgba(240,230,208,0.09) 0%, transparent 38%),
+      radial-gradient(ellipse at 12% 48%,   rgba(75,124,246,0.14)  0%, transparent 52%),
+      radial-gradient(ellipse at 82% 78%,   rgba(75,124,246,0.08)  0%, transparent 44%),
+      radial-gradient(ellipse at 40% 94%,   rgba(232,165,60,0.08)  0%, transparent 38%);
     background-attachment: fixed;
     color: var(--cream);
     @apply font-sans antialiased;
@@ -53,13 +64,13 @@
     backdrop-filter: blur(48px) saturate(200%);
     -webkit-backdrop-filter: blur(48px) saturate(200%);
     border: 1px solid var(--glass-border);
-    border-top-color: rgba(240, 230, 208, 0.14);   /* cream hairline on top */
+    border-top-color: rgba(240, 230, 208, 0.20);   /* brighter cream hairline on top */
     border-radius: 20px;
     box-shadow:
-      0 1px 0 rgba(240, 230, 208, 0.12) inset,     /* stronger cream top glow */
-      0 -1px 0 rgba(0, 0, 0, 0.35) inset,
-      0 16px 48px rgba(0, 0, 0, 0.55),
-      0 2px 8px  rgba(0, 0, 0, 0.30);
+      0 1px 0 rgba(255, 252, 245, 0.16) inset,     /* white-cream top glow */
+      0 -1px 0 rgba(0, 0, 0, 0.32) inset,
+      0 16px 48px rgba(0, 0, 0, 0.50),
+      0 2px 8px  rgba(0, 0, 0, 0.26);
     transition: border-color 240ms ease, box-shadow 240ms ease, transform 240ms ease;
   }
 
@@ -71,9 +82,9 @@
     border-radius: inherit;
     background: linear-gradient(
       155deg,
-      rgba(240, 230, 208, 0.11) 0%,
-      rgba(240, 230, 208, 0.03) 35%,
-      transparent 60%
+      rgba(255, 252, 245, 0.10) 0%,
+      rgba(240, 230, 208, 0.05) 30%,
+      transparent 58%
     );
     pointer-events: none;
     z-index: 0;

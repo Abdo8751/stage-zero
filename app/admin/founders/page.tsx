@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { createClient } from '@/lib/supabase'
 import { RefreshCw, CheckCircle2, XCircle, AlertCircle, MessageSquare } from 'lucide-react'
 import type { StartupStatus } from '@/lib/types'
 
@@ -66,31 +65,9 @@ export default function AdminFoundersPage() {
 
   const fetchData = useCallback(async () => {
     setLoading(true)
-    const supabase = createClient()
-    const { data: startups } = await supabase
-      .from('startups')
-      .select('id, name, sector, stage, raise_amount, status, is_active, rejection_reason, created_at, user_id')
-      .order('created_at', { ascending: false })
-
-    if (!startups) { setRows([]); setLoading(false); return }
-
-    const userIds = Array.from(new Set(startups.map((s) => s.user_id)))
-    const { data: users } = await supabase
-      .from('users').select('id, full_name, email').in('id', userIds)
-    const userMap = new Map((users ?? []).map((u) => [u.id, u]))
-
-    setRows(startups.map((s) => {
-      const u = userMap.get(s.user_id)
-      return {
-        id: s.id, name: s.name, sector: s.sector, stage: s.stage,
-        raise_amount: s.raise_amount, status: s.status as StartupStatus,
-        is_active: s.is_active, rejection_reason: s.rejection_reason,
-        created_at: s.created_at,
-        founder_name: u?.full_name ?? null,
-        founder_email: u?.email ?? '',
-        founder_id: s.user_id,
-      }
-    }))
+    const res = await fetch('/api/admin/data?type=startups')
+    const json = await res.json() as { data?: StartupRow[] }
+    setRows((json.data ?? []).map((s) => ({ ...s, status: s.status as StartupStatus })))
     setLoading(false)
   }, [])
 
@@ -118,48 +95,28 @@ export default function AdminFoundersPage() {
 
     setActing(true)
     try {
-      const supabase = createClient()
-
-      if (action === 'approve') {
-        await supabase.from('startups').update({ status: 'active', is_active: true, rejection_reason: null }).eq('id', row.id)
-        // Notify founder
-        await fetch('/api/notifications', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: row.founder_id, type: 'startup_approved',
-            message: `Your startup "${row.name}" has been approved and is now live!`,
-            link: '/dashboard', emailFn: 'sendStartupApproved',
-            emailArgs: { to: row.founder_email, startupName: row.name },
-          }),
-        })
-      } else if (action === 'reject') {
-        await supabase.from('startups').update({ status: 'rejected', is_active: false, rejection_reason: reason.trim() }).eq('id', row.id)
-        await fetch('/api/notifications', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: row.founder_id, type: 'startup_rejected',
-            message: `Your startup "${row.name}" was not approved. Reason: ${reason.trim()}`,
-            link: '/dashboard', emailFn: 'sendStartupRejected',
-            emailArgs: { to: row.founder_email, startupName: row.name, reason: reason.trim() },
-          }),
-        })
-      } else {
-        await supabase.from('startups').update({ status: 'changes_requested', rejection_reason: reason.trim() }).eq('id', row.id)
-        await fetch('/api/notifications', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: row.founder_id, type: 'startup_changes_requested',
-            message: `Changes requested for "${row.name}": ${reason.trim()}`,
-            link: '/profile/edit', emailFn: 'sendStartupChangesRequested',
-            emailArgs: { to: row.founder_email, startupName: row.name, changes: reason.trim() },
-          }),
-        })
-      }
+      const actionMap = { approve: 'approveStartup', reject: 'rejectStartup', changes: 'requestChanges' }
+      const res = await fetch('/api/admin/user-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: actionMap[action],
+          userId: row.founder_id,
+          startupId: row.id,
+          startupName: row.name,
+          founderEmail: row.founder_email,
+          reason: reason.trim() || undefined,
+        }),
+      })
+      const result = await res.json() as { error?: string }
+      if (!res.ok) throw new Error(result.error ?? 'Action failed')
 
       setModal(null)
       setReason('')
       await fetchData()
-    } catch { /* handled silently */ }
+    } catch (err) {
+      console.error(err)
+    }
     setActing(false)
   }
 
@@ -167,24 +124,24 @@ export default function AdminFoundersPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-heading text-3xl font-bold text-navy">Startups</h1>
-          <p className="mt-1 text-sm text-muted">
-            {pendingCount > 0 && <span className="mr-2 font-semibold text-yellow-600">{pendingCount} pending review</span>}
+          <h1 className="text-[26px] font-black tracking-tight text-cream">Startups</h1>
+          <p className="mt-1 text-[13px] text-cream-muted">
+            {pendingCount > 0 && <span className="mr-2 font-semibold text-amber">{pendingCount} pending review · </span>}
             {filtered.length} total
           </p>
         </div>
         <button onClick={fetchData} disabled={loading}
-          className="inline-flex items-center gap-2 border border-muted/40 bg-white/60 px-4 py-2 rounded text-sm font-medium text-navy hover:bg-white disabled:opacity-50">
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />Refresh
+          className="inline-flex items-center gap-2 border border-[rgba(240,230,208,0.14)] bg-[rgba(240,230,208,0.06)] px-4 py-2 rounded-[10px] text-[13px] font-medium text-cream-muted hover:text-cream hover:bg-[rgba(240,230,208,0.10)] transition-colors disabled:opacity-40 cursor-pointer">
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />Refresh
         </button>
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <input value={search} onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by startup or founder…"
-          className="flex-1 border border-muted/40 bg-white/60 px-4 py-2.5 rounded text-sm text-navy placeholder:text-muted/70 focus:outline-none focus:ring-1 focus:ring-gold" />
+          className="flex-1 border border-[rgba(255,255,255,0.10)] bg-[rgba(255,255,255,0.05)] px-4 py-2.5 rounded-[10px] text-[13px] text-cream placeholder:text-cream-subtle focus:outline-none focus:border-[rgba(75,124,246,0.45)] transition-colors" />
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-          className="border border-muted/40 bg-white/60 px-4 py-2.5 rounded text-sm text-navy focus:outline-none focus:ring-1 focus:ring-gold">
+          className="border border-[rgba(255,255,255,0.10)] bg-[rgba(4,11,26,0.80)] px-4 py-2.5 rounded-[10px] text-[13px] text-cream focus:outline-none focus:border-[rgba(75,124,246,0.45)] transition-colors cursor-pointer [&>option]:bg-[#070F24]">
           <option value="">All statuses</option>
           <option value="pending_review">Pending review</option>
           <option value="active">Active</option>

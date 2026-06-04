@@ -2,10 +2,10 @@ import Link from 'next/link'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { ArrowRight, TrendingUp, Shield, Zap, Users } from 'lucide-react'
+import { ArrowRight, TrendingUp, Shield, Zap, Users, Instagram } from 'lucide-react'
 
 const previewStartups = [
-  { name: 'NilePay',    initial: 'N', tagline: "Mobile payments for Egypt's informal economy",    sector: ['Fintech'],    stage: 'Seed',    raise: 'EGP 2.5M' },
+  { name: 'NilePay',    initial: 'N', tagline: "Mobile payments for Egypt's informal economy",    sector: ['Fintech'],    stage: 'Seed',     raise: 'EGP 2.5M' },
   { name: 'HarvestIQ',  initial: 'H', tagline: 'AI-powered crop monitoring for smallholder farms', sector: ['Agtech'],     stage: 'Pre-Seed', raise: 'EGP 800K' },
   { name: 'MedBridge',  initial: 'M', tagline: 'Connecting rural clinics to specialist care',      sector: ['Healthtech'], stage: 'Series A', raise: 'EGP 12M' },
 ]
@@ -13,156 +13,115 @@ const previewStartups = [
 const steps = [
   {
     icon: Shield,
-    number: '01',
-    title: 'Verified access only',
-    description: 'Investors complete a verification process. Founders list their startup in minutes. Every participant is real.',
+    title: 'Real people, verified',
+    description: "Investors go through a short verification. Founders list in under 20 minutes. Everyone here is serious — that's the whole point.",
   },
   {
     icon: Zap,
-    number: '02',
-    title: 'Curated deal flow',
-    description: 'Browse active listings filtered by stage, sector, and raise size. No noise. No spam. Only serious opportunities.',
+    title: 'No noise, just deal flow',
+    description: "Filter by stage, sector and raise size. You'll see listings that match what you're actually looking for — not everything ever created.",
   },
   {
     icon: TrendingUp,
-    number: '03',
-    title: 'Direct conversations',
-    description: 'Mutual interest opens a private channel. No cold emails. No gatekeepers. Zero friction from intro to term sheet.',
+    title: 'Talk directly',
+    description: "When both sides are interested, a private chat opens. No back-and-forth over email, no intros needed. Just a conversation.",
   },
-]
-
-const stats = [
-  { value: '200+',      label: 'Active founders',    icon: Users },
-  { value: '85',        label: 'Verified investors',  icon: Shield },
-  { value: 'EGP 140M+', label: 'Capital in network',  icon: TrendingUp },
-  { value: '12',        label: 'Sectors covered',     icon: Zap },
 ]
 
 export default function LandingPage() {
   return (
     <div className="relative min-h-screen overflow-x-hidden">
 
-      {/* Animated background orbs */}
-      <div className="pointer-events-none fixed right-[-10%] top-[2%] h-[700px] w-[700px] rounded-full bg-[radial-gradient(circle,rgba(240,230,208,0.08)_0%,transparent_60%)] blur-3xl orb-animation" />
-      <div className="pointer-events-none fixed left-[-5%] top-[40%] h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle,rgba(75,124,246,0.10)_0%,transparent_60%)] blur-3xl orb-animation" style={{ animationDelay: '-3s' }} />
-      <div className="pointer-events-none fixed right-[10%] bottom-[10%] h-[400px] w-[400px] rounded-full bg-[radial-gradient(circle,rgba(232,165,60,0.07)_0%,transparent_60%)] blur-3xl orb-animation" style={{ animationDelay: '-6s' }} />
+      {/* Background orbs */}
+      <div className="pointer-events-none fixed right-[-8%] top-[2%] h-[600px] w-[600px] rounded-full bg-[radial-gradient(circle,rgba(255,252,245,0.09)_0%,transparent_60%)] blur-3xl orb-animation" />
+      <div className="pointer-events-none fixed left-[-5%] top-[42%] h-[480px] w-[480px] rounded-full bg-[radial-gradient(circle,rgba(75,124,246,0.10)_0%,transparent_60%)] blur-3xl orb-animation" style={{ animationDelay: '-3s' }} />
+      <div className="pointer-events-none fixed right-[12%] bottom-[8%] h-[360px] w-[360px] rounded-full bg-[radial-gradient(circle,rgba(232,165,60,0.07)_0%,transparent_60%)] blur-3xl orb-animation" style={{ animationDelay: '-6s' }} />
 
       {/* ── Hero ──────────────────────────────────────── */}
-      <section className="relative flex min-h-screen flex-col items-center justify-center px-5 pb-24 pt-24 text-center sm:px-8">
+      <section className="relative flex min-h-[95vh] flex-col items-center justify-center px-5 pb-16 pt-28 text-center sm:px-8">
 
-        {/* Eyebrow badge — cream tinted */}
-        <div className="animate-fade-in mb-7 inline-flex items-center gap-2.5 rounded-full border border-[rgba(240,230,208,0.22)] bg-[rgba(240,230,208,0.07)] px-4 py-2 badge-pulse">
-          <span className="h-1.5 w-1.5 rounded-full bg-cream shadow-[0_0_8px_rgba(240,230,208,0.9)]" />
-          <span className="text-[11px] font-bold tracking-[0.14em] uppercase text-cream">
-            Egypt&apos;s Investor Marketplace
+        <div className="animate-fade-in mb-6 inline-flex items-center gap-2.5 rounded-full border border-[rgba(240,230,208,0.20)] bg-[rgba(240,230,208,0.06)] px-4 py-1.5 badge-pulse">
+          <span className="h-1.5 w-1.5 rounded-full bg-cream shadow-[0_0_8px_rgba(240,230,208,0.8)]" />
+          <span className="text-[11px] font-bold tracking-[0.12em] uppercase text-cream">
+            Egypt&apos;s Founder–Investor Network
           </span>
         </div>
 
-        {/* Headline */}
-        <h1 className="animate-slide-up delay-100 max-w-3xl text-balance text-[52px] font-black leading-[1.04] tracking-tightest text-cream sm:text-[68px] md:text-[82px]">
+        <h1 className="animate-slide-up delay-100 max-w-[340px] text-balance text-[44px] font-black leading-[1.06] tracking-tightest text-cream sm:max-w-2xl sm:text-[62px] md:text-[78px]">
           Where capital
           <br />
           <span className="text-gradient-cream">meets vision</span>
         </h1>
 
-        <p className="animate-slide-up delay-200 mx-auto mt-7 max-w-lg text-[15px] leading-[1.75] text-cream-muted sm:text-[16px]">
-          Stage Zero is the private marketplace where verified investors discover
-          Egypt&apos;s most ambitious founders.{' '}
-          <span className="font-semibold text-cream">Serious capital. Real startups. Zero noise.</span>
+        <p className="animate-slide-up delay-200 mx-auto mt-6 max-w-[340px] text-[14px] leading-[1.72] text-cream-muted sm:max-w-md sm:text-[15px]">
+          Stage Zero connects ambitious Egyptian founders with the investors who want to back them.
+          No cold emails. No middlemen.{' '}
+          <span className="font-semibold text-[rgba(240,230,208,0.85)]">Just the right conversation at the right time.</span>
         </p>
 
         {/* CTAs */}
-        <div className="animate-slide-up delay-300 mt-10 flex flex-col items-center gap-3 sm:flex-row sm:gap-4">
+        <div className="animate-slide-up delay-300 mt-8 flex flex-col items-stretch gap-3 w-full max-w-xs sm:w-auto sm:flex-row sm:items-center sm:max-w-none sm:gap-3">
           <Link href="/signup?role=investor">
-            <Button size="lg" className="min-w-[190px]">
-              Start investing
+            <Button size="lg" className="w-full sm:w-auto sm:min-w-[180px]">
+              I&apos;m an investor
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
           <Link href="/signup?role=founder">
-            <Button variant="secondary" size="lg" className="min-w-[190px]">
-              List your startup
+            <Button variant="secondary" size="lg" className="w-full sm:w-auto sm:min-w-[180px]">
+              I&apos;m a founder
+            </Button>
+          </Link>
+          <Link href="/explore">
+            <Button variant="ghost" size="lg" className="w-full sm:w-auto text-cream-muted hover:text-cream sm:min-w-[160px]">
+              Browse startups →
             </Button>
           </Link>
         </div>
 
-        <p className="animate-fade-in delay-500 mt-6 text-[11px] tracking-[0.10em] uppercase text-cream-subtle">
-          Invitation-only verification · Egyptian startups only
+        <p className="animate-fade-in delay-500 mt-5 text-[11px] tracking-[0.08em] text-cream-subtle">
+          Free to join · Egyptian founders &amp; investors only
         </p>
 
-        {/* Stats grid */}
-        <div className="animate-slide-up delay-400 mt-16 grid w-full max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
-          {stats.map((s) => (
-            <div key={s.label} className="glass-card px-4 py-5 text-center">
-              <p className="text-[24px] font-black tracking-tightest text-cream">{s.value}</p>
-              <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-cream-subtle">{s.label}</p>
+        {/* Stats */}
+        <div className="animate-slide-up delay-400 mt-14 grid w-full max-w-xs grid-cols-2 gap-2.5 sm:max-w-xl sm:grid-cols-4 sm:gap-3">
+          {[
+            { value: '200+',      label: 'Founders' },
+            { value: '85',        label: 'Investors' },
+            { value: 'EGP 140M+', label: 'In network' },
+            { value: '12',        label: 'Sectors' },
+          ].map((s) => (
+            <div key={s.label} className="glass-card px-3 py-4 text-center sm:px-4 sm:py-5">
+              <p className="text-[22px] font-black tracking-tightest text-cream sm:text-[26px]">{s.value}</p>
+              <p className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.08em] text-cream-subtle">{s.label}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── How it works ─────────────────────────────── */}
-      <section className="relative border-y border-[rgba(240,230,208,0.06)] bg-[rgba(4,11,26,0.4)] px-5 py-28 sm:px-8">
+      {/* ── Explore teaser ───────────────────────────── */}
+      <section className="px-5 py-20 sm:px-8">
         <div className="mx-auto max-w-6xl">
-
-          <div className="mb-16 text-center">
-            <p className="mb-3 text-[11px] font-bold tracking-[0.16em] uppercase text-cream-muted">How it works</p>
-            <h2 className="text-[34px] font-black tracking-tightest text-cream sm:text-[44px]">
-              Built for serious deal flow
-            </h2>
-            <p className="mx-auto mt-4 max-w-md text-[14px] leading-relaxed text-cream-muted">
-              Three steps from zero to your first verified investor conversation.
-            </p>
-          </div>
-
-          <div className="grid gap-5 md:grid-cols-3">
-            {steps.map((step, i) => (
-              <div
-                key={step.number}
-                className="animate-scale-in"
-                style={{ animationDelay: `${i * 120}ms` }}
-              >
-                <Card hoverable>
-                  <div className="flex items-center justify-between">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[rgba(75,124,246,0.12)] border border-[rgba(75,124,246,0.22)]">
-                      <step.icon className="h-4 w-4 text-blue-bright" />
-                    </div>
-                    <span className="text-[32px] font-black tracking-tightest text-[rgba(240,230,208,0.12)]">
-                      {step.number}
-                    </span>
-                  </div>
-                  <h3 className="mt-5 text-[17px] font-bold tracking-tight text-cream">{step.title}</h3>
-                  <p className="mt-2.5 text-[13px] leading-relaxed text-cream-muted">{step.description}</p>
-                </Card>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Live listings ────────────────────────────── */}
-      <section className="px-5 py-28 sm:px-8">
-        <div className="mx-auto max-w-6xl">
-
-          <div className="mb-12 flex flex-col items-start justify-between gap-5 sm:flex-row sm:items-end">
+          <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="mb-3 text-[11px] font-bold tracking-[0.16em] uppercase text-cream-muted">Active listings</p>
-              <h2 className="text-[32px] font-black tracking-tightest text-cream sm:text-[40px]">Live on Stage Zero</h2>
-              <p className="mt-2 text-[13px] text-cream-muted">Verify your investor status to unlock full profiles.</p>
+              <p className="mb-2 text-[11px] font-bold tracking-[0.14em] uppercase text-cream-muted">Live listings</p>
+              <h2 className="text-[28px] font-black tracking-tightest text-cream sm:text-[36px]">What&apos;s building in Egypt</h2>
+              <p className="mt-1.5 text-[13px] text-cream-muted max-w-sm">
+                Real startups, raising now. Full profiles unlocked for verified investors.
+              </p>
             </div>
-            <Link href="/signup?role=investor">
-              <Button variant="secondary" size="sm">
-                Get verified access
+            <Link href="/explore">
+              <Button variant="secondary" size="sm" className="shrink-0">
+                Browse all startups
                 <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
               </Button>
             </Link>
           </div>
 
           <div className="relative">
-            {/* Blurred cards */}
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 pointer-events-none select-none">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 pointer-events-none select-none">
               {previewStartups.map((startup) => (
-                <div key={startup.name} className="blur-[10px] opacity-30">
+                <div key={startup.name} className="blur-[8px] opacity-35">
                   <Card>
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-[rgba(75,124,246,0.12)] border border-[rgba(75,124,246,0.20)] text-blue-bright font-black text-[15px]">
@@ -172,9 +131,9 @@ export default function LandingPage() {
                     </div>
                     <div className="mt-4">
                       <h3 className="text-[16px] font-bold text-cream">{startup.name}</h3>
-                      <p className="mt-1.5 text-[13px] text-cream-muted">{startup.tagline}</p>
+                      <p className="mt-1 text-[13px] text-cream-muted">{startup.tagline}</p>
                     </div>
-                    <div className="mt-4 flex gap-1.5">
+                    <div className="mt-3 flex gap-1.5">
                       {startup.sector.map((s) => <Badge key={s} variant="muted">{s}</Badge>)}
                     </div>
                     <div className="mt-4 flex items-center gap-1.5 border-t border-[rgba(240,230,208,0.06)] pt-4">
@@ -188,45 +147,125 @@ export default function LandingPage() {
 
             {/* Gate overlay */}
             <div className="absolute inset-0 flex items-center justify-center z-10 px-4">
-              <Card className="w-full max-w-sm text-center bg-[rgba(4,11,26,0.88)] border-glass-border-bright shadow-[0_32px_80px_rgba(0,0,0,0.8)]">
-                <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(75,124,246,0.12)] border border-[rgba(75,124,246,0.25)]">
+              <Card className="w-full max-w-sm text-center bg-[rgba(4,11,26,0.92)] border-[rgba(240,230,208,0.16)] shadow-[0_32px_80px_rgba(0,0,0,0.8)]">
+                <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-[rgba(75,124,246,0.12)] border border-[rgba(75,124,246,0.25)]">
                   <Shield className="h-5 w-5 text-blue-bright" />
                 </div>
-                <h3 className="text-[22px] font-black tracking-tight text-cream">Investors only</h3>
-                <p className="mt-3 text-[13px] leading-relaxed text-cream-muted">
-                  Verified investors get full access — pitch decks, traction metrics, and direct founder contact.
+                <h3 className="text-[20px] font-black tracking-tight text-cream">Investors only</h3>
+                <p className="mt-2.5 text-[13px] leading-relaxed text-cream-muted">
+                  Pitch decks, traction data, and direct founder contact — unlocked once you&apos;re verified.
                 </p>
-                <Link href="/signup" className="mt-6 block">
+                <Link href="/signup" className="mt-5 block">
                   <Button fullWidth>
                     Apply for access
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
-                <p className="mt-3 text-[11px] text-cream-subtle">Free to apply · Reviewed within 48 hours</p>
+                <Link href="/explore" className="mt-2.5 block text-[12px] text-cream-subtle hover:text-cream transition-colors">
+                  Or browse anonymously →
+                </Link>
               </Card>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Footer ───────────────────────────────────── */}
-      <footer className="border-t border-[rgba(240,230,208,0.06)] bg-[rgba(4,11,26,0.5)] px-5 py-14 sm:px-8">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 sm:flex-row">
-          <div>
-            <div className="flex items-center gap-1">
-              <span className="text-[14px] font-black tracking-[-0.04em] text-cream uppercase">STAGE ZERO</span>
-            </div>
-            <p className="mt-1 text-[12px] text-cream-subtle">Egypt&apos;s investor marketplace</p>
+      {/* ── How it works ─────────────────────────────── */}
+      <section className="relative border-y border-[rgba(240,230,208,0.06)] bg-[rgba(4,11,26,0.35)] px-5 py-20 sm:px-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-12 max-w-md">
+            <p className="mb-2 text-[11px] font-bold tracking-[0.14em] uppercase text-cream-muted">How it works</p>
+            <h2 className="text-[28px] font-black tracking-tightest text-cream sm:text-[38px]">
+              Simple by design
+            </h2>
+            <p className="mt-3 text-[14px] leading-relaxed text-cream-muted">
+              We kept it straightforward. Three things happen, in this order.
+            </p>
           </div>
-          <div className="flex gap-6">
-            <Link href="/login"  className="text-[13px] text-cream-subtle hover:text-cream-muted transition-colors">Log in</Link>
-            <Link href="/signup" className="text-[13px] text-cream-subtle hover:text-cream-muted transition-colors">Sign up</Link>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            {steps.map((step, i) => (
+              <Card key={step.title} hoverable className="relative">
+                <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[rgba(75,124,246,0.10)] border border-[rgba(75,124,246,0.20)]">
+                  <step.icon className="h-4 w-4 text-blue-bright" />
+                </div>
+                <span className="absolute right-5 top-5 text-[36px] font-black text-[rgba(240,230,208,0.07)]">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <h3 className="mt-4 text-[16px] font-bold tracking-tight text-cream">{step.title}</h3>
+                <p className="mt-2 text-[13px] leading-relaxed text-cream-muted">{step.description}</p>
+              </Card>
+            ))}
           </div>
         </div>
-        <div className="mx-auto mt-10 max-w-6xl border-t border-[rgba(240,230,208,0.04)] pt-6 text-center">
-          <p className="text-[10px] tracking-[0.12em] uppercase text-cream-subtle">
-            © {new Date().getFullYear()} Stage Zero Egypt · For Founders Under 30
+      </section>
+
+      {/* ── Final CTA ────────────────────────────────── */}
+      <section className="px-5 py-20 sm:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-[28px] font-black tracking-tightest text-cream sm:text-[36px]">
+            Ready to get started?
+          </h2>
+          <p className="mt-3 text-[14px] text-cream-muted">
+            Join the founders and investors already using Stage Zero.
           </p>
+          <div className="mt-7 flex flex-col items-stretch gap-3 w-full max-w-xs mx-auto sm:w-auto sm:flex-row sm:max-w-none sm:justify-center">
+            <Link href="/signup?role=founder">
+              <Button size="lg" className="w-full sm:w-auto">
+                List your startup
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            <Link href="/signup?role=investor">
+              <Button variant="secondary" size="lg" className="w-full sm:w-auto">
+                Verify as investor
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ───────────────────────────────────── */}
+      <footer className="border-t border-[rgba(240,230,208,0.07)] bg-[rgba(4,11,26,0.5)] px-5 py-12 sm:px-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
+
+            {/* Brand */}
+            <div>
+              <p className="text-[15px] font-black tracking-[-0.04em] text-cream uppercase">Stage Zero</p>
+              <p className="mt-1 text-[12px] text-cream-subtle max-w-[200px] leading-relaxed">
+                Egypt&apos;s private network for founders and investors.
+              </p>
+            </div>
+
+            {/* Links */}
+            <div className="flex flex-col gap-2 sm:items-end">
+              <div className="flex flex-wrap gap-x-6 gap-y-2">
+                <Link href="/explore" className="text-[13px] text-cream-subtle hover:text-cream transition-colors">Explore startups</Link>
+                <Link href="/login"   className="text-[13px] text-cream-subtle hover:text-cream transition-colors">Log in</Link>
+                <Link href="/signup"  className="text-[13px] text-cream-subtle hover:text-cream transition-colors">Sign up</Link>
+              </div>
+              {/* Instagram */}
+              <a
+                href="https://instagram.com/stagezero.eg"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1 inline-flex items-center gap-2 text-[13px] text-cream-subtle hover:text-cream transition-colors"
+              >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                  <circle cx="12" cy="12" r="4" />
+                  <circle cx="17.5" cy="6.5" r="0.7" fill="currentColor" stroke="none" />
+                </svg>
+                @stagezero.eg
+              </a>
+            </div>
+          </div>
+
+          <div className="mt-8 border-t border-[rgba(240,230,208,0.05)] pt-6 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[11px] text-cream-subtle">© {new Date().getFullYear()} Stage Zero Egypt</p>
+            <p className="text-[11px] text-cream-subtle">For founders and investors in Egypt</p>
+          </div>
         </div>
       </footer>
     </div>
