@@ -40,23 +40,7 @@ export default function LandingPage() {
   return (
     <div className="relative min-h-screen overflow-x-hidden">
 
-      {/* ── Animated background blobs ── */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        {/* Primary warm cream — top-left */}
-        <div className="blob-a absolute -top-[22%] -left-[12%] h-[80vh] w-[80vw] rounded-full bg-[radial-gradient(circle,rgba(243,224,155,0.34)_0%,transparent_65%)] blur-[90px]" />
-        {/* Cream — top-right */}
-        <div className="blob-b absolute -top-[12%] right-[-18%] h-[65vh] w-[65vw] rounded-full bg-[radial-gradient(circle,rgba(240,228,196,0.24)_0%,transparent_65%)] blur-[80px]" />
-        {/* Blue — mid-left */}
-        <div className="blob-c absolute top-[35%] -left-[10%] h-[55vh] w-[50vw] rounded-full bg-[radial-gradient(circle,rgba(75,124,246,0.12)_0%,transparent_65%)] blur-[80px]" />
-        {/* Warm amber — bottom-right */}
-        <div className="blob-b absolute bottom-[-8%] right-[3%] h-[50vh] w-[50vw] rounded-full bg-[radial-gradient(circle,rgba(232,165,60,0.10)_0%,transparent_65%)] blur-[80px]" style={{ animationDelay: '-6s' }} />
-        {/* Cream accent — center-right mid */}
-        <div className="blob-d absolute top-[50%] right-[-5%] h-[45vh] w-[42vw] rounded-full bg-[radial-gradient(circle,rgba(240,220,175,0.14)_0%,transparent_65%)] blur-[70px]" style={{ animationDelay: '-3s' }} />
-        {/* Blue accent — bottom-left */}
-        <div className="blob-e absolute bottom-[5%] left-[10%] h-[40vh] w-[40vw] rounded-full bg-[radial-gradient(circle,rgba(75,124,246,0.09)_0%,transparent_65%)] blur-[70px]" style={{ animationDelay: '-5s' }} />
-        {/* Small warm cream — center top */}
-        <div className="blob-c absolute top-[8%] left-[35%] h-[35vh] w-[35vw] rounded-full bg-[radial-gradient(circle,rgba(243,218,150,0.16)_0%,transparent_65%)] blur-[60px]" style={{ animationDelay: '-2s' }} />
-      </div>
+      {/* Blobs are now global — rendered in root layout */}
 
       {/* ── Hero ──────────────────────────────────────── */}
       <section className="relative flex min-h-[88vh] items-center px-5 pb-16 pt-28 sm:px-8 lg:pt-32">

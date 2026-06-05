@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useCallback, useEffect, useState } from 'react'
 import { useUser } from '@/hooks/useUser'
@@ -133,7 +133,7 @@ export default function BrowsePage() {
           <div>
             <label className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em] text-cream-subtle">Sector</label>
             <select value={sectorFilter} onChange={(e) => setSectorFilter(e.target.value)}
-              className="w-full bg-[rgba(4,11,26,0.6)] border border-glass-border rounded-input px-4 py-3 text-[14px] text-cream focus:border-[rgba(75,124,246,0.5)] focus:outline-none [&>option]:bg-navy cursor-pointer">
+              className="w-full bg-[rgba(240,228,200,0.07)] border border-[rgba(240,230,208,0.18)] rounded-input px-4 py-3 text-[14px] text-cream focus:border-[rgba(240,230,208,0.50)] focus:outline-none [&>option]:bg-navy cursor-pointer">
               <option value="">All sectors</option>
               {SECTORS.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
@@ -141,7 +141,7 @@ export default function BrowsePage() {
           <div>
             <label className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em] text-cream-subtle">Stage</label>
             <select value={stageFilter} onChange={(e) => setStageFilter(e.target.value as StartupStage | '')}
-              className="w-full bg-[rgba(4,11,26,0.6)] border border-glass-border rounded-input px-4 py-3 text-[14px] text-cream focus:border-[rgba(75,124,246,0.5)] focus:outline-none [&>option]:bg-navy cursor-pointer">
+              className="w-full bg-[rgba(240,228,200,0.07)] border border-[rgba(240,230,208,0.18)] rounded-input px-4 py-3 text-[14px] text-cream focus:border-[rgba(240,230,208,0.50)] focus:outline-none [&>option]:bg-navy cursor-pointer">
               <option value="">All stages</option>
               {STARTUP_STAGES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
@@ -177,3 +177,4 @@ export default function BrowsePage() {
     </div>
   )
 }
+

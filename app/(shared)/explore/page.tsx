@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -175,26 +175,26 @@ export default function ExplorePage() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search startups…"
-            className="w-full bg-[rgba(4,11,26,0.7)] border border-[rgba(255,255,255,0.10)] rounded-[10px] pl-9 pr-4 py-2.5 text-[13px] text-cream placeholder:text-cream-subtle focus:border-[rgba(75,124,246,0.45)] focus:outline-none transition-colors"
+            placeholder="Search startupsâ€¦"
+            className="w-full bg-[rgba(240,228,200,0.07)] border border-[rgba(240,230,208,0.18)] rounded-[10px] pl-9 pr-4 py-2.5 text-[13px] text-cream placeholder:text-[rgba(240,230,208,0.35)] focus:border-[rgba(240,230,208,0.50)] focus:outline-none transition-colors"
           />
         </div>
         {allSectors.length > 0 && (
           <select value={sectorFilter} onChange={(e) => setSectorFilter(e.target.value)}
-            className="bg-[rgba(4,11,26,0.80)] border border-[rgba(255,255,255,0.10)] rounded-[10px] px-3 py-2.5 text-[13px] text-cream focus:border-[rgba(75,124,246,0.45)] focus:outline-none transition-colors cursor-pointer [&>option]:bg-[#070F24] sm:w-36">
+            className="bg-[rgba(240,228,200,0.07)] border border-[rgba(240,230,208,0.18)] rounded-[10px] px-3 py-2.5 text-[13px] text-cream focus:border-[rgba(240,230,208,0.50)] focus:outline-none transition-colors cursor-pointer [&>option]:bg-[#070F24] sm:w-36">
             <option value="">All sectors</option>
             {allSectors.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
         )}
         <select value={stageFilter} onChange={(e) => setStageFilter(e.target.value as StartupStage | '')}
-          className="bg-[rgba(4,11,26,0.80)] border border-[rgba(255,255,255,0.10)] rounded-[10px] px-3 py-2.5 text-[13px] text-cream focus:border-[rgba(75,124,246,0.45)] focus:outline-none transition-colors cursor-pointer [&>option]:bg-[#070F24] sm:w-32">
+          className="bg-[rgba(240,228,200,0.07)] border border-[rgba(240,230,208,0.18)] rounded-[10px] px-3 py-2.5 text-[13px] text-cream focus:border-[rgba(240,230,208,0.50)] focus:outline-none transition-colors cursor-pointer [&>option]:bg-[#070F24] sm:w-32">
           <option value="">All stages</option>
           {STARTUP_STAGES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
         </select>
       </div>
 
       <p className="mb-5 text-[12px] text-cream-subtle">
-        {loading ? 'Loading…' : `${filtered.length} startup${filtered.length !== 1 ? 's' : ''}`}
+        {loading ? 'Loadingâ€¦' : `${filtered.length} startup${filtered.length !== 1 ? 's' : ''}`}
       </p>
 
       {/* Loading skeletons */}
@@ -250,3 +250,4 @@ export default function ExplorePage() {
     </div>
   )
 }
+
