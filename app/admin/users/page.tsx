@@ -487,7 +487,7 @@ export default function AdminUsersPage() {
               </div>
 
               {modal.startup.tagline && (
-                <p className="text-[14px] text-cream-muted italic">"{modal.startup.tagline}"</p>
+                <p className="text-[14px] text-cream-muted italic">&ldquo;{modal.startup.tagline}&rdquo;</p>
               )}
 
               {/* Raise */}
