@@ -194,10 +194,11 @@ function LoginForm() {
 
     try {
       const supabase = createClient()
+      const origin = process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${origin}/auth/callback`,
         },
       })
 
