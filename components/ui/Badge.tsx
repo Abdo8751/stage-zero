@@ -5,15 +5,15 @@ interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 const variants = {
-  default:  'bg-[rgba(240,230,208,0.08)] border-[rgba(240,230,208,0.14)] text-cream-muted',
-  gold:     'bg-[rgba(232,165,60,0.12)]  border-[rgba(232,165,60,0.28)]  text-amber',
-  pending:  'bg-[rgba(232,165,60,0.12)]  border-[rgba(232,165,60,0.28)]  text-amber',
-  success:  'bg-[rgba(52,199,89,0.10)]   border-[rgba(52,199,89,0.25)]   text-[#30D158]',
-  approved: 'bg-[rgba(52,199,89,0.10)]   border-[rgba(52,199,89,0.25)]   text-[#30D158]',
-  warning:  'bg-[rgba(255,159,10,0.10)]  border-[rgba(255,159,10,0.25)]  text-[#FF9F0A]',
-  rejected: 'bg-[rgba(255,69,58,0.10)]   border-[rgba(255,69,58,0.25)]   text-[#FF453A]',
-  muted:    'bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.08)] text-cream-subtle',
-  blue:     'bg-[rgba(75,124,246,0.12)]  border-[rgba(75,124,246,0.28)]  text-blue-bright',
+  default:  'bg-[rgba(4,11,26,0.07)]   border-[rgba(4,11,26,0.15)]   text-cream-muted',
+  gold:     'bg-[rgba(180,110,10,0.10)] border-[rgba(180,110,10,0.25)] text-[#A06800]',
+  pending:  'bg-[rgba(180,110,10,0.10)] border-[rgba(180,110,10,0.25)] text-[#A06800]',
+  success:  'bg-[rgba(20,140,60,0.10)]  border-[rgba(20,140,60,0.25)]  text-[#0D7A35]',
+  approved: 'bg-[rgba(20,140,60,0.10)]  border-[rgba(20,140,60,0.25)]  text-[#0D7A35]',
+  warning:  'bg-[rgba(180,100,0,0.10)]  border-[rgba(180,100,0,0.22)]  text-[#9A5A00]',
+  rejected: 'bg-[rgba(180,30,20,0.10)]  border-[rgba(180,30,20,0.22)]  text-[#C0231A]',
+  muted:    'bg-[rgba(4,11,26,0.05)]   border-[rgba(4,11,26,0.10)]   text-cream-subtle',
+  blue:     'bg-[rgba(40,80,200,0.10)]  border-[rgba(40,80,200,0.22)]  text-[#2A50C8]',
 }
 
 export function Badge({ variant = 'default', className = '', children, ...props }: BadgeProps) {
