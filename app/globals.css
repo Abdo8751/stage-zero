@@ -35,14 +35,17 @@
 
   body {
     background-color: var(--navy);
-    /* Large warm cream wash fills the top ~50%, fades to dark navy below */
+    /* Warm cream wash top → mid, blue flanks, amber bottom */
     background-image:
-      radial-gradient(ellipse at 50% -2%,   rgba(243,224,165,0.72) 0%, transparent 46%),
-      radial-gradient(ellipse at 10% 0%,    rgba(240,228,196,0.40) 0%, transparent 42%),
-      radial-gradient(ellipse at 90% 0%,    rgba(240,228,196,0.32) 0%, transparent 42%),
-      radial-gradient(ellipse at 50% 18%,   rgba(240,218,150,0.22) 0%, transparent 55%),
-      radial-gradient(ellipse at 12% 55%,   rgba(75,124,246,0.13)  0%, transparent 52%),
-      radial-gradient(ellipse at 85% 72%,   rgba(75,124,246,0.08)  0%, transparent 44%),
+      radial-gradient(ellipse at 50% -2%,   rgba(243,224,165,0.80) 0%, transparent 46%),
+      radial-gradient(ellipse at 10% 0%,    rgba(240,228,196,0.50) 0%, transparent 44%),
+      radial-gradient(ellipse at 90% 0%,    rgba(240,228,196,0.42) 0%, transparent 44%),
+      radial-gradient(ellipse at 50% 22%,   rgba(240,218,150,0.28) 0%, transparent 55%),
+      radial-gradient(ellipse at 25% 48%,   rgba(240,218,150,0.12) 0%, transparent 52%),
+      radial-gradient(ellipse at 75% 48%,   rgba(240,218,150,0.10) 0%, transparent 52%),
+      radial-gradient(ellipse at 50% 72%,   rgba(240,218,150,0.07) 0%, transparent 48%),
+      radial-gradient(ellipse at 12% 55%,   rgba(75,124,246,0.11)  0%, transparent 50%),
+      radial-gradient(ellipse at 85% 72%,   rgba(75,124,246,0.07)  0%, transparent 44%),
       radial-gradient(ellipse at 42% 96%,   rgba(232,165,60,0.10)  0%, transparent 38%);
     background-attachment: fixed;
     color: var(--cream);
@@ -58,24 +61,24 @@
 @layer utilities {
   .text-balance { text-wrap: balance; }
 
-  /* ─── Glass Card ──────────────────────────────────────────── */
+  /* ─── Glass Card — warm cream-frosted glass ──────────────── */
   .glass-card {
     position: relative;
-    background: rgba(9, 17, 42, 0.46);
-    backdrop-filter: blur(48px) saturate(200%);
-    -webkit-backdrop-filter: blur(48px) saturate(200%);
-    border: 1px solid var(--glass-border);
-    border-top-color: rgba(240, 230, 208, 0.28);
+    background: rgba(240, 228, 200, 0.07);
+    backdrop-filter: blur(48px) saturate(180%);
+    -webkit-backdrop-filter: blur(48px) saturate(180%);
+    border: 1px solid rgba(240, 230, 208, 0.18);
+    border-top-color: rgba(240, 230, 208, 0.42);
     border-radius: 20px;
     box-shadow:
-      0 1px 0 rgba(255, 252, 245, 0.20) inset,
-      0 -1px 0 rgba(0, 0, 0, 0.28) inset,
-      0 16px 48px rgba(0, 0, 0, 0.46),
-      0 2px 8px  rgba(0, 0, 0, 0.22);
+      0 1px 0 rgba(255, 252, 245, 0.26) inset,
+      0 -1px 0 rgba(0, 0, 0, 0.18) inset,
+      0 16px 48px rgba(0, 0, 0, 0.38),
+      0 2px 8px  rgba(0, 0, 0, 0.16);
     transition: border-color 240ms ease, box-shadow 240ms ease, transform 240ms ease;
   }
 
-  /* Cream-tinted gloss sheen */
+  /* Warm cream gloss sheen — wide and bright */
   .glass-card::before {
     content: '';
     position: absolute;
@@ -83,9 +86,9 @@
     border-radius: inherit;
     background: linear-gradient(
       155deg,
-      rgba(255, 252, 245, 0.13) 0%,
-      rgba(240, 230, 208, 0.06) 32%,
-      transparent 56%
+      rgba(255, 252, 245, 0.20) 0%,
+      rgba(240, 230, 208, 0.10) 35%,
+      transparent 60%
     );
     pointer-events: none;
     z-index: 0;
@@ -94,12 +97,12 @@
   .glass-card > * { position: relative; z-index: 1; }
 
   .glass-card-hover:hover {
-    border-color: rgba(75, 124, 246, 0.35);
+    border-color: rgba(240, 230, 208, 0.36);
     box-shadow:
-      0 1px 0 rgba(240, 230, 208, 0.08) inset,
-      0 -1px 0 rgba(0, 0, 0, 0.40) inset,
-      0 20px 60px rgba(0, 0, 0, 0.60),
-      0 0 0 1px rgba(75, 124, 246, 0.15);
+      0 1px 0 rgba(255, 252, 245, 0.22) inset,
+      0 -1px 0 rgba(0, 0, 0, 0.22) inset,
+      0 20px 60px rgba(0, 0, 0, 0.42),
+      0 0 0 1px rgba(240, 230, 208, 0.18);
     transform: translateY(-3px);
   }
 

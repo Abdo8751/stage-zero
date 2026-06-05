@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -67,7 +67,7 @@ export default function OnboardingPage() {
     }
   }, [user])
 
-  // Redirect away from onboarding only on initial page load — not mid-flow after step 2 creates the startup
+  // Redirect away from onboarding only on initial page load â€” not mid-flow after step 2 creates the startup
   useEffect(() => {
     if (userLoading) return
     if (initialCheckDone.current) return
@@ -86,7 +86,7 @@ export default function OnboardingPage() {
     }))
   }
 
-  /* ── Step 1: profile ───────────────────────────────────── */
+  /* â”€â”€ Step 1: profile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   const saveStep1 = async () => {
     const errs: Record<string, string> = {}
     if (validateRequired(step1.full_name, 'Full name')) errs.full_name = 'Full name is required'
@@ -116,7 +116,7 @@ export default function OnboardingPage() {
     }
   }
 
-  /* ── Step 2: startup basics ────────────────────────────── */
+  /* â”€â”€ Step 2: startup basics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   const saveStep2 = async () => {
     const errs: Record<string, string> = {}
     if (!step2.name.trim())             errs.name = 'Startup name is required'
@@ -160,7 +160,7 @@ export default function OnboardingPage() {
     }
   }
 
-  /* ── Step 3: funding — completes onboarding ────────────── */
+  /* â”€â”€ Step 3: funding â€” completes onboarding â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   const completeOnboarding = async () => {
     const errs: Record<string, string> = {}
     if (!step3.raise_amount.trim())  errs.raise_amount = 'Required'
@@ -279,7 +279,7 @@ export default function OnboardingPage() {
       </div>
 
       <Card>
-        {/* ── Step 1 ── */}
+        {/* â”€â”€ Step 1 â”€â”€ */}
         {step === 1 && (
           <div className="space-y-5">
             <Input
@@ -307,12 +307,12 @@ export default function OnboardingPage() {
               />
             </div>
             <Button onClick={saveStep1} disabled={saving} fullWidth>
-              {saving ? 'Saving…' : 'Continue'}
+              {saving ? 'Savingâ€¦' : 'Continue'}
             </Button>
           </div>
         )}
 
-        {/* ── Step 2 ── */}
+        {/* â”€â”€ Step 2 â”€â”€ */}
         {step === 2 && (
           <div className="space-y-5">
             <Input
@@ -352,7 +352,7 @@ export default function OnboardingPage() {
               <select
                 value={step2.stage}
                 onChange={(e) => setStep2({ ...step2, stage: e.target.value as StartupStage })}
-                className="w-full bg-[rgba(4,11,26,0.6)] border border-glass-border rounded-input px-4 py-3 text-[14px] text-cream focus:border-[rgba(75,124,246,0.5)] focus:outline-none transition-all [&>option]:bg-navy cursor-pointer"
+                className="w-full bg-[rgba(240,228,200,0.07)] border border-[rgba(240,230,208,0.18)] rounded-input px-4 py-3 text-[14px] text-cream focus:border-[rgba(240,230,208,0.50)] focus:outline-none transition-all [&>option]:bg-navy cursor-pointer"
               >
                 {STARTUP_STAGES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
@@ -361,12 +361,12 @@ export default function OnboardingPage() {
             <Textarea label="Solution" value={step2.solution} onChange={(e) => setStep2({ ...step2, solution: e.target.value })} error={errors.solution} placeholder="How does your product solve it?" />
             <div className="flex gap-3 pt-1">
               <Button variant="secondary" onClick={() => { persistDraft({ step: 1 }); setStep(1) }} fullWidth>Back</Button>
-              <Button onClick={saveStep2} disabled={saving} fullWidth>{saving ? 'Saving…' : 'Continue'}</Button>
+              <Button onClick={saveStep2} disabled={saving} fullWidth>{saving ? 'Savingâ€¦' : 'Continue'}</Button>
             </div>
           </div>
         )}
 
-        {/* ── Step 3 ── */}
+        {/* â”€â”€ Step 3 â”€â”€ */}
         {step === 3 && (
           <div className="space-y-5">
             <Input
@@ -399,11 +399,11 @@ export default function OnboardingPage() {
             <div className="flex gap-3 pt-1">
               <Button variant="secondary" onClick={() => { persistDraft({ step: 2 }); setStep(2) }} fullWidth>Back</Button>
               <Button onClick={completeOnboarding} disabled={saving} fullWidth>
-                {saving ? 'Submitting…' : 'Submit for review'}
+                {saving ? 'Submittingâ€¦' : 'Submit for review'}
               </Button>
             </div>
             <p className="text-center text-[12px] text-cream-subtle">
-              Your listing will be reviewed within 2–3 business days.
+              Your listing will be reviewed within 2â€“3 business days.
             </p>
           </div>
         )}
@@ -411,3 +411,4 @@ export default function OnboardingPage() {
     </div>
   )
 }
+

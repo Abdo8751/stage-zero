@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -42,7 +42,7 @@ function AvatarUpload({
           </div>
         )}
         {/* Hover overlay */}
-        <div className="absolute inset-0 flex items-center justify-center bg-[rgba(4,11,26,0.7)] opacity-0 transition-opacity group-hover:opacity-100">
+        <div className="absolute inset-0 flex items-center justify-center bg-[rgba(240,228,200,0.07)] opacity-0 transition-opacity group-hover:opacity-100">
           <Camera className="h-5 w-5 text-cream" />
         </div>
       </button>
@@ -234,7 +234,7 @@ export default function SettingsPage() {
         <p className="mt-1 text-[14px] text-cream-muted">Manage your profile and account preferences.</p>
       </div>
 
-      {/* ── Profile ──────────────────────────────── */}
+      {/* â”€â”€ Profile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section>
         <div className="mb-3 flex items-center gap-2">
           <User className="h-4 w-4 text-blue-bright" />
@@ -307,13 +307,13 @@ export default function SettingsPage() {
             )}
 
             <Button type="submit" fullWidth disabled={saving}>
-              {saving ? 'Saving…' : 'Save profile'}
+              {saving ? 'Savingâ€¦' : 'Save profile'}
             </Button>
           </form>
         </Card>
       </section>
 
-      {/* ── Password ─────────────────────────────── */}
+      {/* â”€â”€ Password â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section className="mt-6">
         <div className="mb-3 flex items-center gap-2">
           <Lock className="h-4 w-4 text-blue-bright" />
@@ -341,7 +341,7 @@ export default function SettingsPage() {
         </Card>
       </section>
 
-      {/* ── Switch role ──────────────────────────── */}
+      {/* â”€â”€ Switch role â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {user && (
         <section className="mt-6">
           <div className="mb-3 flex items-center gap-2">
@@ -377,7 +377,7 @@ export default function SettingsPage() {
         </section>
       )}
 
-      {/* ── Danger zone ──────────────────────────── */}
+      {/* â”€â”€ Danger zone â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section className="mt-6">
         <div className="mb-3 flex items-center gap-2">
           <Trash2 className="h-4 w-4 text-[#FF453A]" />
@@ -400,7 +400,7 @@ export default function SettingsPage() {
         </Card>
       </section>
 
-      {/* ── Switch role modal ─────────────────────── */}
+      {/* â”€â”€ Switch role modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {showSwitchModal && user && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm px-4 pb-6 sm:pb-0">
           <div className="w-full max-w-md rounded-2xl border border-[rgba(240,230,208,0.14)] bg-[rgba(6,14,36,0.96)] p-6 shadow-2xl">
@@ -426,7 +426,7 @@ export default function SettingsPage() {
               <button
                 type="button"
                 onClick={() => setShowSwitchModal(false)}
-                className="flex-1 rounded-[10px] border border-[rgba(255,255,255,0.10)] py-2.5 text-[14px] font-medium text-cream-muted hover:text-cream transition-colors cursor-pointer"
+                className="flex-1 rounded-[10px] border border-[rgba(240,230,208,0.18)] py-2.5 text-[14px] font-medium text-cream-muted hover:text-cream transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -436,7 +436,7 @@ export default function SettingsPage() {
                 disabled={switching}
                 className="flex-1 rounded-[10px] bg-[rgba(232,165,60,0.90)] py-2.5 text-[14px] font-bold text-navy hover:bg-amber transition-colors cursor-pointer disabled:opacity-50"
               >
-                {switching ? 'Switching…' : 'Confirm switch'}
+                {switching ? 'Switchingâ€¦' : 'Confirm switch'}
               </button>
             </div>
           </div>
@@ -446,3 +446,4 @@ export default function SettingsPage() {
     </div>
   )
 }
+
