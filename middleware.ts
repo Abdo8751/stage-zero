@@ -2,12 +2,12 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import type { UserRole } from '@/lib/types'
 
-const PUBLIC_ROUTES = ['/', '/login', '/signup', '/auth/reset-password', '/suspended']
+const PUBLIC_ROUTES = ['/', '/login', '/signup', '/auth/reset-password', '/suspended', '/explore']
 const FOUNDER_ROUTES = ['/onboarding', '/dashboard', '/profile/edit', '/interests']
 // Founders can access /browse and /startup/:id — they're blocked only from investor-only paths
 const INVESTOR_ONLY_ROUTES = ['/saved', '/upgrade', '/investor/verify']
 const INVESTOR_ROUTES = ['/browse', '/saved', '/upgrade', '/investor/verify']
-const SHARED_ROUTES = ['/chat', '/notifications', '/settings', '/explore']
+const SHARED_ROUTES = ['/chat', '/notifications', '/settings']
 
 function matchesRoute(pathname: string, routes: string[]) {
   return routes.some((route) => pathname === route || pathname.startsWith(`${route}/`))
