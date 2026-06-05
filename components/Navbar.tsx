@@ -253,16 +253,16 @@ export function Navbar() {
           ) : user ? (
             <>
               {/* User identity at top — #6 Recognition Rather than Recall */}
-              <div className="flex items-center justify-between gap-3 border-b border-[rgba(240,230,208,0.07)] px-5 py-4">
+              <div className="flex items-center justify-between gap-3 border-b border-[rgba(255,255,255,0.08)] px-5 py-4">
                 <div className="flex items-center gap-3">
                   <Avatar name={user.full_name} size="md" />
                   <div>
-                    <p className="text-[15px] font-bold text-cream">{user.full_name ?? 'You'}</p>
-                    <p className="text-[12px] capitalize text-cream-subtle">{user.role} · {user.email}</p>
+                    <p className="text-[15px] font-black text-white">{user.full_name ?? 'You'}</p>
+                    <p className="text-[12px] font-semibold capitalize text-[rgba(255,255,255,0.50)]">{user.role} · {user.email}</p>
                   </div>
                 </div>
-                <Link href="/notifications" onClick={() => setMobileOpen(false)} className="relative flex h-9 w-9 items-center justify-center rounded-[10px] border border-glass-border bg-[rgba(240,230,208,0.04)]">
-                  <Bell className="h-4 w-4 text-cream-muted" />
+                <Link href="/notifications" onClick={() => setMobileOpen(false)} className="relative flex h-9 w-9 items-center justify-center rounded-[10px] border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.06)]">
+                  <Bell className="h-4 w-4 text-[rgba(255,255,255,0.65)]" />
                   {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#FF453A] text-[9px] font-black text-white px-0.5">
                       {unreadCount > 9 ? '9+' : unreadCount}
@@ -281,11 +281,11 @@ export function Navbar() {
                       key={link.href}
                       href={link.href}
                       onClick={() => setMobileOpen(false)}
-                      className={`flex items-center gap-3 rounded-[10px] px-4 py-3 text-[14px] font-medium transition-colors ${
-                        isActive ? 'bg-[rgba(240,230,208,0.09)] text-cream' : 'text-cream-muted hover:text-cream hover:bg-[rgba(240,230,208,0.04)]'
+                      className={`flex items-center gap-3 rounded-[10px] px-4 py-3 text-[14px] font-bold transition-colors ${
+                        isActive ? 'bg-white text-[#040B1A]' : 'text-[rgba(255,255,255,0.65)] hover:text-white hover:bg-[rgba(255,255,255,0.08)]'
                       }`}
                     >
-                      <link.icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-cream' : 'text-cream-subtle'}`} />
+                      <link.icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-[#040B1A]' : 'text-[rgba(255,255,255,0.45)]'}`} />
                       <span className="flex-1">{link.label}</span>
                       {count > 0 && (
                         <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#FF453A] text-[10px] font-black text-white px-1">
@@ -298,26 +298,26 @@ export function Navbar() {
               </nav>
 
               {/* Bottom section */}
-              <div className="flex flex-col gap-1 border-t border-[rgba(240,230,208,0.07)] px-4 py-3">
+              <div className="flex flex-col gap-1 border-t border-[rgba(255,255,255,0.08)] px-4 py-3">
                 <Link
                   href="/settings"
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-3 rounded-[10px] px-4 py-3 text-[14px] font-medium text-cream-muted hover:text-cream hover:bg-[rgba(240,230,208,0.04)] transition-colors"
+                  className="flex items-center gap-3 rounded-[10px] px-4 py-3 text-[14px] font-bold text-[rgba(255,255,255,0.65)] hover:text-white hover:bg-[rgba(255,255,255,0.08)] transition-colors"
                 >
-                  <Settings className="h-4 w-4 text-cream-subtle" />
+                  <Settings className="h-4 w-4 text-[rgba(255,255,255,0.45)]" />
                   Settings
                 </Link>
                 <Link
                   href="/settings#switch-role"
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-3 rounded-[10px] px-4 py-3 text-[14px] font-medium text-cream-muted hover:text-amber hover:bg-[rgba(232,165,60,0.06)] transition-colors"
+                  className="flex items-center gap-3 rounded-[10px] px-4 py-3 text-[14px] font-bold text-[rgba(255,255,255,0.65)] hover:text-amber hover:bg-[rgba(232,165,60,0.06)] transition-colors"
                 >
-                  <RefreshCw className="h-4 w-4 text-cream-subtle" />
+                  <RefreshCw className="h-4 w-4 text-[rgba(255,255,255,0.45)]" />
                   Switch to {user?.role === 'founder' ? 'investor' : 'founder'} mode
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="flex items-center gap-3 rounded-[10px] px-4 py-3 text-[14px] font-medium text-cream-muted hover:text-[#FF6B6B] hover:bg-[rgba(255,69,58,0.06)] transition-colors cursor-pointer"
+                  className="flex items-center gap-3 rounded-[10px] px-4 py-3 text-[14px] font-bold text-[rgba(255,255,255,0.65)] hover:text-[#FF6B6B] hover:bg-[rgba(255,69,58,0.06)] transition-colors cursor-pointer"
                 >
                   <LogOut className="h-4 w-4" />
                   Sign out
@@ -327,7 +327,7 @@ export function Navbar() {
           ) : (
             !isAuthPage && (
               <div className="flex flex-col gap-2 p-5">
-                <Link href="/login" onClick={() => setMobileOpen(false)} className="px-4 py-3 text-[14px] font-medium text-cream-muted">Log in</Link>
+                <Link href="/login" onClick={() => setMobileOpen(false)} className="px-4 py-3 text-[14px] font-bold text-[rgba(255,255,255,0.70)]">Log in</Link>
                 <Link href="/signup" onClick={() => setMobileOpen(false)}>
                   <Button size="sm" fullWidth>Get started</Button>
                 </Link>

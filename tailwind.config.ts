@@ -11,9 +11,9 @@ const config: Config = {
       colors: {
         navy:           '#040B1A',
         'navy-surface': '#070F24',
-        cream:          '#FFFFFF',
-        'cream-muted':  'rgba(255,255,255,0.72)',
-        'cream-subtle': 'rgba(255,255,255,0.42)',
+        cream:          '#0D0F1A',
+        'cream-muted':  'rgba(13,15,26,0.68)',
+        'cream-subtle': 'rgba(13,15,26,0.45)',
         'blue-accent':  '#4B7CF6',
         'blue-bright':  '#7BA4FF',
         amber:          '#E8A53C',
@@ -23,9 +23,9 @@ const config: Config = {
         'glass-border-bright': 'rgba(255,255,255,0.16)',
         /* legacy aliases so existing pages don't break */
         gold:           '#E8A53C',
-        'text-primary': '#F0E6D0',
-        'text-secondary': 'rgba(240,230,208,0.60)',
-        'text-tertiary':  'rgba(240,230,208,0.32)',
+        'text-primary': '#0D0F1A',
+        'text-secondary': 'rgba(13,15,26,0.68)',
+        'text-tertiary':  'rgba(13,15,26,0.42)',
         'bg-base':      '#040B1A',
       },
       fontFamily: {
