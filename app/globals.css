@@ -6,9 +6,9 @@
   /* ── Core palette ─────────────────────── */
   --navy:          #040B1A;
   --navy-surface:  #070F24;
-  --cream:         #F0E6D0;
-  --cream-muted:   rgba(240, 230, 208, 0.60);
-  --cream-subtle:  rgba(240, 230, 208, 0.32);
+  --cream:         #FFFFFF;
+  --cream-muted:   rgba(255, 255, 255, 0.72);
+  --cream-subtle:  rgba(255, 255, 255, 0.42);
   --blue-accent:   #4B7CF6;
   --blue-bright:   #7BA4FF;
   --amber:         #E8A53C;
@@ -62,7 +62,12 @@
 
   h1, h2, h3, h4, h5, h6 {
     color: var(--cream);
-    @apply font-sans font-bold tracking-tight;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.45);
+    @apply font-sans font-black tracking-tight;
+  }
+
+  p, span, li, td, th {
+    font-weight: 500;
   }
 }
 

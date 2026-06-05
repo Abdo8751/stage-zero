@@ -11,9 +11,9 @@ const config: Config = {
       colors: {
         navy:           '#040B1A',
         'navy-surface': '#070F24',
-        cream:          '#F0E6D0',
-        'cream-muted':  'rgba(240,230,208,0.60)',
-        'cream-subtle': 'rgba(240,230,208,0.32)',
+        cream:          '#FFFFFF',
+        'cream-muted':  'rgba(255,255,255,0.72)',
+        'cream-subtle': 'rgba(255,255,255,0.42)',
         'blue-accent':  '#4B7CF6',
         'blue-bright':  '#7BA4FF',
         amber:          '#E8A53C',

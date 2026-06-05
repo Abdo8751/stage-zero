@@ -91,13 +91,20 @@ export function Navbar() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 h-14 flex items-center px-5 lg:px-8">
-        {/* Glass background */}
-        <div className="absolute inset-0 bg-[rgba(4,11,26,0.80)] backdrop-blur-[40px] border-b border-[rgba(240,230,208,0.07)]" />
+      <header className="fixed top-0 left-0 right-0 z-50 h-16 flex items-center px-5 lg:px-8">
+        {/* Glass background — dark, opaque, strong cream border */}
+        <div className="absolute inset-0 bg-[rgba(4,11,26,0.92)] backdrop-blur-[60px] border-b-2 border-[rgba(255,255,255,0.12)]" />
+        {/* Subtle cream glow along bottom border */}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(240,218,150,0.40)] to-transparent" />
 
         {/* ── Logo ──────────────────────────────────── */}
-        <Link href="/" className="relative z-10 shrink-0 select-none mr-6">
-          <span className="text-[15px] font-black tracking-[-0.04em] text-cream uppercase">STAGE ZERO</span>
+        <Link href="/" className="relative z-10 shrink-0 select-none mr-8">
+          <span
+            className="text-[20px] font-black tracking-[-0.05em] text-white uppercase"
+            style={{ textShadow: '0 0 24px rgba(240,218,150,0.45)' }}
+          >
+            STAGE ZERO
+          </span>
         </Link>
 
         {/* ── Desktop nav ──────────────────────────── */}
@@ -105,7 +112,7 @@ export function Navbar() {
 
           {/* Primary nav links */}
           {user && !loading && (
-            <nav className="flex items-center gap-0.5">
+            <nav className="flex items-center gap-1">
               {links.map((link) => {
                 const isActive = pathname === link.href || pathname.startsWith(link.href + '/')
                 const count    = link.badge ? pendingCount : 0
@@ -114,23 +121,20 @@ export function Navbar() {
                     key={link.href}
                     href={link.href}
                     className={`
-                      relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-[8px]
-                      text-[13px] font-medium transition-all duration-150
+                      relative flex items-center gap-2 px-4 py-2 rounded-[10px]
+                      text-[13px] font-bold tracking-[-0.01em] transition-all duration-150
                       ${isActive
-                        ? 'bg-[rgba(240,230,208,0.10)] text-cream'
-                        : 'text-cream-muted hover:text-cream hover:bg-[rgba(240,230,208,0.06)]'
+                        ? 'bg-white text-[#040B1A] shadow-[0_2px_12px_rgba(0,0,0,0.25)]'
+                        : 'text-[rgba(255,255,255,0.62)] hover:text-white hover:bg-[rgba(255,255,255,0.10)]'
                       }
                     `}
                   >
-                    <link.icon className={`h-3.5 w-3.5 shrink-0 ${isActive ? 'text-cream' : 'text-cream-subtle'}`} />
+                    <link.icon className={`h-3.5 w-3.5 shrink-0 ${isActive ? 'text-[#040B1A]' : 'text-[rgba(255,255,255,0.45)]'}`} />
                     {link.label}
                     {count > 0 && (
-                      <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#FF453A] text-[9px] font-black text-white px-1 shadow-[0_0_0_2px_rgba(4,11,26,0.8)]">
+                      <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#FF453A] text-[9px] font-black text-white px-1">
                         {count > 9 ? '9+' : count}
                       </span>
-                    )}
-                    {isActive && (
-                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-4 rounded-full bg-cream opacity-50" />
                     )}
                   </Link>
                 )
@@ -142,67 +146,61 @@ export function Navbar() {
           {loading && (
             <div className="flex items-center gap-2">
               {[80, 68, 60, 52].map((w) => (
-                <div key={w} className="shimmer h-7 rounded-[8px]" style={{ width: w }} />
+                <div key={w} className="shimmer h-8 rounded-[10px]" style={{ width: w }} />
               ))}
             </div>
           )}
 
           {/* Right section */}
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-3">
 
-            {/* Explore link for unauthenticated visitors */}
-          {!user && !loading && !isAuthPage && (
-            <Link
-              href="/explore"
-              className="text-[13px] font-medium text-cream-muted hover:text-cream transition-colors"
-            >
-              Explore startups
-            </Link>
-          )}
+            {!user && !loading && !isAuthPage && (
+              <Link
+                href="/explore"
+                className="text-[13px] font-bold text-[rgba(255,255,255,0.62)] hover:text-white transition-colors"
+              >
+                Explore startups
+              </Link>
+            )}
 
-          {user && !loading ? (
+            {user && !loading ? (
               <>
-                {/* Notification bell — #1 Visibility of System Status */}
+                {/* Notification bell */}
                 <Link
                   href="/notifications"
                   title="Notifications"
-                  className="relative flex h-8 w-8 items-center justify-center rounded-[8px] border border-glass-border bg-[rgba(240,230,208,0.04)] hover:bg-[rgba(240,230,208,0.08)] transition-colors"
+                  className="relative flex h-9 w-9 items-center justify-center rounded-[10px] border border-[rgba(255,255,255,0.14)] bg-[rgba(255,255,255,0.06)] hover:bg-[rgba(255,255,255,0.12)] hover:border-[rgba(255,255,255,0.25)] transition-all"
                 >
-                  <Bell className="h-[15px] w-[15px] text-cream-muted" />
+                  <Bell className="h-4 w-4 text-[rgba(255,255,255,0.70)]" />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#FF453A] text-[9px] font-black text-white px-0.5 shadow-[0_0_0_2px_rgba(4,11,26,0.9)]">
+                    <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#FF453A] text-[9px] font-black text-white px-0.5">
                       {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                   )}
                 </Link>
 
-                {/* Divider */}
-                <div className="h-5 w-px bg-[rgba(240,230,208,0.08)]" />
-
                 {/* User identity card */}
                 <Link
                   href="/settings"
                   title="Profile & Settings"
-                  className="group flex items-center gap-2 rounded-[10px] border border-[rgba(240,230,208,0.10)] bg-[rgba(240,230,208,0.04)] pl-2 pr-3 py-1.5 hover:bg-[rgba(240,230,208,0.08)] hover:border-[rgba(240,230,208,0.18)] transition-all duration-150"
+                  className="group flex items-center gap-2.5 rounded-[12px] border border-[rgba(255,255,255,0.16)] bg-[rgba(255,255,255,0.08)] pl-2.5 pr-4 py-2 hover:bg-[rgba(255,255,255,0.14)] hover:border-[rgba(255,255,255,0.28)] transition-all duration-150"
                 >
                   <Avatar name={user.full_name} />
                   <div className="leading-none">
-                    <p className="text-[13px] font-semibold text-cream">{firstName}</p>
-                    <p className="mt-0.5 text-[10px] font-medium capitalize text-cream-subtle">
+                    <p className="text-[13px] font-black text-white">{firstName}</p>
+                    <p className="mt-0.5 text-[10px] font-bold capitalize text-[rgba(255,255,255,0.45)]">
                       {user.role}
-                      <span className="ml-1.5 text-[9px] text-cream-subtle opacity-0 group-hover:opacity-70 transition-opacity">· switch</span>
                     </p>
                   </div>
-                  <Settings className="ml-1 h-3.5 w-3.5 text-cream-subtle opacity-0 group-hover:opacity-60 transition-opacity" />
                 </Link>
 
-                {/* Sign out — #3 User Control and Freedom */}
+                {/* Sign out */}
                 <button
                   onClick={handleSignOut}
                   title="Sign out"
-                  className="flex items-center gap-1.5 rounded-[8px] px-2.5 py-1.5 text-[13px] font-medium text-cream-subtle hover:text-[#FF6B6B] hover:bg-[rgba(255,69,58,0.07)] transition-all duration-150 cursor-pointer"
+                  className="flex items-center gap-1.5 rounded-[10px] px-3 py-2 text-[13px] font-bold text-[rgba(255,255,255,0.45)] hover:text-[#FF6B6B] hover:bg-[rgba(255,69,58,0.08)] transition-all duration-150 cursor-pointer"
                 >
-                  <LogOut className="h-[14px] w-[14px]" />
+                  <LogOut className="h-4 w-4" />
                   <span className="hidden xl:inline">Sign out</span>
                 </button>
               </>
@@ -214,15 +212,15 @@ export function Navbar() {
                     target="_blank"
                     rel="noopener noreferrer"
                     title="@stagezero.eg on Instagram"
-                    className="flex items-center justify-center text-cream-subtle hover:text-cream transition-colors"
+                    className="flex items-center justify-center text-[rgba(255,255,255,0.45)] hover:text-white transition-colors"
                   >
-                    <svg className="h-[15px] w-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
                       <circle cx="12" cy="12" r="4" />
                       <circle cx="17.5" cy="6.5" r="0.7" fill="currentColor" stroke="none" />
                     </svg>
                   </a>
-                  <Link href="/login" className="px-3.5 py-1.5 text-[13px] font-medium text-cream-muted hover:text-cream transition-colors">
+                  <Link href="/login" className="px-4 py-2 text-[13px] font-bold text-[rgba(255,255,255,0.62)] hover:text-white transition-colors">
                     Log in
                   </Link>
                   <Link href="/signup">
@@ -237,17 +235,17 @@ export function Navbar() {
         {/* Mobile toggle */}
         <button
           type="button"
-          className="relative z-10 ml-auto flex h-8 w-8 items-center justify-center rounded-[8px] bg-[rgba(240,230,208,0.06)] border border-[rgba(240,230,208,0.10)] lg:hidden cursor-pointer"
+          className="relative z-10 ml-auto flex h-9 w-9 items-center justify-center rounded-[10px] bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.14)] lg:hidden cursor-pointer hover:bg-[rgba(255,255,255,0.14)] transition-all"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
         >
-          {mobileOpen ? <X className="h-4 w-4 text-cream" /> : <Menu className="h-4 w-4 text-cream" />}
+          {mobileOpen ? <X className="h-4 w-4 text-white" /> : <Menu className="h-4 w-4 text-white" />}
         </button>
       </header>
 
       {/* ── Mobile drawer ─────────────────────────── */}
       {mobileOpen && (
-        <div className="fixed top-14 inset-x-0 z-40 flex flex-col border-b border-[rgba(240,230,208,0.07)] bg-[rgba(4,11,26,0.97)] backdrop-blur-[40px] lg:hidden">
+        <div className="fixed top-16 inset-x-0 z-40 flex flex-col border-b-2 border-[rgba(255,255,255,0.10)] bg-[rgba(4,11,26,0.97)] backdrop-blur-[60px] lg:hidden">
           {loading ? (
             <div className="space-y-2 p-5">
               {[1, 2, 3].map((i) => <div key={i} className="shimmer h-10 rounded-[10px]" />)}
