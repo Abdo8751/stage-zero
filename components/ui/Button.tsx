@@ -1,7 +1,7 @@
 import { type ButtonHTMLAttributes } from 'react'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'destructive'
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive'
   size?: 'sm' | 'md' | 'lg'
   fullWidth?: boolean
 }
@@ -9,18 +9,23 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const variants = {
   primary:
     'btn-cream-gloss ' +
-    'bg-gradient-to-b from-[#F5EDDB] to-[#DDD0B4] ' +
-    'text-[#040B1A] font-semibold ' +
-    'border border-[rgba(255,255,255,0.35)] rounded-btn ' +
-    'shadow-[0_2px_12px_rgba(0,0,0,0.4),0_1px_0_rgba(255,255,255,0.35)_inset] ' +
-    'hover:from-[#FAF3E4] hover:to-[#E5D8BE] ' +
+    'bg-gradient-to-b from-[#FDF6E4] to-[#E2CF9E] ' +
+    'text-[#040B1A] font-bold ' +
+    'border border-[rgba(255,255,255,0.45)] rounded-btn ' +
+    'shadow-[0_0_24px_rgba(232,185,80,0.30),0_4px_16px_rgba(0,0,0,0.45),0_1px_0_rgba(255,255,255,0.50)_inset] ' +
+    'hover:from-[#FFFFFF] hover:to-[#EEE0B8] hover:shadow-[0_0_32px_rgba(232,185,80,0.45),0_6px_20px_rgba(0,0,0,0.40)] ' +
     'active:scale-[0.97] transition-all duration-150',
   secondary:
-    'bg-glass-bg backdrop-blur-[20px] ' +
-    'border border-glass-border rounded-btn ' +
+    'bg-[rgba(240,230,208,0.09)] backdrop-blur-[20px] ' +
+    'border border-[rgba(240,230,208,0.28)] rounded-btn ' +
+    'text-cream font-semibold ' +
+    'shadow-[0_1px_0_rgba(240,230,208,0.10)_inset] ' +
+    'hover:bg-[rgba(240,230,208,0.16)] hover:border-[rgba(240,230,208,0.42)] ' +
+    'active:scale-[0.97] transition-all duration-150',
+  outline:
+    'bg-transparent border border-[rgba(240,230,208,0.30)] rounded-btn ' +
     'text-cream font-medium ' +
-    'shadow-[0_1px_0_rgba(240,230,208,0.05)_inset] ' +
-    'hover:bg-glass-bg-hover hover:border-glass-border-bright ' +
+    'hover:bg-[rgba(240,230,208,0.07)] hover:border-[rgba(240,230,208,0.50)] ' +
     'active:scale-[0.97] transition-all duration-150',
   ghost:
     'bg-transparent border border-transparent rounded-btn ' +
@@ -35,7 +40,7 @@ const variants = {
 const sizes = {
   sm: 'px-4 py-2 text-[13px] tracking-[-0.01em]',
   md: 'px-5 py-2.5 text-[14px] tracking-[-0.01em]',
-  lg: 'px-7 py-3.5 text-[15px] tracking-[-0.01em]',
+  lg: 'px-8 py-4 text-[15px] tracking-[-0.01em]',
 }
 
 export function Button({

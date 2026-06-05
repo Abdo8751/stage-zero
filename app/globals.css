@@ -35,14 +35,15 @@
 
   body {
     background-color: var(--navy);
-    /* Brighter cream light source top-right, cool blue mid-left, warm amber bottom */
+    /* Large warm cream wash fills the top ~50%, fades to dark navy below */
     background-image:
-      radial-gradient(ellipse at 70% 0%,    rgba(255,252,245,0.18) 0%, transparent 40%),
-      radial-gradient(ellipse at 72% 0%,    rgba(240,230,208,0.22) 0%, transparent 50%),
-      radial-gradient(ellipse at 100% 30%,  rgba(240,230,208,0.09) 0%, transparent 38%),
-      radial-gradient(ellipse at 12% 48%,   rgba(75,124,246,0.14)  0%, transparent 52%),
-      radial-gradient(ellipse at 82% 78%,   rgba(75,124,246,0.08)  0%, transparent 44%),
-      radial-gradient(ellipse at 40% 94%,   rgba(232,165,60,0.08)  0%, transparent 38%);
+      radial-gradient(ellipse at 50% -2%,   rgba(243,224,165,0.72) 0%, transparent 46%),
+      radial-gradient(ellipse at 10% 0%,    rgba(240,228,196,0.40) 0%, transparent 42%),
+      radial-gradient(ellipse at 90% 0%,    rgba(240,228,196,0.32) 0%, transparent 42%),
+      radial-gradient(ellipse at 50% 18%,   rgba(240,218,150,0.22) 0%, transparent 55%),
+      radial-gradient(ellipse at 12% 55%,   rgba(75,124,246,0.13)  0%, transparent 52%),
+      radial-gradient(ellipse at 85% 72%,   rgba(75,124,246,0.08)  0%, transparent 44%),
+      radial-gradient(ellipse at 42% 96%,   rgba(232,165,60,0.10)  0%, transparent 38%);
     background-attachment: fixed;
     color: var(--cream);
     @apply font-sans antialiased;
@@ -60,21 +61,21 @@
   /* ─── Glass Card ──────────────────────────────────────────── */
   .glass-card {
     position: relative;
-    background: var(--glass-bg);
+    background: rgba(9, 17, 42, 0.46);
     backdrop-filter: blur(48px) saturate(200%);
     -webkit-backdrop-filter: blur(48px) saturate(200%);
     border: 1px solid var(--glass-border);
-    border-top-color: rgba(240, 230, 208, 0.20);   /* brighter cream hairline on top */
+    border-top-color: rgba(240, 230, 208, 0.28);
     border-radius: 20px;
     box-shadow:
-      0 1px 0 rgba(255, 252, 245, 0.16) inset,     /* white-cream top glow */
-      0 -1px 0 rgba(0, 0, 0, 0.32) inset,
-      0 16px 48px rgba(0, 0, 0, 0.50),
-      0 2px 8px  rgba(0, 0, 0, 0.26);
+      0 1px 0 rgba(255, 252, 245, 0.20) inset,
+      0 -1px 0 rgba(0, 0, 0, 0.28) inset,
+      0 16px 48px rgba(0, 0, 0, 0.46),
+      0 2px 8px  rgba(0, 0, 0, 0.22);
     transition: border-color 240ms ease, box-shadow 240ms ease, transform 240ms ease;
   }
 
-  /* Cream-tinted gloss sheen — wider and brighter */
+  /* Cream-tinted gloss sheen */
   .glass-card::before {
     content: '';
     position: absolute;
@@ -82,9 +83,9 @@
     border-radius: inherit;
     background: linear-gradient(
       155deg,
-      rgba(255, 252, 245, 0.10) 0%,
-      rgba(240, 230, 208, 0.05) 30%,
-      transparent 58%
+      rgba(255, 252, 245, 0.13) 0%,
+      rgba(240, 230, 208, 0.06) 32%,
+      transparent 56%
     );
     pointer-events: none;
     z-index: 0;
@@ -184,13 +185,47 @@
   }
   .badge-pulse { animation: pulse-glow 2.8s ease-in-out infinite; }
 
-  /* ─── Floating orbs ────────────────────────────────────────── */
+  /* ─── Floating orbs — drift in 2D ─────────────────────────── */
   @keyframes orb-float {
-    0%   { transform: translateY(0)   scale(1); }
-    50%  { transform: translateY(-14px) scale(1.04); }
-    100% { transform: translateY(0)   scale(1); }
+    0%   { transform: translate(0px,   0px)   scale(1);    }
+    20%  { transform: translate(28px,  -16px) scale(1.05); }
+    45%  { transform: translate(10px,  26px)  scale(0.97); }
+    70%  { transform: translate(-22px, 8px)   scale(1.03); }
+    100% { transform: translate(0px,   0px)   scale(1);    }
   }
-  .orb-animation { animation: orb-float 10s ease-in-out infinite; }
+  .orb-animation { animation: orb-float 14s ease-in-out infinite; }
+
+  /* ─── Large cream blob drifts (faster, more varied) ─────────── */
+  @keyframes blob-a {
+    0%, 100% { transform: translate(0px,   0px)   scale(1);    }
+    30%       { transform: translate(80px,  70px)  scale(1.14); }
+    65%       { transform: translate(-55px, 110px) scale(0.89); }
+  }
+  @keyframes blob-b {
+    0%, 100% { transform: translate(0px,    0px)   scale(1);    }
+    35%       { transform: translate(-95px, 50px)  scale(1.10); }
+    70%       { transform: translate(50px,  -55px) scale(0.93); }
+  }
+  @keyframes blob-c {
+    0%, 100% { transform: translate(0px,   0px)   scale(1);    }
+    40%       { transform: translate(60px,  -80px) scale(1.08); }
+    75%       { transform: translate(-40px, 50px)  scale(0.95); }
+  }
+  @keyframes blob-d {
+    0%, 100% { transform: translate(0px,    0px)   scale(1);    }
+    25%       { transform: translate(-70px, -60px) scale(1.12); }
+    60%       { transform: translate(90px,  40px)  scale(0.92); }
+  }
+  @keyframes blob-e {
+    0%, 100% { transform: translate(0px,   0px)   scale(1);    }
+    45%       { transform: translate(50px,  90px)  scale(1.07); }
+    80%       { transform: translate(-60px, -30px) scale(0.96); }
+  }
+  .blob-a { animation: blob-a 11s ease-in-out infinite; }
+  .blob-b { animation: blob-b 13s ease-in-out infinite; }
+  .blob-c { animation: blob-c  9s ease-in-out infinite; }
+  .blob-d { animation: blob-d 10s ease-in-out infinite; }
+  .blob-e { animation: blob-e 14s ease-in-out infinite; }
 
   /* ─── Shimmer skeleton ─────────────────────────────────────── */
   .shimmer {
