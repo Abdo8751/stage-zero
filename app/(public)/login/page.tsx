@@ -83,8 +83,7 @@ function LoginForm() {
       getLoginRedirect(profile.role, profile.is_verified, investorApproved, hasStartup)
 
     showToast('Welcome back!', 'success')
-    router.refresh()
-    router.replace(destination)
+    window.location.href = destination
   }
 
   const handleRoleSelection = async (selectedRole: UserRole) => {
