@@ -79,7 +79,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-transparent">
+    <div className="flex min-h-screen admin-dark" style={{ background: '#050D1C' }}>
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div

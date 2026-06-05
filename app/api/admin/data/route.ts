@@ -33,12 +33,20 @@ export async function GET(request: Request) {
         .order('created_at', { ascending: false })
       if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-      const userIds = (investors ?? []).map((i) => i.user_id)
+      // Deduplicate: already ordered by created_at DESC, keep first per user_id
+      const seenUsers = new Set<string>()
+      const uniqueInvestors = (investors ?? []).filter((inv) => {
+        if (seenUsers.has(inv.user_id)) return false
+        seenUsers.add(inv.user_id)
+        return true
+      })
+
+      const userIds = uniqueInvestors.map((i) => i.user_id)
       const { data: users } = await supabase
         .from('users').select('id, full_name, email').in('id', userIds)
       const userMap = new Map((users ?? []).map((u) => [u.id, u]))
 
-      const rows = (investors ?? []).map((inv) => {
+      const rows = uniqueInvestors.map((inv) => {
         const u = userMap.get(inv.user_id)
         return { ...inv, full_name: u?.full_name ?? null, email: u?.email ?? '' }
       })
