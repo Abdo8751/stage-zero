@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState, useCallback } from 'react'
 import { RefreshCw, CheckCircle2, XCircle, CreditCard } from 'lucide-react'
@@ -130,22 +130,22 @@ export default function AdminInvestorsPage() {
         <div>
           <h1 className="text-[26px] font-black tracking-tight text-cream">Investors</h1>
           <p className="mt-1 text-[13px] text-cream-muted">
-            {pendingCount > 0 && <span className="mr-2 font-semibold text-amber">{pendingCount} pending verification · </span>}
+            {pendingCount > 0 && <span className="mr-2 font-semibold text-amber">{pendingCount} pending verification Â· </span>}
             {filtered.length} total
           </p>
         </div>
         <button onClick={fetchData} disabled={loading}
-          className="inline-flex items-center gap-2 border border-[rgba(240,230,208,0.14)] bg-[rgba(240,230,208,0.06)] px-4 py-2 rounded-[10px] text-[13px] font-medium text-cream-muted hover:text-cream hover:bg-[rgba(240,230,208,0.10)] transition-colors disabled:opacity-40 cursor-pointer">
+          className="inline-flex items-center gap-2 border border-[rgba(8,10,20,0.12)] bg-[rgba(240,230,208,0.06)] px-4 py-2 rounded-[10px] text-[13px] font-medium text-cream-muted hover:text-cream hover:bg-[rgba(8,10,20,0.08)] transition-colors disabled:opacity-40 cursor-pointer">
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />Refresh
         </button>
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <input value={search} onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name or email…"
-          className="flex-1 border border-[rgba(255,255,255,0.10)] bg-[rgba(255,255,255,0.05)] px-4 py-2.5 rounded-[10px] text-[13px] text-cream placeholder:text-cream-subtle focus:outline-none focus:border-[rgba(75,124,246,0.45)] transition-colors" />
+          placeholder="Search by name or emailâ€¦"
+          className="flex-1 border border-[rgba(255,255,255,0.10)] bg-[rgba(255,255,255,0.05)] px-4 py-2.5 rounded-[10px] text-[13px] text-cream placeholder:text-cream-subtle focus:outline-none focus:border-[rgba(8,10,20,0.45)] transition-colors" />
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-          className="border border-[rgba(255,255,255,0.10)] bg-[rgba(4,11,26,0.80)] px-4 py-2.5 rounded-[10px] text-[13px] text-cream focus:outline-none focus:border-[rgba(75,124,246,0.45)] transition-colors cursor-pointer [&>option]:bg-[#070F24]">
+          className="border border-[rgba(255,255,255,0.10)] bg-white px-4 py-2.5 rounded-[10px] text-[13px] text-cream focus:outline-none focus:border-[rgba(8,10,20,0.45)] transition-colors cursor-pointer [&>option]:bg-white">
           <option value="">All statuses</option>
           <option value="pending">Pending</option>
           <option value="approved">Approved</option>
@@ -156,13 +156,13 @@ export default function AdminInvestorsPage() {
       <div className="glass-card overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-[rgba(255,255,255,0.06)] text-[10px] tracking-[0.14em] uppercase text-cream-subtle font-medium">
+            <tr className="border-b border-[rgba(8,10,20,0.10)] text-[10px] tracking-[0.14em] uppercase text-cream-subtle font-medium">
               {['Investor', 'LinkedIn', 'Cheque size', 'Location', 'Credits', 'Status', 'Joined', 'Actions'].map((h) => (
                 <th key={h} className="px-4 py-3">{h}</th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[rgba(255,255,255,0.05)]">
+          <tbody className="divide-y divide-[rgba(8,10,20,0.08)]">
             {loading ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <tr key={i}>{Array.from({ length: 8 }).map((_, j) => <td key={j} className="px-4 py-3"><div className="h-4 w-full rounded shimmer" /></td>)}</tr>
@@ -170,18 +170,18 @@ export default function AdminInvestorsPage() {
             ) : sorted.length === 0 ? (
               <tr><td colSpan={8} className="px-6 py-10 text-center text-[13px] text-cream-subtle">No investors found.</td></tr>
             ) : sorted.map((inv) => (
-              <tr key={inv.userId} className={`hover:bg-[rgba(240,230,208,0.025)] transition-colors ${inv.verificationStatus === 'pending' ? 'bg-[rgba(232,165,60,0.03)]' : ''}`}>
+              <tr key={inv.userId} className={`hover:bg-[rgba(8,10,20,0.03)] transition-colors ${inv.verificationStatus === 'pending' ? 'bg-[rgba(232,165,60,0.06)]' : ''}`}>
                 <td className="px-4 py-3">
-                  <p className="text-[13px] font-semibold text-cream">{inv.fullName ?? '—'}</p>
+                  <p className="text-[13px] font-semibold text-cream">{inv.fullName ?? 'â€”'}</p>
                   <p className="text-[11px] text-cream-subtle">{inv.email}</p>
                 </td>
                 <td className="px-4 py-3 text-[12px] text-cream-muted">
                   {inv.linkedinUrl
-                    ? <a href={inv.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-bright hover:underline">View →</a>
-                    : '—'}
+                    ? <a href={inv.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-bright hover:underline">View â†’</a>
+                    : 'â€”'}
                 </td>
-                <td className="px-4 py-3 text-[12px] text-cream-muted whitespace-nowrap">{inv.chequeSize ?? '—'}</td>
-                <td className="px-4 py-3 text-[12px] text-cream-muted">{inv.location ?? '—'}</td>
+                <td className="px-4 py-3 text-[12px] text-cream-muted whitespace-nowrap">{inv.chequeSize ?? 'â€”'}</td>
+                <td className="px-4 py-3 text-[12px] text-cream-muted">{inv.location ?? 'â€”'}</td>
                 <td className="px-4 py-3 text-[13px] font-bold text-amber">{inv.credits}</td>
                 <td className="px-4 py-3"><StatusChip status={inv.verificationStatus} /></td>
                 <td className="px-4 py-3 text-[12px] text-cream-subtle whitespace-nowrap">{formatDate(inv.joinedAt)}</td>
@@ -214,11 +214,11 @@ export default function AdminInvestorsPage() {
       {/* Modal */}
       {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-sm px-4">
-          <div className="w-full max-w-md rounded-2xl border border-[rgba(240,230,208,0.14)] bg-[rgba(6,12,30,0.97)] p-6 shadow-2xl">
+          <div className="w-full max-w-md rounded-2xl border border-[rgba(8,10,20,0.12)] bg-[rgba(255,255,255,0.97)] p-6 shadow-2xl">
             <h2 className="text-[18px] font-black text-cream mb-1">
               {modal.action === 'approve' ? `Approve ${modal.row.fullName ?? 'investor'}` :
                modal.action === 'reject'  ? `Reject ${modal.row.fullName ?? 'investor'}` :
-               `Set credits — ${modal.row.fullName ?? 'investor'}`}
+               `Set credits â€” ${modal.row.fullName ?? 'investor'}`}
             </h2>
 
             {modal.action === 'approve' && (
@@ -229,8 +229,8 @@ export default function AdminInvestorsPage() {
               <div className="mt-4">
                 <label className="mb-1.5 block text-[12px] font-bold uppercase tracking-[0.10em] text-cream-subtle">Rejection reason (required)</label>
                 <textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={3}
-                  className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.10)] rounded-[10px] px-4 py-3 text-[14px] text-cream focus:border-[rgba(75,124,246,0.45)] focus:outline-none resize-none transition-colors"
-                  placeholder="Tell the investor why they were not approved…" />
+                  className="w-full bg-white border border-[rgba(8,10,20,0.15)] rounded-[10px] px-4 py-3 text-[14px] text-cream focus:border-[rgba(8,10,20,0.45)] focus:outline-none resize-none transition-colors"
+                  placeholder="Tell the investor why they were not approvedâ€¦" />
               </div>
             )}
 
@@ -238,7 +238,7 @@ export default function AdminInvestorsPage() {
               <div className="mt-4">
                 <label className="mb-1.5 block text-[12px] font-bold uppercase tracking-[0.10em] text-cream-subtle">Credit amount</label>
                 <input type="number" min="0" max="999" value={creditsAmount} onChange={(e) => setCreditsAmount(e.target.value)}
-                  className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.10)] rounded-[10px] px-4 py-3 text-[14px] text-cream focus:border-[rgba(75,124,246,0.45)] focus:outline-none transition-colors" />
+                  className="w-full bg-white border border-[rgba(8,10,20,0.15)] rounded-[10px] px-4 py-3 text-[14px] text-cream focus:border-[rgba(8,10,20,0.45)] focus:outline-none transition-colors" />
               </div>
             )}
 
@@ -250,7 +250,7 @@ export default function AdminInvestorsPage() {
 
             <div className="mt-5 flex gap-3">
               <button onClick={() => { setModal(null); setReason(''); setActionError('') }}
-                className="flex-1 rounded-[10px] border border-[rgba(255,255,255,0.10)] py-2.5 text-[14px] font-medium text-cream-muted hover:text-cream transition-colors cursor-pointer">
+                className="flex-1 rounded-[10px] border border-[rgba(8,10,20,0.15)] py-2.5 text-[14px] font-bold text-[rgba(8,10,20,0.60)] hover:text-[#080A14] transition-colors cursor-pointer">
                 Cancel
               </button>
               <button onClick={handleAction}
@@ -260,7 +260,7 @@ export default function AdminInvestorsPage() {
                   modal.action === 'reject'  ? 'bg-[#FF453A] text-white hover:bg-[#ff6b6b]' :
                   'bg-[rgba(232,165,60,0.90)] text-navy hover:bg-amber'
                 }`}>
-                {acting ? 'Processing…' :
+                {acting ? 'Processingâ€¦' :
                  modal.action === 'approve' ? 'Approve & grant 3 credits' :
                  modal.action === 'reject'  ? 'Reject' : 'Set credits'}
               </button>
@@ -271,3 +271,4 @@ export default function AdminInvestorsPage() {
     </div>
   )
 }
+

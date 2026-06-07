@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState, useCallback } from 'react'
 import { RefreshCw, CheckCircle2, XCircle, AlertCircle, MessageSquare } from 'lucide-react'
@@ -29,12 +29,12 @@ const STATUS_MAP: Record<StartupStatus, string> = {
 
 function StatusChip({ status }: { status: StartupStatus }) {
   const c = {
-    pending_review:    'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
-    active:            'bg-green-500/20 text-green-300 border-green-500/30',
-    paused:            'bg-gray-500/20 text-gray-400 border-gray-500/30',
-    rejected:          'bg-red-500/20 text-red-300 border-red-500/30',
-    changes_requested: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-  }[status] ?? 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+    pending_review:    'bg-[rgba(180,110,0,0.10)] text-[#8A6000] border-[rgba(180,110,0,0.25)]',
+    active:            'bg-[rgba(20,140,60,0.10)] text-[#0D7A35] border-[rgba(20,140,60,0.25)]',
+    paused:            'bg-[rgba(8,10,20,0.06)] text-[rgba(8,10,20,0.50)] border-[rgba(8,10,20,0.15)]',
+    rejected:          'bg-[rgba(180,30,20,0.10)] text-[#C0231A] border-[rgba(180,30,20,0.25)]',
+    changes_requested: 'bg-[rgba(40,80,200,0.10)] text-[#2A50C8] border-[rgba(40,80,200,0.25)]',
+  }[status] ?? 'bg-[rgba(8,10,20,0.06)] text-[rgba(8,10,20,0.50)] border-[rgba(8,10,20,0.15)]'
   return (
     <span className={`inline-flex items-center px-2 py-0.5 text-[9px] font-semibold tracking-[2px] uppercase rounded-[4px] border ${c}`}>
       {STATUS_MAP[status] ?? status}
@@ -49,7 +49,7 @@ function formatDate(d: string) {
   return new Date(d).toLocaleDateString('en-EG', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 function formatAmount(n: number | null) {
-  if (!n) return '—'
+  if (!n) return 'â€”'
   return n >= 1_000_000 ? `EGP ${(n / 1_000_000).toFixed(1)}M` : `EGP ${(n / 1_000).toFixed(0)}K`
 }
 
@@ -126,22 +126,22 @@ export default function AdminFoundersPage() {
         <div>
           <h1 className="text-[26px] font-black tracking-tight text-cream">Startups</h1>
           <p className="mt-1 text-[13px] text-cream-muted">
-            {pendingCount > 0 && <span className="mr-2 font-semibold text-amber">{pendingCount} pending review · </span>}
+            {pendingCount > 0 && <span className="mr-2 font-semibold text-amber">{pendingCount} pending review Â· </span>}
             {filtered.length} total
           </p>
         </div>
         <button onClick={fetchData} disabled={loading}
-          className="inline-flex items-center gap-2 border border-[rgba(240,230,208,0.14)] bg-[rgba(240,230,208,0.06)] px-4 py-2 rounded-[10px] text-[13px] font-medium text-cream-muted hover:text-cream hover:bg-[rgba(240,230,208,0.10)] transition-colors disabled:opacity-40 cursor-pointer">
+          className="inline-flex items-center gap-2 border border-[rgba(8,10,20,0.12)] bg-[rgba(240,230,208,0.06)] px-4 py-2 rounded-[10px] text-[13px] font-medium text-cream-muted hover:text-cream hover:bg-[rgba(8,10,20,0.08)] transition-colors disabled:opacity-40 cursor-pointer">
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />Refresh
         </button>
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <input value={search} onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by startup or founder…"
-          className="flex-1 border border-[rgba(255,255,255,0.10)] bg-[rgba(255,255,255,0.05)] px-4 py-2.5 rounded-[10px] text-[13px] text-cream placeholder:text-cream-subtle focus:outline-none focus:border-[rgba(75,124,246,0.45)] transition-colors" />
+          placeholder="Search by startup or founderâ€¦"
+          className="flex-1 border border-[rgba(255,255,255,0.10)] bg-[rgba(255,255,255,0.05)] px-4 py-2.5 rounded-[10px] text-[13px] text-cream placeholder:text-cream-subtle focus:outline-none focus:border-[rgba(8,10,20,0.45)] transition-colors" />
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-          className="border border-[rgba(255,255,255,0.10)] bg-[rgba(4,11,26,0.80)] px-4 py-2.5 rounded-[10px] text-[13px] text-cream focus:outline-none focus:border-[rgba(75,124,246,0.45)] transition-colors cursor-pointer [&>option]:bg-[#070F24]">
+          className="border border-[rgba(255,255,255,0.10)] bg-white px-4 py-2.5 rounded-[10px] text-[13px] text-cream focus:outline-none focus:border-[rgba(8,10,20,0.45)] transition-colors cursor-pointer [&>option]:bg-white">
           <option value="">All statuses</option>
           <option value="pending_review">Pending review</option>
           <option value="active">Active</option>
@@ -154,13 +154,13 @@ export default function AdminFoundersPage() {
       <div className="glass-card overflow-x-auto shadow-sm">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-[rgba(255,255,255,0.08)] text-[10px] tracking-[3px] uppercase text-[rgba(255,255,255,0.35)] font-medium">
+            <tr className="border-b border-[rgba(8,10,20,0.10)] text-[10px] tracking-[3px] uppercase text-[rgba(255,255,255,0.35)] font-medium">
               {['Startup', 'Founder', 'Sector', 'Stage', 'Raise', 'Status', 'Joined', 'Actions'].map((h) => (
                 <th key={h} className="px-4 py-3">{h}</th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[rgba(255,255,255,0.05)]">
+          <tbody className="divide-y divide-[rgba(8,10,20,0.08)]">
             {loading ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <tr key={i}>{Array.from({ length: 8 }).map((_, j) => <td key={j} className="px-4 py-3"><div className="h-4 w-full animate-pulse rounded bg-white/10" /></td>)}</tr>
@@ -171,10 +171,10 @@ export default function AdminFoundersPage() {
               <tr key={r.id} className={`hover:bg-[rgba(255,255,255,0.04)] transition-colors ${r.status === 'pending_review' ? 'bg-yellow-500/5' : ''}`}>
                 <td className="px-4 py-3 text-[13px] font-semibold text-[rgba(255,255,255,0.85)]">{r.name}</td>
                 <td className="px-4 py-3 text-[12px] text-[rgba(255,255,255,0.65)]">
-                  <p>{r.founder_name ?? '—'}</p>
+                  <p>{r.founder_name ?? 'â€”'}</p>
                   <p className="text-[rgba(255,255,255,0.35)]">{r.founder_email}</p>
                 </td>
-                <td className="px-4 py-3 text-[12px] text-[rgba(255,255,255,0.65)]">{r.sector.slice(0,2).join(', ') || '—'}</td>
+                <td className="px-4 py-3 text-[12px] text-[rgba(255,255,255,0.65)]">{r.sector.slice(0,2).join(', ') || 'â€”'}</td>
                 <td className="px-4 py-3 text-[12px] text-[rgba(255,255,255,0.65)] whitespace-nowrap">{stageName(r.stage)}</td>
                 <td className="px-4 py-3 text-[12px] text-[rgba(255,255,255,0.65)] whitespace-nowrap">{formatAmount(r.raise_amount)}</td>
                 <td className="px-4 py-3"><StatusChip status={r.status} /></td>
@@ -221,8 +221,8 @@ export default function AdminFoundersPage() {
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   rows={4}
-                  className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.10)] rounded-[10px] px-4 py-3 text-[14px] text-cream placeholder:text-cream-subtle focus:border-[rgba(75,124,246,0.5)] focus:outline-none resize-none"
-                  placeholder={modal.action === 'reject' ? 'Tell the founder why their listing was not approved…' : 'Describe exactly what needs to change…'}
+                  className="w-full bg-white border border-[rgba(8,10,20,0.15)] rounded-[10px] px-4 py-3 text-[14px] text-cream placeholder:text-cream-subtle focus:border-[rgba(75,124,246,0.5)] focus:outline-none resize-none"
+                  placeholder={modal.action === 'reject' ? 'Tell the founder why their listing was not approvedâ€¦' : 'Describe exactly what needs to changeâ€¦'}
                 />
               </div>
             )}
@@ -231,7 +231,7 @@ export default function AdminFoundersPage() {
             )}
             <div className="mt-5 flex gap-3">
               <button onClick={() => { setModal(null); setReason('') }}
-                className="flex-1 rounded-[10px] border border-[rgba(255,255,255,0.10)] py-2.5 text-[14px] font-medium text-cream-muted hover:text-cream transition-colors cursor-pointer">
+                className="flex-1 rounded-[10px] border border-[rgba(8,10,20,0.15)] py-2.5 text-[14px] font-bold text-[rgba(8,10,20,0.60)] hover:text-[#080A14] transition-colors cursor-pointer">
                 Cancel
               </button>
               <button
@@ -243,7 +243,7 @@ export default function AdminFoundersPage() {
                   'bg-blue-600 text-white hover:bg-blue-700'
                 }`}
               >
-                {acting ? 'Processing…' : modal.action === 'approve' ? 'Approve & go live' : modal.action === 'reject' ? 'Reject' : 'Send feedback'}
+                {acting ? 'Processingâ€¦' : modal.action === 'approve' ? 'Approve & go live' : modal.action === 'reject' ? 'Reject' : 'Send feedback'}
               </button>
             </div>
           </div>
@@ -252,3 +252,4 @@ export default function AdminFoundersPage() {
     </div>
   )
 }
+

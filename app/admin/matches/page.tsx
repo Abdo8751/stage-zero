@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
@@ -102,9 +102,9 @@ export default function AdminMatchesPage() {
         status: m.status as string,
         is_deal_closed: m.is_deal_closed as boolean,
         created_at: m.created_at as string,
-        startupName: startups?.name ?? '—',
-        founderName: startups?.users?.full_name ?? '—',
-        investorName: investors?.users?.full_name ?? '—',
+        startupName: startups?.name ?? 'â€”',
+        founderName: startups?.users?.full_name ?? 'â€”',
+        investorName: investors?.users?.full_name ?? 'â€”',
       }
     })
 
@@ -133,7 +133,7 @@ export default function AdminMatchesPage() {
         <button
           onClick={fetchData}
           disabled={loading}
-          className="inline-flex items-center gap-2 border border-[rgba(240,230,208,0.14)] bg-[rgba(240,230,208,0.06)] px-4 py-2 rounded-[10px] text-[13px] font-medium text-cream-muted hover:text-cream hover:bg-[rgba(240,230,208,0.10)] transition-colors disabled:opacity-40 cursor-pointer"
+          className="inline-flex items-center gap-2 border border-[rgba(8,10,20,0.12)] bg-[rgba(240,230,208,0.06)] px-4 py-2 rounded-[10px] text-[13px] font-medium text-cream-muted hover:text-cream hover:bg-[rgba(8,10,20,0.08)] transition-colors disabled:opacity-40 cursor-pointer"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -144,7 +144,7 @@ export default function AdminMatchesPage() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="border border-[rgba(255,255,255,0.10)] bg-[rgba(4,11,26,0.80)] px-4 py-2.5 rounded-[10px] text-[13px] text-cream focus:outline-none focus:border-[rgba(75,124,246,0.45)] transition-colors cursor-pointer [&>option]:bg-[#070F24]"
+          className="border border-[rgba(255,255,255,0.10)] bg-white px-4 py-2.5 rounded-[10px] text-[13px] text-cream focus:outline-none focus:border-[rgba(8,10,20,0.45)] transition-colors cursor-pointer [&>option]:bg-white"
         >
           <option value="">All Status</option>
           <option value="pending">Pending</option>
@@ -158,7 +158,7 @@ export default function AdminMatchesPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-[rgba(255,255,255,0.08)] text-[10px] tracking-[3px] uppercase text-[rgba(255,255,255,0.35)] font-body font-medium">
+              <tr className="border-b border-[rgba(8,10,20,0.10)] text-[10px] tracking-[3px] uppercase text-[rgba(255,255,255,0.35)] font-body font-medium">
                 <th className="px-6 py-4">Startup</th>
                 <th className="px-6 py-4">Founder</th>
                 <th className="px-6 py-4">Investor</th>
@@ -167,7 +167,7 @@ export default function AdminMatchesPage() {
                 <th className="px-6 py-4">Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[rgba(255,255,255,0.05)]">
+            <tbody className="divide-y divide-[rgba(8,10,20,0.08)]">
               {loading ? (
                 <SkeletonRows />
               ) : filtered.length === 0 ? (
@@ -190,7 +190,7 @@ export default function AdminMatchesPage() {
                     <td className="px-6 py-4 font-body font-light text-[13px] text-[rgba(255,255,255,0.75)]">
                       {m.is_deal_closed ? (
                         <span className="inline-flex items-center gap-1 text-xs font-medium text-[#34C759]">
-                          <span className="text-sm">✓</span> Yes
+                          <span className="text-sm">âœ“</span> Yes
                         </span>
                       ) : (
                         <span className="text-xs text-[rgba(255,255,255,0.4)]">No</span>
@@ -209,3 +209,4 @@ export default function AdminMatchesPage() {
     </div>
   )
 }
+
