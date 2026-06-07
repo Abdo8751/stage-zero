@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
@@ -24,7 +24,7 @@ function formatDateTime(d: string) {
 
 function truncate(str: string, max: number) {
   if (str.length <= max) return str
-  return str.slice(0, max) + '…'
+  return str.slice(0, max) + 'â€¦'
 }
 
 function SkeletonRows({ rows = 10 }: { rows?: number }) {
@@ -100,7 +100,7 @@ export default function AdminMessagesPage() {
         <div>
           <h1 className="font-heading text-3xl font-bold text-navy">Messages</h1>
           <p className="mt-1 text-sm text-muted">
-            Recent messages across all chats — read only for moderation
+            Recent messages across all chats â€” read only for moderation
           </p>
         </div>
         <button
@@ -118,14 +118,14 @@ export default function AdminMessagesPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-[rgba(255,255,255,0.08)] text-[10px] tracking-[3px] uppercase text-[rgba(255,255,255,0.35)] font-body font-medium">
+              <tr className="border-b border-[rgba(8,10,20,0.10)] text-[10px] tracking-[3px] uppercase text-[rgba(255,255,255,0.35)] font-body font-medium">
                 <th className="px-6 py-4">Sender</th>
                 <th className="px-6 py-4">Message</th>
                 <th className="px-6 py-4">Match ID</th>
                 <th className="px-6 py-4">Sent At</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[rgba(255,255,255,0.05)]">
+            <tbody className="divide-y divide-[rgba(8,10,20,0.08)]">
               {loading ? (
                 <SkeletonRows />
               ) : messages.length === 0 ? (
@@ -145,7 +145,7 @@ export default function AdminMessagesPage() {
                     </td>
                     <td className="px-6 py-4 font-body font-light text-[13px] text-[rgba(255,255,255,0.75)]">
                       <code className="rounded-[4px] bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.12)] px-2 py-0.5 text-xs text-gold">
-                        {msg.match_id.slice(0, 8)}…
+                        {msg.match_id.slice(0, 8)}â€¦
                       </code>
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 font-body font-light text-[13px] text-[rgba(255,255,255,0.75)]">
@@ -161,3 +161,4 @@ export default function AdminMessagesPage() {
     </div>
   )
 }
+

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
@@ -47,7 +47,7 @@ function StatCard({
     amber: { num: 'text-amber', icon: 'bg-[rgba(232,165,60,0.12)] border-[rgba(232,165,60,0.22)] text-amber', top: 'border-t-[rgba(232,165,60,0.55)]' },
     blue:  { num: 'text-blue-bright', icon: 'bg-[rgba(75,124,246,0.12)] border-[rgba(75,124,246,0.22)] text-blue-bright', top: 'border-t-[rgba(75,124,246,0.55)]' },
     green: { num: 'text-[#30D158]', icon: 'bg-[rgba(52,199,89,0.12)] border-[rgba(52,199,89,0.22)] text-[#30D158]', top: 'border-t-[rgba(52,199,89,0.45)]' },
-    cream: { num: 'text-cream', icon: 'bg-[rgba(240,230,208,0.10)] border-[rgba(240,230,208,0.18)] text-cream-muted', top: 'border-t-[rgba(240,230,208,0.30)]' },
+    cream: { num: 'text-cream', icon: 'bg-[rgba(8,10,20,0.07)] border-[rgba(8,10,20,0.14)] text-cream-muted', top: 'border-t-[rgba(8,10,20,0.25)]' },
   }[accent]
   return (
     <div className={`glass-card border-t-2 ${colors.top} p-5`}>
@@ -181,7 +181,7 @@ export default function AdminOverviewPage() {
         <button
           onClick={fetchData}
           disabled={loading}
-          className="inline-flex items-center gap-2 border border-[rgba(240,230,208,0.14)] bg-[rgba(240,230,208,0.06)] px-4 py-2 rounded-[10px] text-[13px] font-medium text-cream-muted hover:text-cream hover:bg-[rgba(240,230,208,0.10)] transition-colors disabled:opacity-40 cursor-pointer"
+          className="inline-flex items-center gap-2 border border-[rgba(8,10,20,0.12)] bg-[rgba(240,230,208,0.06)] px-4 py-2 rounded-[10px] text-[13px] font-medium text-cream-muted hover:text-cream hover:bg-[rgba(8,10,20,0.08)] transition-colors disabled:opacity-40 cursor-pointer"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -195,12 +195,12 @@ export default function AdminOverviewPage() {
           <div className="flex flex-wrap gap-4 text-[13px] font-medium text-yellow-300">
             {stats.pendingStartups > 0 && (
               <Link href="/admin/founders" className="hover:underline">
-                {stats.pendingStartups} startup{stats.pendingStartups !== 1 ? 's' : ''} pending review →
+                {stats.pendingStartups} startup{stats.pendingStartups !== 1 ? 's' : ''} pending review â†’
               </Link>
             )}
             {stats.pendingInvestors > 0 && (
               <Link href="/admin/investors" className="hover:underline">
-                {stats.pendingInvestors} investor{stats.pendingInvestors !== 1 ? 's' : ''} pending verification →
+                {stats.pendingInvestors} investor{stats.pendingInvestors !== 1 ? 's' : ''} pending verification â†’
               </Link>
             )}
           </div>
@@ -223,21 +223,21 @@ export default function AdminOverviewPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-[rgba(255,255,255,0.06)] text-[10px] tracking-[0.14em] uppercase text-cream-subtle font-medium">
+              <tr className="border-b border-[rgba(8,10,20,0.10)] text-[10px] tracking-[0.14em] uppercase text-cream-subtle font-medium">
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Email</th>
                 <th className="px-4 py-3">Role</th>
                 <th className="px-4 py-3">Joined</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[rgba(255,255,255,0.05)]">
+            <tbody className="divide-y divide-[rgba(8,10,20,0.08)]">
               {loading ? (
                 <SkeletonRows cols={4} />
               ) : recentUsers.length === 0 ? (
                 <tr><td colSpan={4} className="px-4 py-10 text-center text-[13px] text-cream-subtle">No users yet.</td></tr>
               ) : recentUsers.map((u) => (
                 <tr key={u.id} className="hover:bg-[rgba(240,230,208,0.03)] transition-colors">
-                  <td className="px-4 py-3 text-[13px] font-semibold text-cream">{u.full_name ?? '—'}</td>
+                  <td className="px-4 py-3 text-[13px] font-semibold text-cream">{u.full_name ?? 'â€”'}</td>
                   <td className="px-4 py-3 text-[12px] text-cream-muted">{u.email}</td>
                   <td className="px-4 py-3"><RoleBadge role={u.role} /></td>
                   <td className="px-4 py-3 text-[12px] text-cream-subtle whitespace-nowrap">{formatDate(u.created_at)}</td>
@@ -255,14 +255,14 @@ export default function AdminOverviewPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-[rgba(255,255,255,0.06)] text-[10px] tracking-[0.14em] uppercase text-cream-subtle font-medium">
+              <tr className="border-b border-[rgba(8,10,20,0.10)] text-[10px] tracking-[0.14em] uppercase text-cream-subtle font-medium">
                 <th className="px-4 py-3">Startup</th>
                 <th className="px-4 py-3">Investor</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[rgba(255,255,255,0.05)]">
+            <tbody className="divide-y divide-[rgba(8,10,20,0.08)]">
               {loading ? (
                 <SkeletonRows cols={4} />
               ) : recentMatches.length === 0 ? (
@@ -270,10 +270,10 @@ export default function AdminOverviewPage() {
               ) : recentMatches.map((m) => (
                 <tr key={m.id} className="hover:bg-[rgba(240,230,208,0.03)] transition-colors">
                   <td className="px-4 py-3 text-[13px] font-semibold text-cream">
-                    {(m.startups as { name: string } | null)?.name ?? '—'}
+                    {(m.startups as { name: string } | null)?.name ?? 'â€”'}
                   </td>
                   <td className="px-4 py-3 text-[12px] text-cream-muted">
-                    {(m.investors as { users: { full_name: string | null } | null } | null)?.users?.full_name ?? '—'}
+                    {(m.investors as { users: { full_name: string | null } | null } | null)?.users?.full_name ?? 'â€”'}
                   </td>
                   <td className="px-4 py-3"><StatusBadge status={m.status} /></td>
                   <td className="px-4 py-3 text-[12px] text-cream-subtle whitespace-nowrap">{formatDate(m.created_at)}</td>
@@ -286,3 +286,4 @@ export default function AdminOverviewPage() {
     </div>
   )
 }
+

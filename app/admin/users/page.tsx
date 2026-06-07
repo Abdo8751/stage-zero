@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState, useCallback } from 'react'
 import {
@@ -80,7 +80,7 @@ function StatusPill({ label, variant }: { label: string; variant: 'green' | 'amb
     green: 'bg-[rgba(52,199,89,0.14)] text-[#30D158] border-[rgba(52,199,89,0.28)]',
     amber: 'bg-[rgba(232,165,60,0.14)] text-amber border-[rgba(232,165,60,0.28)]',
     red:   'bg-[rgba(255,69,58,0.14)] text-[#FF6B6B] border-[rgba(255,69,58,0.28)]',
-    muted: 'bg-[rgba(240,230,208,0.07)] text-cream-subtle border-[rgba(240,230,208,0.12)]',
+    muted: 'bg-[rgba(8,10,20,0.06)] text-cream-subtle border-[rgba(8,10,20,0.14)]',
   }[variant]
   return (
     <span className={`inline-flex items-center px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] rounded-[4px] border ${v}`}>
@@ -190,16 +190,16 @@ export default function AdminUsersPage() {
         <div>
           <h1 className="text-[26px] font-black tracking-tight text-cream">Users</h1>
           <p className="mt-1 text-[13px] text-cream-muted">
-            {loading ? 'Loading…' : (
+            {loading ? 'Loadingâ€¦' : (
               <>
                 {filtered.length} of {users.length} users
-                {pendingCount > 0 && <span className="ml-2 font-semibold text-amber">· {pendingCount} need action</span>}
+                {pendingCount > 0 && <span className="ml-2 font-semibold text-amber">Â· {pendingCount} need action</span>}
               </>
             )}
           </p>
         </div>
         <button onClick={fetchData} disabled={loading}
-          className="inline-flex items-center gap-2 border border-[rgba(240,230,208,0.14)] bg-[rgba(240,230,208,0.06)] px-4 py-2 rounded-[10px] text-[13px] font-medium text-cream-muted hover:text-cream hover:bg-[rgba(240,230,208,0.10)] transition-colors disabled:opacity-40 cursor-pointer">
+          className="inline-flex items-center gap-2 border border-[rgba(8,10,20,0.12)] bg-[rgba(240,230,208,0.06)] px-4 py-2 rounded-[10px] text-[13px] font-medium text-cream-muted hover:text-cream hover:bg-[rgba(8,10,20,0.08)] transition-colors disabled:opacity-40 cursor-pointer">
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
           Refresh
         </button>
@@ -211,18 +211,18 @@ export default function AdminUsersPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-cream-subtle pointer-events-none" />
           <input
             value={search} onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, email or startup…"
-            className="w-full border border-[rgba(255,255,255,0.10)] bg-[rgba(255,255,255,0.05)] pl-9 pr-4 py-2.5 rounded-[10px] text-[13px] text-cream placeholder:text-cream-subtle focus:outline-none focus:border-[rgba(75,124,246,0.45)] transition-colors"
+            placeholder="Search by name, email or startupâ€¦"
+            className="w-full border border-[rgba(255,255,255,0.10)] bg-[rgba(255,255,255,0.05)] pl-9 pr-4 py-2.5 rounded-[10px] text-[13px] text-cream placeholder:text-cream-subtle focus:outline-none focus:border-[rgba(8,10,20,0.45)] transition-colors"
           />
         </div>
         <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}
-          className="border border-[rgba(255,255,255,0.10)] bg-[rgba(4,11,26,0.80)] px-4 py-2.5 rounded-[10px] text-[13px] text-cream focus:outline-none focus:border-[rgba(75,124,246,0.45)] transition-colors cursor-pointer [&>option]:bg-[#070F24]">
+          className="border border-[rgba(255,255,255,0.10)] bg-white px-4 py-2.5 rounded-[10px] text-[13px] text-cream focus:outline-none focus:border-[rgba(8,10,20,0.45)] transition-colors cursor-pointer [&>option]:bg-white">
           <option value="">All roles</option>
           <option value="founder">Founders</option>
           <option value="investor">Investors</option>
         </select>
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-          className="border border-[rgba(255,255,255,0.10)] bg-[rgba(4,11,26,0.80)] px-4 py-2.5 rounded-[10px] text-[13px] text-cream focus:outline-none focus:border-[rgba(75,124,246,0.45)] transition-colors cursor-pointer [&>option]:bg-[#070F24]">
+          className="border border-[rgba(255,255,255,0.10)] bg-white px-4 py-2.5 rounded-[10px] text-[13px] text-cream focus:outline-none focus:border-[rgba(8,10,20,0.45)] transition-colors cursor-pointer [&>option]:bg-white">
           <option value="">All status</option>
           <option value="active">Active</option>
           <option value="banned">Banned</option>
@@ -235,7 +235,7 @@ export default function AdminUsersPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-[rgba(255,255,255,0.06)] text-[10px] tracking-[0.14em] uppercase text-cream-subtle font-medium">
+              <tr className="border-b border-[rgba(8,10,20,0.10)] text-[10px] tracking-[0.14em] uppercase text-cream-subtle font-medium">
                 <th className="px-4 py-3 w-8" />
                 <th className="px-4 py-3">User</th>
                 <th className="px-4 py-3">Role</th>
@@ -245,7 +245,7 @@ export default function AdminUsersPage() {
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[rgba(255,255,255,0.05)]">
+            <tbody className="divide-y divide-[rgba(8,10,20,0.08)]">
               {loading ? (
                 Array.from({ length: 8 }).map((_, i) => (
                   <tr key={i}>
@@ -267,7 +267,7 @@ export default function AdminUsersPage() {
                   <>
                     <tr
                       key={u.id}
-                      className={`transition-colors ${u.is_banned ? 'bg-[rgba(255,69,58,0.04)]' : 'hover:bg-[rgba(240,230,208,0.025)]'}`}
+                      className={`transition-colors ${u.is_banned ? 'bg-[rgba(255,69,58,0.04)]' : 'hover:bg-[rgba(8,10,20,0.03)]'}`}
                     >
                       {/* Expand toggle */}
                       <td className="px-4 py-3.5">
@@ -290,7 +290,7 @@ export default function AdminUsersPage() {
                         <div className="flex items-center gap-3 min-w-0">
                           <Initials name={u.full_name} email={u.email} />
                           <div className="min-w-0">
-                            <p className="text-[13px] font-semibold text-cream truncate">{u.full_name ?? '—'}</p>
+                            <p className="text-[13px] font-semibold text-cream truncate">{u.full_name ?? 'â€”'}</p>
                             <p className="text-[11px] text-cream-subtle truncate">{u.email}</p>
                           </div>
                         </div>
@@ -328,7 +328,7 @@ export default function AdminUsersPage() {
                             {u.investor.credits > 0 && <span className="ml-1.5 text-amber font-semibold">{u.investor.credits} cr</span>}
                           </span>
                         ) : (
-                          <span className="text-[12px] text-cream-subtle">—</span>
+                          <span className="text-[12px] text-cream-subtle">â€”</span>
                         )}
                       </td>
 
@@ -377,10 +377,10 @@ export default function AdminUsersPage() {
                       </td>
                     </tr>
 
-                    {/* Expanded row — detailed profile */}
+                    {/* Expanded row â€” detailed profile */}
                     {expanded === u.id && (
                       <tr key={`${u.id}-expanded`} className="bg-[rgba(240,230,208,0.02)]">
-                        <td colSpan={7} className="px-6 py-4 border-b border-[rgba(255,255,255,0.05)]">
+                        <td colSpan={7} className="px-6 py-4 border-b border-[rgba(8,10,20,0.10)]">
                           {u.role === 'founder' && u.startup ? (
                             <FounderDetail startup={u.startup} onView={() => setModal({ type: 'startup', startup: u.startup!, userName: u.full_name ?? u.email })} />
                           ) : u.role === 'investor' && u.investor ? (
@@ -397,10 +397,10 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      {/* ── Modals ─────────────────────────────────────── */}
+      {/* â”€â”€ Modals â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {modal && modal.type !== 'startup' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-sm px-4">
-          <div className="w-full max-w-md rounded-2xl border border-[rgba(240,230,208,0.14)] bg-[rgba(6,12,30,0.97)] p-6 shadow-2xl">
+          <div className="w-full max-w-md rounded-2xl border border-[rgba(8,10,20,0.12)] bg-[rgba(255,255,255,0.97)] p-6 shadow-2xl">
 
             {/* Header */}
             <div className="flex items-start gap-3 mb-4">
@@ -440,7 +440,7 @@ export default function AdminUsersPage() {
 
             <div className="flex gap-3">
               <button type="button" onClick={() => { setModal(null); setActionError('') }}
-                className="flex-1 rounded-[10px] border border-[rgba(255,255,255,0.10)] py-2.5 text-[14px] font-medium text-cream-muted hover:text-cream transition-colors cursor-pointer">
+                className="flex-1 rounded-[10px] border border-[rgba(8,10,20,0.15)] py-2.5 text-[14px] font-bold text-[rgba(8,10,20,0.60)] hover:text-[#080A14] transition-colors cursor-pointer">
                 Cancel
               </button>
               <button type="button" onClick={handleAction} disabled={acting}
@@ -450,7 +450,7 @@ export default function AdminUsersPage() {
                   modal.type === 'ban' && modal.user.is_banned     ? 'bg-[rgba(52,199,89,0.80)] text-white hover:bg-[#30D158]' :
                   'bg-[rgba(232,165,60,0.90)] text-navy hover:bg-amber'
                 }`}>
-                {acting ? 'Processing…' :
+                {acting ? 'Processingâ€¦' :
                  modal.type === 'delete' ? 'Delete permanently' :
                  modal.type === 'ban'    ? (modal.user.is_banned ? 'Unban user' : 'Ban user') :
                  `Switch to ${modal.newRole}`}
@@ -463,7 +463,7 @@ export default function AdminUsersPage() {
       {/* Startup detail modal */}
       {modal?.type === 'startup' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-sm px-4">
-          <div className="w-full max-w-lg rounded-2xl border border-[rgba(240,230,208,0.14)] bg-[rgba(6,12,30,0.97)] p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-lg rounded-2xl border border-[rgba(8,10,20,0.12)] bg-[rgba(255,255,255,0.97)] p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-start justify-between mb-5">
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-cream-subtle">Startup listing</p>
@@ -591,3 +591,4 @@ function InvestorDetail({ investor }: { investor: InvestorInfo }) {
     </div>
   )
 }
+
