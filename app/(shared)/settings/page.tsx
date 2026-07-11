@@ -177,13 +177,13 @@ export default function SettingsPage() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
         body: JSON.stringify({ newRole }),
       })
-      const result = await res.json() as { error?: string }
+      const result = await res.json() as { error?: string; nextRoute?: string }
       if (!res.ok) throw new Error(result.error ?? 'Switch failed')
 
       showToast(`Switched to ${newRole} mode`, 'success')
       setShowSwitchModal(false)
       await refresh()
-      router.push(newRole === 'founder' ? '/dashboard' : '/investor/verify')
+      router.push(result.nextRoute ?? (newRole === 'founder' ? '/dashboard' : '/investor/verify'))
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Switch failed', 'error')
     } finally {

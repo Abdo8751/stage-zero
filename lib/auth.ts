@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase'
-import type { UserRole } from '@/lib/types'
+import type { UserRole, VerificationStatus } from '@/lib/types'
+
+const PENDING_VERIFICATION_EMAIL_KEY = 'stage_zero_pending_verification_email'
 
 export async function setupUserProfile(role: UserRole, email: string): Promise<string | null> {
   const response = await fetch('/api/auth/setup-profile', {
@@ -19,17 +21,81 @@ export function getPostAuthRedirect(role: UserRole): string {
   return role === 'founder' ? '/onboarding' : '/investor/verify'
 }
 
+export function getNormalizedEmail(email: string): string {
+  return email.trim().toLowerCase()
+}
+
+export function getPendingVerificationEmail(): string {
+  if (typeof window === 'undefined') return ''
+  return localStorage.getItem(PENDING_VERIFICATION_EMAIL_KEY) ?? ''
+}
+
+export function setPendingVerificationEmail(email: string) {
+  if (typeof window === 'undefined') return
+  localStorage.setItem(PENDING_VERIFICATION_EMAIL_KEY, getNormalizedEmail(email))
+}
+
+export function clearPendingVerificationEmail() {
+  if (typeof window === 'undefined') return
+  localStorage.removeItem(PENDING_VERIFICATION_EMAIL_KEY)
+}
+
+export function isEmailConfirmationError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false
+  const maybeError = error as { code?: string; status?: number; message?: string }
+  return (
+    maybeError.code === 'email_not_confirmed' ||
+    maybeError.status === 403 ||
+    /email.*not.*confirmed|confirmation.*required/i.test(String(maybeError.message ?? ''))
+  )
+}
+
 export function getLoginRedirect(
   role: UserRole,
-  isVerified: boolean,
-  investorApproved: boolean,
+  investorStatus: VerificationStatus | null | undefined,
   hasStartup: boolean
 ): string {
   if (role === 'founder') {
     return hasStartup ? '/dashboard' : '/onboarding'
   }
-  if (!isVerified || !investorApproved) return '/investor/verify'
-  return '/browse'
+  return getInvestorRoute(investorStatus, '/browse')
+}
+
+export type InvestorGuardRoute =
+  | '/browse'
+  | '/investor/verify'
+  | '/investor/pending'
+  | '/investor/verify?mode=resubmit'
+
+export function getInvestorRoute(
+  status: VerificationStatus | null | undefined,
+  requestedPath: '/browse' | string = '/browse'
+): string {
+  switch (status) {
+    case 'approved':
+      return requestedPath === '/browse' ? '/browse' : requestedPath
+    case 'pending':
+      return '/investor/pending'
+    case 'rejected':
+      return '/investor/verify?mode=resubmit'
+    case 'draft':
+    default:
+      return '/investor/verify'
+  }
+}
+
+export function getInvestorProtectedRoute(status: VerificationStatus | null | undefined): Exclude<InvestorGuardRoute, '/browse'> | null {
+  switch (status) {
+    case 'approved':
+      return null
+    case 'pending':
+      return '/investor/pending'
+    case 'rejected':
+      return '/investor/verify?mode=resubmit'
+    case 'draft':
+    default:
+      return '/investor/verify'
+  }
 }
 
 export async function uploadAvatar(userId: string, file: File): Promise<string | null> {
