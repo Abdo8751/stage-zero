@@ -3,7 +3,7 @@ import { createServerClient } from '@supabase/ssr'
 import { getInvestorProtectedRoute, getInvestorRoute } from '@/lib/auth'
 import { createServiceSupabaseClient } from '@/lib/investor'
 
-const PUBLIC_ROUTES = ['/', '/login', '/signup', '/auth/reset-password', '/auth/verify-email', '/suspended', '/explore']
+const PUBLIC_ROUTES = ['/', '/login', '/signup', '/forgot-password', '/reset-password', '/auth/reset-password', '/auth/verify-email', '/suspended', '/explore']
 const FOUNDER_ROUTES = ['/onboarding', '/dashboard', '/profile/edit', '/interests']
 // Founders can access /browse and /startup/:id — they're blocked only from investor-only paths
 const INVESTOR_ONLY_ROUTES = ['/saved', '/upgrade', '/investor/verify', '/investor/pending']
@@ -235,6 +235,8 @@ export const config = {
     '/',
     '/login',
     '/signup',
+    '/forgot-password',
+    '/reset-password',
     '/auth/reset-password',
     '/auth/verify-email',
     '/onboarding/:path*',
