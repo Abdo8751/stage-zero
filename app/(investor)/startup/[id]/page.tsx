@@ -162,7 +162,7 @@ export default function StartupProfilePage() {
     }
   }
 
-  const isVerified = user?.is_verified && investor?.verification_status === 'approved'
+  const isVerified = investor?.verification_status === 'approved'
 
   if (id.startsWith('pick-')) {
     return (

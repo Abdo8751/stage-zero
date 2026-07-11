@@ -1,0 +1,74 @@
+-- ============================================================
+-- STAGE ZERO - PROPOSED AUTH FLOW MIGRATION
+-- Review live data before running. Do not apply blindly.
+-- ============================================================
+
+-- 1. Required fix: stop creating public.users during auth.users signup.
+-- This does not delete existing rows.
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+DROP FUNCTION IF EXISTS public.handle_new_user();
+
+-- 2. Preflight checks to run and review before constraints.
+-- public.users rows without matching auth.users:
+-- select u.id, u.email, u.role
+-- from public.users u
+-- left join auth.users au on au.id = u.id
+-- where au.id is null;
+--
+-- auth.users rows without matching public.users:
+-- select au.id, au.email, au.email_confirmed_at, au.raw_user_meta_data->>'role' as metadata_role
+-- from auth.users au
+-- left join public.users u on u.id = au.id
+-- where u.id is null;
+--
+-- duplicate investors.user_id values:
+-- select user_id, count(*)
+-- from public.investors
+-- group by user_id
+-- having count(*) > 1;
+--
+-- orphaned investor rows:
+-- select i.id, i.user_id, i.verification_status
+-- from public.investors i
+-- left join public.users u on u.id = i.user_id
+-- where u.id is null;
+--
+-- orphaned startup rows:
+-- select s.id, s.user_id, s.name, s.status, s.is_active
+-- from public.startups s
+-- left join public.users u on u.id = s.user_id
+-- where u.id is null;
+
+-- 3. Investor draft status.
+-- Run only if the existing check constraint currently excludes 'draft'.
+-- Replace investors_verification_status_check with the actual constraint name
+-- if your database uses a different name.
+-- alter table public.investors
+--   drop constraint if exists investors_verification_status_check;
+-- alter table public.investors
+--   add constraint investors_verification_status_check
+--   check (verification_status in ('draft', 'pending', 'approved', 'rejected'));
+-- alter table public.investors
+--   alter column verification_status set default 'draft';
+
+-- 4. Only after the preflight checks are clean:
+-- - no public.users rows without matching auth.users
+-- - duplicate investors.user_id rows have been manually resolved
+-- - duplicate startups.user_id rows have been manually resolved
+--
+-- alter table public.users
+--   alter column id drop default;
+-- alter table public.users
+--   add constraint users_id_auth_users_fkey
+--   foreign key (id) references auth.users(id) on delete cascade;
+--
+-- alter table public.investors
+--   alter column user_id set not null;
+-- create unique index if not exists investors_user_id_unique
+--   on public.investors(user_id);
+--
+-- alter table public.startups
+--   alter column user_id set not null;
+-- create unique index if not exists startups_user_id_unique
+--   on public.startups(user_id);
+

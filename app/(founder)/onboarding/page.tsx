@@ -185,8 +185,8 @@ export default function OnboardingPage() {
         raise_amount: parseInt(step3.raise_amount.replace(/\D/g, ''), 10) || null,
         website_url:  step3.website_url.trim() || null,
         traction:     traction || null,
-        status:       'active',
-        is_active:    true,
+        status:       'pending_review',
+        is_active:    false,
       }).eq('user_id', user.id)
       if (error) throw new Error(error.message)
 
@@ -231,9 +231,9 @@ export default function OnboardingPage() {
           <Clock className="h-7 w-7 text-[#30D158]" />
         </div>
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-cream-muted">Submitted</p>
-        <h1 className="mt-2 text-[28px] font-black tracking-tightest text-cream">Your startup is live</h1>
+        <h1 className="mt-2 text-[28px] font-black tracking-tightest text-cream">Your startup is submitted</h1>
         <p className="mt-3 text-[14px] leading-relaxed text-cream-muted max-w-sm">
-          Your listing is now visible to verified investors. Track interest and messages from your dashboard.
+          Your listing is under review. You can track its status from your dashboard.
         </p>
         <Link href="/dashboard" className="mt-8">
           <Button>

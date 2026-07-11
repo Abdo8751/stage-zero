@@ -64,7 +64,7 @@ export async function POST(request: Request) {
 
       if (newRole === 'investor') {
         const { data: existing } = await supabase.from('investors').select('id').eq('user_id', userId).maybeSingle()
-        if (!existing) await supabase.from('investors').insert({ user_id: userId, verification_status: 'pending', credits: 0 })
+        if (!existing) await supabase.from('investors').insert({ user_id: userId, verification_status: 'draft', credits: 0 })
       }
       return NextResponse.json({ success: true })
     }
