@@ -92,14 +92,18 @@ export function useUser(): UseUserReturn {
         setStartup(startupData)
         setInvestor(null)
       } else {
-        const { data: investorData, error: investorError } = await supabase
-          .from('investors')
-          .select('*')
-          .eq('user_id', currentSession.user.id)
-          .maybeSingle()
+        const response = await fetch('/api/investor/profile', {
+          headers: {
+            Authorization: `Bearer ${currentSession.access_token}`,
+          },
+        })
+        const result = await response.json() as { error?: string; investor?: Investor | null }
 
-        if (investorError) throw investorError
-        setInvestor(investorData as Investor | null)
+        if (!response.ok) {
+          throw new Error(result.error ?? 'Failed to load investor profile')
+        }
+
+        setInvestor((result.investor as Investor | null) ?? null)
         setStartup(null)
       }
     } catch (err) {

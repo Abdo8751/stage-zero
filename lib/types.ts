@@ -9,7 +9,7 @@ export type StartupStatus =
   | 'rejected'
   | 'changes_requested'
 
-export type VerificationStatus = 'pending' | 'approved' | 'rejected'
+export type VerificationStatus = 'draft' | 'pending' | 'approved' | 'rejected'
 
 export type MatchStatus = 'pending' | 'accepted' | 'declined' | 'expired'
 

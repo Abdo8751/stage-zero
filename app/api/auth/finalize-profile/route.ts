@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import type { UserRole } from '@/lib/types'
 import { finalizeProfileForUser } from '@/lib/profile-finalization'
+import { createServerSupabaseClient } from '@/lib/supabase-server'
 
-interface SetupProfileBody {
+interface FinalizeProfileBody {
   role?: UserRole
 }
 
@@ -16,35 +17,30 @@ function getServiceClient() {
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json().catch(() => ({}))) as SetupProfileBody
-    const { role } = body
+    const body = (await request.json().catch(() => ({}))) as FinalizeProfileBody
+    const role = body.role
 
     if (role !== undefined && role !== 'founder' && role !== 'investor') {
       return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
     }
 
     const authHeader = request.headers.get('Authorization')
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
-    }
-
-    const token = authHeader.slice(7)
-    const supabase = getServiceClient()
+    const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+    const supabase = bearerToken ? getServiceClient() : createServerSupabaseClient()
     const {
       data: { user },
-      error,
-    } = await supabase.auth.getUser(token)
+      error: userError,
+    } = bearerToken ? await supabase.auth.getUser(bearerToken) : await supabase.auth.getUser()
 
-    if (error || !user) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+    if (userError || !user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
     const result = await finalizeProfileForUser(user, role)
     return NextResponse.json(result)
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Setup failed'
+    const message = err instanceof Error ? err.message : 'Profile finalization failed'
     const status = /not confirmed/i.test(message) ? 403 : 500
     return NextResponse.json({ error: message }, { status })
   }
 }
-
