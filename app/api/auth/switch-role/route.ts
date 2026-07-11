@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import type { UserRole } from '@/lib/types'
+import { getInvestorRoute } from '@/lib/auth'
 
 function getServiceClient() {
   const url    = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -44,21 +45,30 @@ export async function POST(request: Request) {
     }
 
     // Ensure an investor row exists when switching to investor
+    let investorStatus: 'draft' | 'pending' | 'approved' | 'rejected' | null = null
+
     if (newRole === 'investor') {
       const { data: existing } = await supabase
         .from('investors')
-        .select('id')
+        .select('id, verification_status')
         .eq('user_id', user.id)
         .maybeSingle()
 
       if (!existing) {
         await supabase
           .from('investors')
-          .insert({ user_id: user.id, verification_status: 'pending', credits: 0 })
+          .upsert({ user_id: user.id, verification_status: 'draft', credits: 0 }, { onConflict: 'user_id' })
+        investorStatus = 'draft'
+      } else {
+        investorStatus = existing.verification_status
       }
     }
 
-    return NextResponse.json({ success: true, newRole })
+    return NextResponse.json({
+      success: true,
+      newRole,
+      nextRoute: newRole === 'founder' ? '/dashboard' : getInvestorRoute(investorStatus),
+    })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Switch failed'
     return NextResponse.json({ error: message }, { status: 500 })

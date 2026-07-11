@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { useUser } from '@/hooks/useUser'
+import { getInvestorRoute } from '@/lib/auth'
 import { validateRequired, validateUrl } from '@/lib/validation'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -24,6 +25,14 @@ export default function InvestorVerifyPage() {
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [forceShowForm, setForceShowForm] = useState(false)
+  const [editModeFromQuery, setEditModeFromQuery] = useState(false)
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    setEditModeFromQuery(params.get('edit') === '1' || params.get('mode') === 'resubmit')
+  }, [])
+
+  const isEditing = forceShowForm || editModeFromQuery || investor?.verification_status === 'rejected'
 
   useEffect(() => {
     if (investor) {
@@ -35,17 +44,21 @@ export default function InvestorVerifyPage() {
   }, [investor])
 
   useEffect(() => {
-    if (
-      investor?.verification_status === 'approved' &&
-      user?.is_verified
-    ) {
+    if (investor?.verification_status === 'approved') {
       router.push('/browse')
     }
-  }, [investor, user, router])
+    if (investor?.verification_status === 'pending' && !editModeFromQuery && !forceShowForm) {
+      router.push(getInvestorRoute('pending'))
+    }
+  }, [editModeFromQuery, forceShowForm, investor, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user) return
+    if (!user) {
+      showToast('Please sign in first.', 'error')
+      router.push('/login')
+      return
+    }
 
     const errs: Record<string, string> = {}
     const linkedinErr = validateRequired(linkedin, 'LinkedIn URL')
@@ -64,19 +77,35 @@ export default function InvestorVerifyPage() {
     setSaving(true)
     try {
       const supabase = createClient()
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      if (!session?.access_token) {
+        throw new Error('Your session expired. Please sign in again.')
+      }
+
       const payload = {
         linkedin_url: linkedin.trim(),
         bio: bio.trim(),
         cheque_size: chequeSize.trim(),
         location: location.trim(),
-        verification_status: 'pending' as const,
       }
 
-      const { error } = investor
-        ? await supabase.from('investors').update(payload).eq('user_id', user.id)
-        : await supabase.from('investors').insert({ user_id: user.id, credits: 0, ...payload })
+      const response = await fetch('/api/investor/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify(payload),
+      })
 
-      if (error) throw error
+      const data = (await response.json()) as { error?: string; success?: boolean }
+      if (!response.ok) {
+        throw new Error(data.error ?? 'Submit failed')
+      }
+
       showToast('Verification submitted for review', 'success')
       await refresh()
     } catch (err) {
@@ -88,36 +117,15 @@ export default function InvestorVerifyPage() {
 
   if (loading) return <div className="py-16 text-center text-text-secondary font-body">Loading...</div>
 
-  const isPending = investor?.verification_status === 'pending' && !user?.is_verified
-  const isRejected = !forceShowForm && investor?.verification_status === 'rejected'
-
-  if (isPending && investor?.linkedin_url) {
-    return (
-      <div className="mx-auto w-full max-w-lg px-4 py-16 text-center">
-        <Card>
-          <h1 className="text-2xl sm:text-3xl text-text-primary font-heading">Verification pending</h1>
-          <p className="mt-4 text-text-secondary font-body font-light">
-            Your application is under review. We&apos;ll notify you once approved.
-          </p>
-          <p className="mt-4 text-xs text-text-tertiary font-body font-light">
-            To simulate approval: in Supabase, set{' '}
-            <code className="text-gold bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.1)] px-1.5 py-0.5 rounded font-mono">investors.verification_status</code> to{' '}
-            <code className="text-gold bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.1)] px-1.5 py-0.5 rounded font-mono">approved</code> and{' '}
-            <code className="text-gold bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.1)] px-1.5 py-0.5 rounded font-mono">users.is_verified</code> to{' '}
-            <code className="text-gold bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.1)] px-1.5 py-0.5 rounded font-mono">true</code>.
-          </p>
-          <button
-            type="button"
-            onClick={() => router.push('/')}
-            className="mt-6 flex items-center gap-1.5 mx-auto text-[13px] text-text-secondary hover:text-text-primary transition-colors"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Back to home
-          </button>
-        </Card>
-      </div>
-    )
-  }
+  // The account setup flow creates an empty investor row after email verification.
+  // Treat it as a draft until all review fields have been submitted.
+  const hasSubmittedApplication = Boolean(
+    investor?.linkedin_url?.trim() &&
+    investor?.bio?.trim() &&
+    investor?.cheque_size?.trim() &&
+    investor?.location?.trim(),
+  )
+  const isRejected = hasSubmittedApplication && !forceShowForm && investor?.verification_status === 'rejected'
 
   if (isRejected) {
     return (
@@ -159,6 +167,11 @@ export default function InvestorVerifyPage() {
       </button>
       <h1 className="text-3xl sm:text-4xl text-text-primary">Investor verification</h1>
       <p className="mt-2 text-text-secondary font-body font-light">Verify your credentials to access startup listings</p>
+      {isEditing && (
+        <div className="mt-4 rounded-card border border-[rgba(75,124,246,0.22)] bg-[rgba(75,124,246,0.08)] px-4 py-3 text-[13px] text-text-secondary">
+          You&apos;re editing a submitted application. Your investor profile will stay in <span className="text-text-primary">pending review</span> after resubmission.
+        </div>
+      )}
 
       <Card className="mt-8">
         <form onSubmit={handleSubmit} className="space-y-6">

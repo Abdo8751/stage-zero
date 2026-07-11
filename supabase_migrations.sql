@@ -145,6 +145,18 @@ create policy "Investors manage own saved"
 create index if not exists saved_startups_investor_idx
   on saved_startups(investor_id);
 
+-- One investor application per auth user. Remove legacy duplicate rows first,
+-- retaining the newest row so existing review data remains the canonical record.
+with ranked as (
+  select id, row_number() over (partition by user_id order by created_at desc, id desc) as rn
+  from investors
+)
+delete from investors
+where id in (select id from ranked where rn > 1);
+
+create unique index if not exists investors_user_id_unique
+  on investors(user_id);
+
 -- ── 6. reports table ─────────────────────────────────────────
 create table if not exists reports (
   id               uuid primary key default uuid_generate_v4(),

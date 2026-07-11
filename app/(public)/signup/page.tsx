@@ -4,7 +4,7 @@ import { Suspense, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
-import { getPostAuthRedirect, setupUserProfile } from '@/lib/auth'
+import { getNormalizedEmail, setPendingVerificationEmail } from '@/lib/auth'
 import type { UserRole } from '@/lib/types'
 import { validateEmail, validatePassword } from '@/lib/validation'
 import { Button } from '@/components/ui/Button'
@@ -58,8 +58,9 @@ function SignUpForm() {
 
     try {
       const supabase = createClient()
+      const normalizedEmail = getNormalizedEmail(email)
       const { data, error: signUpError } = await supabase.auth.signUp({
-        email: email.trim(),
+        email: normalizedEmail,
         password,
         options: {
           data: {
@@ -80,39 +81,19 @@ function SignUpForm() {
         return
       }
 
-      // Get the session token to pass to the API route
-      const { data: { session } } = await supabase.auth.getSession()
-      const token = session?.access_token
-
-      if (!token) {
-        // Session may not exist yet if email confirmation is required —
-        // still redirect to the right page; the trigger created the user row
-        if (role === 'founder') router.push('/onboarding')
-        else router.push('/investor/verify')
-        router.refresh()
+      // Supabase intentionally returns a generic successful response for an
+      // existing email. Send that account through login, which can identify an
+      // unconfirmed account and request a code without misleading verified users.
+      if (data.user.identities?.length === 0) {
+        showToast('This email already has an account. Please log in.', 'error')
+        router.push(`/login?email=${encodeURIComponent(normalizedEmail)}`)
         return
       }
 
-      // Use the server-side API route (service role key, bypasses RLS)
-      const res = await fetch('/api/auth/setup-profile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ role, full_name: fullName.trim(), email: email.trim() }),
-      })
+      setPendingVerificationEmail(normalizedEmail)
 
-      const result = await res.json() as { error?: string }
-      if (!res.ok) {
-        setError(result.error ?? 'Profile setup failed')
-        showToast(result.error ?? 'Profile setup failed', 'error')
-        return
-      }
-
-      showToast('Account created successfully!', 'success')
-      if (role === 'founder') router.push('/onboarding')
-      else router.push('/investor/verify')
+      showToast('Check your email for the verification code.', 'success')
+      router.push(`/auth/verify-email?email=${encodeURIComponent(normalizedEmail)}&role=${role}`)
       router.refresh()
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Sign up failed'
@@ -235,9 +216,7 @@ function SignUpForm() {
                 />
                 <span>I confirm I am 18 years of age or older</span>
               </label>
-              {fieldErrors.age && (
-                <p className="mt-1 text-sm text-red-400 font-body">{fieldErrors.age}</p>
-              )}
+              {fieldErrors.age && <p className="mt-1 text-sm text-red-400 font-body">{fieldErrors.age}</p>}
             </div>
 
             {error && (
@@ -257,13 +236,7 @@ function SignUpForm() {
             <div className="h-px flex-1 bg-[rgba(255,255,255,0.12)]" />
           </div>
 
-          <Button
-            type="button"
-            variant="secondary"
-            fullWidth
-            disabled={loading}
-            onClick={handleGoogleSignUp}
-          >
+          <Button type="button" variant="secondary" fullWidth disabled={loading} onClick={handleGoogleSignUp}>
             Continue with Google
           </Button>
         </Card>

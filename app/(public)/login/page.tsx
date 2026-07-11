@@ -4,7 +4,13 @@ import { Suspense, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
-import { getLoginRedirect } from '@/lib/auth'
+import {
+  clearPendingVerificationEmail,
+  getLoginRedirect,
+  getNormalizedEmail,
+  isEmailConfirmationError,
+  setPendingVerificationEmail,
+} from '@/lib/auth'
 import { validateEmail, validatePassword } from '@/lib/validation'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -19,17 +25,17 @@ function LoginForm() {
   const { showToast } = useToast()
   const authError = searchParams.get('error')
   const redirect = searchParams.get('redirect')
+  const emailParam = searchParams.get('email') ?? ''
 
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(emailParam)
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
-  const [error, setError] = useState<string | null>(
-    authError ? 'Authentication failed. Please try again.' : null
-  )
+  const [error, setError] = useState<string | null>(authError ? 'Authentication failed. Please try again.' : null)
   const [resetSent, setResetSent] = useState(false)
   const [showRoleSelector, setShowRoleSelector] = useState(false)
   const [loggedInUser, setLoggedInUser] = useState<any>(null)
+  const [loggedInAccessToken, setLoggedInAccessToken] = useState('')
 
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {}
@@ -47,7 +53,7 @@ function LoginForm() {
   ) => {
     const supabase = createClient()
     let hasStartup = false
-    let investorApproved = profile.is_verified
+    let investorStatus: 'draft' | 'pending' | 'approved' | 'rejected' | null = null
 
     if (profile.role === 'founder') {
       const { data: startup, error: startupError } = await supabase
@@ -64,71 +70,62 @@ function LoginForm() {
       }
       hasStartup = !!startup
     } else {
-      const { data: investor, error: investorError } = await supabase
-        .from('investors')
-        .select('verification_status')
-        .eq('user_id', user.id)
-        .maybeSingle()
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
 
-      if (investorError) {
-        setError(investorError.message)
+      if (!session?.access_token) {
+        setError('Your session expired. Please sign in again.')
         return
       }
-      investorApproved =
-        profile.is_verified && investor?.verification_status === 'approved'
+
+      const response = await fetch('/api/investor/profile', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      })
+      const result = await response.json() as {
+        error?: string
+        investor?: { verification_status?: 'draft' | 'pending' | 'approved' | 'rejected' | null } | null
+      }
+
+      if (!response.ok) {
+        setError(result.error ?? 'Failed to load investor profile')
+        return
+      }
+
+      investorStatus = result.investor?.verification_status ?? null
     }
 
     const destination =
-      redirect ??
-      getLoginRedirect(profile.role, profile.is_verified, investorApproved, hasStartup)
+      redirect ?? getLoginRedirect(profile.role, investorStatus, hasStartup)
 
     showToast('Welcome back!', 'success')
+    clearPendingVerificationEmail()
     window.location.href = destination
   }
 
   const handleRoleSelection = async (selectedRole: UserRole) => {
-    if (!loggedInUser) return
+    if (!loggedInUser || !loggedInAccessToken) return
     setLoading(true)
     setError(null)
 
     try {
-      const supabase = createClient()
-      
-      const { error: insertError } = await supabase
-        .from('users')
-        .insert({
-          id: loggedInUser.id,
-          email: loggedInUser.email,
-          role: selectedRole,
-          full_name: loggedInUser.user_metadata?.full_name || loggedInUser.email,
-          is_verified: selectedRole === 'founder',
-        })
-
-      if (insertError) {
-        setError(insertError.message)
-        showToast(insertError.message, 'error')
-        return
-      }
-
-      if (selectedRole === 'investor') {
-        const { error: investorError } = await supabase
-          .from('investors')
-          .insert({
-            user_id: loggedInUser.id,
-            verification_status: 'pending',
-            credits: 3,
-          })
-        if (investorError) {
-          setError(investorError.message)
-          showToast(investorError.message, 'error')
-          return
-        }
-      }
-
-      await handlePostLogin(loggedInUser, {
-        role: selectedRole,
-        is_verified: selectedRole === 'founder',
+      const response = await fetch('/api/auth/finalize-profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${loggedInAccessToken}`,
+        },
+        body: JSON.stringify({ role: selectedRole }),
       })
+      const result = (await response.json()) as { error?: string; nextRoute?: string }
+      if (!response.ok || !result.nextRoute) {
+        throw new Error(result.error ?? 'Could not finish account setup.')
+      }
+
+      clearPendingVerificationEmail()
+      window.location.href = result.nextRoute
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create profile'
       setError(message)
@@ -147,12 +144,22 @@ function LoginForm() {
 
     try {
       const supabase = createClient()
+      const normalizedEmail = getNormalizedEmail(email)
       const { data, error: loginError } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
+        email: normalizedEmail,
         password,
       })
 
       if (loginError) {
+        if (isEmailConfirmationError(loginError)) {
+          // A login attempt is the reliable way to distinguish an existing,
+          // unconfirmed account from an already verified account.
+          await supabase.auth.resend({ type: 'signup', email: normalizedEmail })
+          setPendingVerificationEmail(normalizedEmail)
+          router.push(`/auth/verify-email?email=${encodeURIComponent(normalizedEmail)}`)
+          return
+        }
+
         setError(loginError.message)
         showToast(loginError.message, 'error')
         return
@@ -172,7 +179,28 @@ function LoginForm() {
         }
 
         if (!profile) {
+          const metadataRole = data.user.user_metadata?.role
+          if (metadataRole === 'founder' || metadataRole === 'investor') {
+            const response = await fetch('/api/auth/finalize-profile', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${data.session.access_token}`,
+              },
+              body: JSON.stringify({ role: metadataRole }),
+            })
+            const result = (await response.json()) as { error?: string; nextRoute?: string }
+            if (!response.ok || !result.nextRoute) {
+              throw new Error(result.error ?? 'Could not finish account setup.')
+            }
+
+            clearPendingVerificationEmail()
+            window.location.href = result.nextRoute
+            return
+          }
+
           setLoggedInUser(data.user)
+          setLoggedInAccessToken(data.session.access_token)
           setShowRoleSelector(true)
           return
         }
@@ -228,7 +256,7 @@ function LoginForm() {
 
     try {
       const supabase = createClient()
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(getNormalizedEmail(email), {
         redirectTo: `${window.location.origin}/auth/reset-password`,
       })
 
@@ -290,8 +318,10 @@ function LoginForm() {
             onClick={async () => {
               const supabase = createClient()
               await supabase.auth.signOut()
+              clearPendingVerificationEmail()
               setShowRoleSelector(false)
               setLoggedInUser(null)
+              setLoggedInAccessToken('')
               setError(null)
             }}
             className="text-[13px] text-text-tertiary hover:text-text-secondary transition-colors underline underline-offset-4 cursor-pointer"
@@ -305,7 +335,6 @@ function LoginForm() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-5 py-16">
-      {/* Glow behind card */}
       <div className="pointer-events-none absolute h-[400px] w-[400px] rounded-full bg-[radial-gradient(circle,rgba(212,168,83,0.05)_0%,transparent_65%)] blur-3xl" />
 
       <div className="relative w-full max-w-sm">
