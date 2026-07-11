@@ -6,6 +6,7 @@ import { finalizeProfileForUser } from '@/lib/profile-finalization'
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
+  const nextPath = requestUrl.searchParams.get('next')
   const roleParam = requestUrl.searchParams.get('role') as UserRole | null
   const origin = requestUrl.origin
 
@@ -55,8 +56,12 @@ export async function GET(request: Request) {
   }
 
   try {
-    const result = await finalizeProfileForUser(user, roleParam)
-    redirectTo = `${origin}${result.nextRoute}`
+    if (nextPath === '/reset-password') {
+      redirectTo = `${origin}/reset-password`
+    } else {
+      const result = await finalizeProfileForUser(user, roleParam)
+      redirectTo = `${origin}${result.nextRoute}`
+    }
   } catch (err) {
     console.error('[auth/callback] finalizeProfileForUser error:', err instanceof Error ? err.message : err)
     redirectTo = `${origin}/signup`

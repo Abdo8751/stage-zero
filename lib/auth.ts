@@ -25,6 +25,33 @@ export function getNormalizedEmail(email: string): string {
   return email.trim().toLowerCase()
 }
 
+export function getSiteOrigin() {
+  if (typeof window !== 'undefined') {
+    return window.location.origin
+  }
+
+  return process.env.NEXT_PUBLIC_SITE_URL ?? ''
+}
+
+export function getPasswordRecoveryRedirectUrl() {
+  const origin = getSiteOrigin()
+  return origin ? `${origin}/auth/callback?next=/reset-password` : '/auth/callback?next=/reset-password'
+}
+
+export function maskEmail(email: string): string {
+  const normalized = getNormalizedEmail(email)
+  const [localPart, domain] = normalized.split('@')
+  if (!localPart || !domain) return normalized
+  return `${localPart.slice(0, 1)}***@${domain}`
+}
+
+export async function sendPasswordResetEmail(email: string) {
+  const supabase = createClient()
+  return supabase.auth.resetPasswordForEmail(getNormalizedEmail(email), {
+    redirectTo: getPasswordRecoveryRedirectUrl(),
+  })
+}
+
 export function getPendingVerificationEmail(): string {
   if (typeof window === 'undefined') return ''
   return localStorage.getItem(PENDING_VERIFICATION_EMAIL_KEY) ?? ''

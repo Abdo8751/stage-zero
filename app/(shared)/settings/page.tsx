@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { useToast } from '@/components/ui/Toast'
+import { maskEmail, sendPasswordResetEmail } from '@/lib/auth'
 import { Camera, User, Lock, Trash2, Bell, ArrowLeft, RefreshCw, Rocket, Briefcase, AlertTriangle } from 'lucide-react'
 
 const PREFS_KEY = 'stage-zero-email-prefs'
@@ -75,6 +76,8 @@ export default function SettingsPage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [saving, setSaving]         = useState(false)
+  const [passwordResetSending, setPasswordResetSending] = useState(false)
+  const [passwordResetCooldown, setPasswordResetCooldown] = useState(0)
   const [errors, setErrors]         = useState<Record<string, string>>({})
   const [showSwitchModal, setShowSwitchModal] = useState(false)
   const [switching, setSwitching]   = useState(false)
@@ -91,6 +94,14 @@ export default function SettingsPage() {
       setEmailPrefs(true)
     }
   }, [user, startup])
+
+  useEffect(() => {
+    if (passwordResetCooldown <= 0) return
+    const timer = window.setInterval(() => {
+      setPasswordResetCooldown((value) => Math.max(0, value - 1))
+    }, 1000)
+    return () => window.clearInterval(timer)
+  }, [passwordResetCooldown])
 
   const handleAvatarChange = (file: File) => {
     setAvatarFile(file)
@@ -145,21 +156,20 @@ export default function SettingsPage() {
     }
   }
 
-  const handleChangePassword = async () => {
-    const passwordErr = validatePassword(newPassword)
-    if (passwordErr) { setErrors({ password: passwordErr }); return }
-
-    setSaving(true)
+  const handleSendPasswordReset = async () => {
+    if (!user?.email || passwordResetCooldown > 0 || passwordResetSending) return
+    setPasswordResetSending(true)
     try {
-      const supabase = createClient()
-      const { error } = await supabase.auth.updateUser({ password: newPassword })
-      if (error) throw error
-      setNewPassword('')
-      showToast('Password updated', 'success')
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Password update failed', 'error')
+      const { error } = await sendPasswordResetEmail(user.email)
+      if (error && !/rate|too many/i.test(error.message)) {
+        throw error
+      }
+      setPasswordResetCooldown(60)
+      showToast(`Password reset email sent to ${maskEmail(user.email)}`, 'success')
+    } catch {
+      showToast('We could not send the reset email right now. Please try again later.', 'error')
     } finally {
-      setSaving(false)
+      setPasswordResetSending(false)
     }
   }
 
@@ -320,23 +330,23 @@ export default function SettingsPage() {
           <h2 className="text-[13px] font-bold uppercase tracking-[0.10em] text-blue-bright">Password</h2>
         </div>
         <Card>
-          <Input
-            label="New password"
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="Min 8 characters"
-            error={errors.password}
-          />
+          <p className="text-[13px] leading-relaxed text-cream-muted">
+            Send a secure password-reset link to your account email{user?.email ? ` (${maskEmail(user.email)})` : ''}.
+          </p>
+          {((user as any)?.identities?.length === 1) && (user as any).identities[0]?.provider !== 'email' ? (
+            <p className="mt-3 text-[12px] text-cream-subtle">
+              This account signs in with {(user as any).identities[0]?.provider}. Add a password sign-in method in your auth provider settings if you want password recovery here.
+            </p>
+          ) : null}
           <Button
             type="button"
             variant="secondary"
             fullWidth
             className="mt-4"
-            disabled={saving}
-            onClick={handleChangePassword}
+            disabled={!user?.email || passwordResetSending || passwordResetCooldown > 0}
+            onClick={handleSendPasswordReset}
           >
-            Update password
+            {passwordResetSending ? 'Sending…' : passwordResetCooldown > 0 ? `Resend in ${passwordResetCooldown}s` : 'Send password reset email'}
           </Button>
         </Card>
       </section>

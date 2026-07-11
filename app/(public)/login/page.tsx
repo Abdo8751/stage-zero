@@ -32,7 +32,6 @@ function LoginForm() {
   const [loading, setLoading] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [error, setError] = useState<string | null>(authError ? 'Authentication failed. Please try again.' : null)
-  const [resetSent, setResetSent] = useState(false)
   const [showRoleSelector, setShowRoleSelector] = useState(false)
   const [loggedInUser, setLoggedInUser] = useState<any>(null)
   const [loggedInAccessToken, setLoggedInAccessToken] = useState('')
@@ -243,40 +242,6 @@ function LoginForm() {
     }
   }
 
-  const handleForgotPassword = async () => {
-    const emailErr = validateEmail(email)
-    if (emailErr) {
-      setFieldErrors({ email: emailErr })
-      showToast('Enter a valid email first', 'error')
-      return
-    }
-
-    setLoading(true)
-    setError(null)
-
-    try {
-      const supabase = createClient()
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(getNormalizedEmail(email), {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
-      })
-
-      if (resetError) {
-        setError(resetError.message)
-        showToast(resetError.message, 'error')
-        return
-      }
-
-      setResetSent(true)
-      showToast('Password reset link sent. Check your email.', 'success')
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Reset failed'
-      setError(message)
-      showToast(message, 'error')
-    } finally {
-      setLoading(false)
-    }
-  }
-
   if (showRoleSelector) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center px-5 py-16">
@@ -368,21 +333,13 @@ function LoginForm() {
             />
 
             <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={handleForgotPassword}
-                className="text-[12px] text-text-tertiary hover:text-gold transition-colors cursor-pointer"
-                disabled={loading}
+              <Link
+                href="/forgot-password"
+                className="text-[12px] text-text-tertiary hover:text-gold transition-colors underline underline-offset-4"
               >
                 Forgot password?
-              </button>
+              </Link>
             </div>
-
-            {resetSent && (
-              <p className="rounded-input border border-[rgba(52,199,89,0.22)] bg-[rgba(52,199,89,0.08)] px-4 py-3 text-[13px] text-[#30D158]">
-                Reset link sent — check your inbox.
-              </p>
-            )}
 
             {error && (
               <p className="rounded-input border border-[rgba(255,69,58,0.25)] bg-[rgba(255,69,58,0.08)] px-4 py-3 text-[13px] text-[#FF453A]">
