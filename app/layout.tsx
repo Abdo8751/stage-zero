@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Navbar } from '@/components/Navbar'
 import { ToastProvider } from '@/components/ui/Toast'
+import { AuthHashErrorRedirect } from '@/components/AuthHashErrorRedirect'
 import './globals.css'
 
 const inter = Inter({
@@ -42,6 +43,7 @@ export default function RootLayout({
         </div>
 
         <ToastProvider>
+          <AuthHashErrorRedirect />
           <div className="relative" style={{ zIndex: 1 }}>
             <Navbar />
             <main>{children}</main>

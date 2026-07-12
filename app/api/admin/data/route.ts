@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 import { createClient } from '@supabase/supabase-js'
+import { requireAdminSession } from '@/lib/admin-auth'
+import { PRIVATE_JSON_HEADERS } from '@/lib/security'
 
-function requireAdmin() {
-  const adminAuth = cookies().get('admin_auth')?.value
-  if (adminAuth !== 'true') throw new Error('Unauthorized')
-}
+export const dynamic = 'force-dynamic'
 
 function svc() {
   const url    = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -16,9 +14,9 @@ function svc() {
 
 export async function GET(request: Request) {
   try {
-    requireAdmin()
+    requireAdminSession()
   } catch {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: PRIVATE_JSON_HEADERS })
   }
 
   const { searchParams } = new URL(request.url)
@@ -31,7 +29,7 @@ export async function GET(request: Request) {
         .from('investors')
         .select('id, user_id, linkedin_url, cheque_size, location, bio, verification_status, credits, created_at')
         .order('created_at', { ascending: false })
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+      if (error) return NextResponse.json({ error: 'Failed to load investors' }, { status: 500, headers: PRIVATE_JSON_HEADERS })
 
       // Deduplicate: already ordered by created_at DESC, keep first per user_id
       const seenUsers = new Set<string>()
@@ -50,7 +48,7 @@ export async function GET(request: Request) {
         const u = userMap.get(inv.user_id)
         return { ...inv, full_name: u?.full_name ?? null, email: u?.email ?? '' }
       })
-      return NextResponse.json({ data: rows })
+      return NextResponse.json({ data: rows }, { headers: PRIVATE_JSON_HEADERS })
     }
 
     if (type === 'startups') {
@@ -58,7 +56,7 @@ export async function GET(request: Request) {
         .from('startups')
         .select('id, user_id, name, sector, stage, raise_amount, status, is_active, rejection_reason, created_at')
         .order('created_at', { ascending: false })
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+      if (error) return NextResponse.json({ error: 'Failed to load startups' }, { status: 500, headers: PRIVATE_JSON_HEADERS })
 
       const userIds = Array.from(new Set((startups ?? []).map((s) => s.user_id)))
       const { data: users } = await supabase
@@ -69,7 +67,7 @@ export async function GET(request: Request) {
         const u = userMap.get(s.user_id)
         return { ...s, founder_name: u?.full_name ?? null, founder_email: u?.email ?? '', founder_id: s.user_id }
       })
-      return NextResponse.json({ data: rows })
+      return NextResponse.json({ data: rows }, { headers: PRIVATE_JSON_HEADERS })
     }
 
     if (type === 'users') {
@@ -87,7 +85,7 @@ export async function GET(request: Request) {
         startup:  startupMap.get(u.id) ?? null,
         investor: investorMap.get(u.id) ?? null,
       }))
-      return NextResponse.json({ data: rows })
+      return NextResponse.json({ data: rows }, { headers: PRIVATE_JSON_HEADERS })
     }
 
     if (type === 'stats') {
@@ -112,7 +110,7 @@ export async function GET(request: Request) {
       ])
       return NextResponse.json({
         data: { totalFounders, totalInvestors, totalMatches, dealsClosed, pendingStartups, pendingInvestors, recentUsers, recentMatches }
-      })
+      }, { headers: PRIVATE_JSON_HEADERS })
     }
 
     if (type === 'matches') {
@@ -122,8 +120,8 @@ export async function GET(request: Request) {
           startups(name, user_id, users(full_name)),
           investors(users(full_name))`)
         .order('created_at', { ascending: false })
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-      return NextResponse.json({ data: data ?? [] })
+      if (error) return NextResponse.json({ error: 'Failed to load matches' }, { status: 500, headers: PRIVATE_JSON_HEADERS })
+      return NextResponse.json({ data: data ?? [] }, { headers: PRIVATE_JSON_HEADERS })
     }
 
     if (type === 'messages') {
@@ -132,13 +130,12 @@ export async function GET(request: Request) {
         .select(`id, content, created_at, match_id, sender_id, users(full_name)`)
         .order('created_at', { ascending: false })
         .limit(200)
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-      return NextResponse.json({ data: data ?? [] })
+      if (error) return NextResponse.json({ error: 'Failed to load messages' }, { status: 500, headers: PRIVATE_JSON_HEADERS })
+      return NextResponse.json({ data: data ?? [] }, { headers: PRIVATE_JSON_HEADERS })
     }
 
-    return NextResponse.json({ error: 'Unknown type' }, { status: 400 })
+    return NextResponse.json({ error: 'Unknown type' }, { status: 400, headers: PRIVATE_JSON_HEADERS })
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Fetch failed'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Fetch failed' }, { status: 500, headers: PRIVATE_JSON_HEADERS })
   }
 }

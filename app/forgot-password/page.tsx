@@ -20,6 +20,9 @@ export default function ForgotPasswordPage() {
 
   useEffect(() => {
     inputRef.current?.focus()
+    if (new URLSearchParams(window.location.search).get('error') === 'expired_link') {
+      setMessage('That reset link is invalid or expired. Request a new one below.')
+    }
   }, [])
 
   useEffect(() => {

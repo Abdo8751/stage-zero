@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { PRIVATE_JSON_HEADERS } from '@/lib/security'
 
 function svc() {
   const url    = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -20,7 +21,7 @@ export async function GET(request: Request) {
 
     let query = supabase
       .from('startups')
-      .select('*')
+      .select('id, user_id, name, tagline, sector, stage, raise_amount, website_url, logo_url, pitch_deck_url, description, is_featured, created_at')
       .eq('is_active', true)
       .eq('status', 'active')
       .order('created_at', { ascending: false })
@@ -30,11 +31,10 @@ export async function GET(request: Request) {
     if (maxR)  query = query.lte('raise_amount', parseInt(maxR, 10))
 
     const { data, error } = await query
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) return NextResponse.json({ error: 'Failed to fetch startups' }, { status: 500, headers: PRIVATE_JSON_HEADERS })
 
-    return NextResponse.json({ data: data ?? [] })
+    return NextResponse.json({ data: data ?? [] }, { headers: PRIVATE_JSON_HEADERS })
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to fetch startups'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch startups' }, { status: 500, headers: PRIVATE_JSON_HEADERS })
   }
 }

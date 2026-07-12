@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 import { getInvestorProtectedRoute, getInvestorRoute } from '@/lib/auth'
-import { createServiceSupabaseClient } from '@/lib/investor'
 
 const PUBLIC_ROUTES = ['/', '/login', '/signup', '/forgot-password', '/reset-password', '/auth/reset-password', '/auth/verify-email', '/suspended', '/explore']
 const FOUNDER_ROUTES = ['/onboarding', '/dashboard', '/profile/edit', '/interests']
@@ -20,6 +20,13 @@ function getSupabaseEnv() {
   if (!url || !anonKey) return null
   if (anonKey.startsWith('sb_secret_') || anonKey.includes('service_role')) return null
   return { url, anonKey }
+}
+
+function createMiddlewareServiceClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const svcKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !svcKey) throw new Error('Supabase service key not configured')
+  return createClient(url, svcKey, { auth: { persistSession: false, autoRefreshToken: false } })
 }
 
 function devTrace(message: string, data?: Record<string, unknown>) {
@@ -44,7 +51,7 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
     const isAdminLogin = pathname === '/admin/login'
     const isAdminApi   = pathname.startsWith('/api/admin')
-    const hasAdminAuth = request.cookies.get('admin_auth')?.value === 'true'
+    const hasAdminAuth = Boolean(request.cookies.get('stage_zero_admin')?.value)
 
     if (!hasAdminAuth && !isAdminLogin) {
       // API routes: return 401 JSON instead of redirect
@@ -128,7 +135,7 @@ export async function middleware(request: NextRequest) {
       let investorStatus: 'draft' | 'pending' | 'approved' | 'rejected' | null = null
 
       if (profile.role === 'investor') {
-        const serviceSupabase = createServiceSupabaseClient()
+        const serviceSupabase = createMiddlewareServiceClient()
         const { data: investor, error: investorError } = await serviceSupabase
           .from('investors')
           .select('verification_status')

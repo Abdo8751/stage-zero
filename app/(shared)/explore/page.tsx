@@ -118,8 +118,6 @@ export default function ExplorePage() {
     const load = async () => {
       setLoading(true)
       try {
-        // Activate any pending completed startups first (silent, server-side)
-        await fetch('/api/startups/activate-pending', { method: 'POST' }).catch(() => {})
         const res = await fetch('/api/startups')
         const json = await res.json() as { data?: Startup[] }
         setStartups(json.data ?? [])

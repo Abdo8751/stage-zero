@@ -30,8 +30,11 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   const [stats, setStats] = useState<SidebarStats>({ founders: 0, investors: 0, matches: 0, messages: 0, users: 0 })
 
   useEffect(() => {
-    const hasAdminCookie = document.cookie.split(';').some((c) => c.trim() === 'admin_auth=true')
-    if (!hasAdminCookie) router.replace('/admin/login')
+    const verify = async () => {
+      const response = await fetch('/api/admin/session', { cache: 'no-store' })
+      if (!response.ok) router.replace('/admin/login')
+    }
+    void verify()
   }, [router])
 
   useEffect(() => {
@@ -55,8 +58,8 @@ function AdminShell({ children }: { children: React.ReactNode }) {
     void run()
   }, [pathname])
 
-  const handleLogout = () => {
-    document.cookie = 'admin_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+  const handleLogout = async () => {
+    await fetch('/api/admin/logout', { method: 'POST' }).catch(() => {})
     router.replace('/admin/login')
   }
 

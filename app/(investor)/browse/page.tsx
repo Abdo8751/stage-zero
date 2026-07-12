@@ -74,18 +74,13 @@ export default function BrowsePage() {
     }
   }, [search, sectorFilter, stageFilter, minRaise, maxRaise])
 
-  // On first mount: activate any pending startups, THEN fetch so they appear immediately
   useEffect(() => {
-    const init = async () => {
-      await fetch('/api/startups/activate-pending', { method: 'POST' }).catch(() => {})
-      void fetchStartups()
-    }
-    void init()
+    void fetchStartups()
     void loadSaved()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Re-fetch when filters change (skips the activate step, already done above)
+  // Re-fetch when filters change
   useEffect(() => {
     void fetchStartups()
   }, [fetchStartups])

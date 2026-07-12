@@ -77,7 +77,6 @@ export function useMessages(matchId: string): UseMessagesReturn {
         match_id: matchId,
         sender_id: user.id,
         content: trimmed,
-        is_read: false,
       })
 
       if (insertError) throw insertError
