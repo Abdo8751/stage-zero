@@ -28,7 +28,6 @@ export default function EditProfilePage() {
   const [raiseAmount, setRaiseAmount] = useState('')
   const [websiteUrl, setWebsiteUrl] = useState('')
   const [traction, setTraction] = useState('')
-  const [isActive, setIsActive] = useState(true)
   const [pitchFile, setPitchFile] = useState<File | null>(null)
 
   useEffect(() => {
@@ -42,7 +41,6 @@ export default function EditProfilePage() {
       setRaiseAmount(startup.raise_amount?.toString() ?? '')
       setWebsiteUrl(startup.website_url ?? '')
       setTraction(startup.traction ?? '')
-      setIsActive(startup.is_active)
     }
   }, [startup])
 
@@ -66,13 +64,19 @@ export default function EditProfilePage() {
         if (uploaded) pitchDeckUrl = uploaded
       }
 
-      // If rejected or changes_requested, resubmit resets status to pending_review
-      const wasRejected =
-        startup.status === 'rejected' || startup.status === 'changes_requested'
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+      if (sessionError) throw sessionError
+      const token = sessionData.session?.access_token
+      if (!token) throw new Error('Please sign in again')
 
-      const { error } = await supabase
-        .from('startups')
-        .update({
+      const res = await fetch('/api/founder/startup', {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: startup.id,
           name: name.trim(),
           tagline: tagline.trim() || null,
           sector,
@@ -83,12 +87,11 @@ export default function EditProfilePage() {
           website_url: websiteUrl.trim() || null,
           traction: traction.trim() || null,
           pitch_deck_url: pitchDeckUrl,
-          is_active: isActive,
-          ...(wasRejected ? { status: 'pending_review', rejection_reason: null } : {}),
-        })
-        .eq('id', startup.id)
+        }),
+      })
+      const result = (await res.json()) as { error?: string }
 
-      if (error) throw error
+      if (!res.ok || result.error) throw new Error(result.error ?? 'Save failed')
       showToast('Profile updated', 'success')
       await refresh()
       router.push('/dashboard')
@@ -187,15 +190,6 @@ export default function EditProfilePage() {
               <p className="mt-1.5 text-xs text-gold font-body">Current deck uploaded</p>
             )}
           </div>
-          <label className="flex items-center gap-3 text-sm text-text-secondary font-body cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
-              className="accent-gold rounded border-[rgba(255,255,255,0.15)] bg-[rgba(255,255,255,0.06)]"
-            />
-            Listing active (uncheck to pause)
-          </label>
           <Button type="submit" fullWidth disabled={saving}>
             {saving ? 'Saving...' : 'Save changes'}
           </Button>

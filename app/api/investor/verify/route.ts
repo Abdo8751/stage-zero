@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { PRIVATE_JSON_HEADERS } from '@/lib/security'
 
 function getServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -8,11 +9,24 @@ function getServiceClient() {
   return createClient(url, svcKey, { auth: { persistSession: false } })
 }
 
+function cleanText(value: unknown, max: number) {
+  return typeof value === 'string' ? value.trim().slice(0, max) : ''
+}
+
+function isHttpUrl(value: string) {
+  try {
+    const url = new URL(value)
+    return url.protocol === 'http:' || url.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const authHeader = request.headers.get('Authorization')
     if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401, headers: PRIVATE_JSON_HEADERS })
     }
 
     const token = authHeader.slice(7)
@@ -23,22 +37,25 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser(token)
 
     if (userError || !user) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401, headers: PRIVATE_JSON_HEADERS })
     }
 
-    const body = (await request.json()) as {
-      linkedin_url: string
-      bio: string
-      cheque_size: string
-      location: string
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>
+    const linkedinUrl = cleanText(body.linkedin_url, 300)
+    const bio = cleanText(body.bio, 2000)
+    const chequeSize = cleanText(body.cheque_size, 100)
+    const location = cleanText(body.location, 120)
+
+    if (!linkedinUrl || !isHttpUrl(linkedinUrl) || !bio || !chequeSize || !location) {
+      return NextResponse.json({ error: 'Invalid investor application' }, { status: 400, headers: PRIVATE_JSON_HEADERS })
     }
 
     const payload = {
       user_id: user.id,
-      linkedin_url: body.linkedin_url.trim(),
-      bio: body.bio.trim(),
-      cheque_size: body.cheque_size.trim(),
-      location: body.location.trim(),
+      linkedin_url: linkedinUrl,
+      bio,
+      cheque_size: chequeSize,
+      location,
       verification_status: 'pending' as const,
     }
 
@@ -49,7 +66,7 @@ export async function POST(request: Request) {
       .maybeSingle()
 
     if (lookupError) {
-      return NextResponse.json({ error: lookupError.message }, { status: 500 })
+      return NextResponse.json({ error: 'Investor lookup failed' }, { status: 500, headers: PRIVATE_JSON_HEADERS })
     }
 
     const credits = existingInvestor?.credits ?? 0
@@ -59,13 +76,12 @@ export async function POST(request: Request) {
       .upsert({ ...payload, credits }, { onConflict: 'user_id' })
 
     if (upsertError) {
-      return NextResponse.json({ error: upsertError.message }, { status: 500 })
+      return NextResponse.json({ error: 'Investor application update failed' }, { status: 500, headers: PRIVATE_JSON_HEADERS })
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true }, { headers: PRIVATE_JSON_HEADERS })
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Submit failed'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Submit failed' }, { status: 500, headers: PRIVATE_JSON_HEADERS })
   }
 }
 

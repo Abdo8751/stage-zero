@@ -1,3 +1,5 @@
+import 'server-only'
+
 import { createClient } from '@supabase/supabase-js'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import type { UserRole } from '@/lib/types'
@@ -36,27 +38,38 @@ export async function finalizeProfileForUser(
 
   const supabase = getServiceClient()
   const fullName = (user.user_metadata?.full_name as string | undefined)?.trim() || user.email || null
-
-  const { error: userError } = await supabase
+  const { data: existingUser, error: lookupError } = await supabase
     .from('users')
-    .upsert({
-      id: user.id,
-      email: user.email ?? '',
-      role,
-      full_name: fullName,
-      avatar_url: (user.user_metadata?.avatar_url as string | undefined) ?? null,
-      is_verified: false,
-      is_banned: false,
-    }, { onConflict: 'id' })
+    .select('id, email, role, full_name, avatar_url, is_verified, is_banned')
+    .eq('id', user.id)
+    .maybeSingle()
 
-  if (userError) {
-    throw new Error(`DB error: ${userError.message} (code: ${userError.code})`)
+  if (lookupError) {
+    throw new Error(`DB error: ${lookupError.message} (code: ${lookupError.code})`)
+  }
+
+  if (!existingUser) {
+    const { error: insertError } = await supabase
+      .from('users')
+      .insert({
+        id: user.id,
+        email: user.email ?? '',
+        role,
+        full_name: fullName,
+        avatar_url: (user.user_metadata?.avatar_url as string | undefined) ?? null,
+        is_verified: false,
+        is_banned: false,
+      })
+
+    if (insertError) {
+      throw new Error(`DB error: ${insertError.message} (code: ${insertError.code})`)
+    }
   }
 
   if (role === 'investor') {
     const { data: existingInvestor, error: investorLookupError } = await supabase
       .from('investors')
-      .select('id')
+      .select('id, verification_status, credits')
       .eq('user_id', user.id)
       .maybeSingle()
 

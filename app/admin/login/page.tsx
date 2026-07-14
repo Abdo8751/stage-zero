@@ -17,18 +17,24 @@ export default function AdminLoginPage() {
     setLoading(true)
     setError('')
 
-    // Hardcoded password check
-    if (password !== 'stagezero2026') {
-      setError('Invalid admin password.')
+    try {
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      })
+
+      if (!response.ok) {
+        setError('Invalid admin password.')
+        return
+      }
+
+      router.replace('/admin')
+    } catch {
+      setError('Admin login is unavailable right now.')
+    } finally {
       setLoading(false)
-      return
     }
-
-    // Set cookie with 24h expiry
-    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()
-    document.cookie = `admin_auth=true; path=/; expires=${expires}; SameSite=Lax`
-
-    router.replace('/admin')
   }
 
   return (

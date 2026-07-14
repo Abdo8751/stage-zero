@@ -127,7 +127,17 @@ export function getInvestorProtectedRoute(status: VerificationStatus | null | un
 
 export async function uploadAvatar(userId: string, file: File): Promise<string | null> {
   const supabase = createClient()
-  const ext = file.name.split('.').pop() ?? 'jpg'
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
+  const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp'])
+
+  if (!allowedTypes.has(file.type) || !['jpg', 'jpeg', 'png', 'webp'].includes(ext)) {
+    throw new Error('Avatar must be a JPG, PNG, or WebP image.')
+  }
+
+  if (file.size > 2 * 1024 * 1024) {
+    throw new Error('Avatar must be 2MB or smaller.')
+  }
+
   const path = `${userId}/${Date.now()}.${ext}`
 
   const { error: uploadError } = await supabase.storage
@@ -142,7 +152,17 @@ export async function uploadAvatar(userId: string, file: File): Promise<string |
 
 export async function uploadPitchDeck(userId: string, file: File): Promise<string | null> {
   const supabase = createClient()
-  const path = `${userId}/${Date.now()}-${file.name}`
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
+
+  if (file.type !== 'application/pdf' || ext !== 'pdf') {
+    throw new Error('Pitch deck must be a PDF.')
+  }
+
+  if (file.size > 20 * 1024 * 1024) {
+    throw new Error('Pitch deck must be 20MB or smaller.')
+  }
+
+  const path = `${userId}/${crypto.randomUUID()}.pdf`
 
   const { error: uploadError } = await supabase.storage
     .from('pitch-decks')
@@ -150,12 +170,9 @@ export async function uploadPitchDeck(userId: string, file: File): Promise<strin
 
   if (uploadError) return null
 
-  const { data, error: signError } = await supabase.storage
-    .from('pitch-decks')
-    .createSignedUrl(path, 60 * 60 * 24 * 365)
-
-  if (signError) return path
-  return data?.signedUrl ?? path
+  // Persist the object path, never a long-lived bearer URL. Approved investors
+  // receive a short-lived URL from the authenticated detail route.
+  return path
 }
 
 const SAVED_KEY = 'stage-zero-saved-startups'

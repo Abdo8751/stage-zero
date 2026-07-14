@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getInvestorProfileForUserId } from '@/lib/investor'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { PRIVATE_JSON_HEADERS } from '@/lib/security'
 
 export async function GET(request: Request) {
   try {
@@ -14,13 +15,12 @@ export async function GET(request: Request) {
     } = bearerToken ? await supabase.auth.getUser(bearerToken) : await supabase.auth.getUser()
 
     if (userError || !user) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401, headers: PRIVATE_JSON_HEADERS })
     }
 
     const investor = await getInvestorProfileForUserId(user.id)
-    return NextResponse.json({ investor })
+    return NextResponse.json({ investor }, { headers: PRIVATE_JSON_HEADERS })
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Investor profile lookup failed'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Investor profile lookup failed' }, { status: 500, headers: PRIVATE_JSON_HEADERS })
   }
 }

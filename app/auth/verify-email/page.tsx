@@ -45,6 +45,8 @@ function VerifyEmailContent() {
     if (normalized) {
       setEmail(normalized)
       setPendingVerificationEmail(normalized)
+    } else {
+      setError('Missing verification email. Please start again.')
     }
   }, [emailParam])
 

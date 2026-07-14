@@ -11,6 +11,7 @@ import {
   isEmailConfirmationError,
   setPendingVerificationEmail,
 } from '@/lib/auth'
+import { sanitizeAppRedirect } from '@/lib/security'
 import { validateEmail, validatePassword } from '@/lib/validation'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -96,8 +97,10 @@ function LoginForm() {
       investorStatus = result.investor?.verification_status ?? null
     }
 
-    const destination =
-      redirect ?? getLoginRedirect(profile.role, investorStatus, hasStartup)
+    const destination = sanitizeAppRedirect(
+      redirect,
+      getLoginRedirect(profile.role, investorStatus, hasStartup),
+    )
 
     showToast('Welcome back!', 'success')
     clearPendingVerificationEmail()

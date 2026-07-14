@@ -133,21 +133,18 @@ export default function OnboardingPage() {
         .from('startups').select('id').eq('user_id', user.id)
         .order('created_at', { ascending: false }).limit(1).maybeSingle()
 
-      const payload = {
-        user_id: user.id,
+      const startupFields = {
         name: step2.name.trim(),
         tagline: step2.tagline.trim() || null,
         sector: step2.sector,
         stage: step2.stage,
         problem: step2.problem.trim(),
         solution: step2.solution.trim(),
-        is_active: false,            // becomes true when step 3 is submitted
-        status: 'pending_review',
       }
 
       const { error } = existing
-        ? await supabase.from('startups').update(payload).eq('id', existing.id)
-        : await supabase.from('startups').insert(payload)
+        ? await supabase.from('startups').update(startupFields).eq('id', existing.id)
+        : await supabase.from('startups').insert({ user_id: user.id, ...startupFields })
       if (error) throw new Error(error.message)
 
       persistDraft({ step: 3 })
@@ -185,8 +182,6 @@ export default function OnboardingPage() {
         raise_amount: parseInt(step3.raise_amount.replace(/\D/g, ''), 10) || null,
         website_url:  step3.website_url.trim() || null,
         traction:     traction || null,
-        status:       'pending_review',
-        is_active:    false,
       }).eq('user_id', user.id)
       if (error) throw new Error(error.message)
 
@@ -201,18 +196,6 @@ export default function OnboardingPage() {
           { to: user.email, startupName: step2.name },
         )
       }
-
-      // Notify admin (fire-and-forget)
-      const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? 'admin@stagezero.eg'
-      void fetch('/api/notifications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id, type: 'admin', message: '',
-          emailFn: 'sendAdminNewStartup',
-          emailArgs: { to: adminEmail, founderName: user.full_name ?? user.email, startupName: step2.name },
-        }),
-      })
 
       clearDraft()
       await refresh()
