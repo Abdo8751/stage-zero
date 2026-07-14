@@ -1,3 +1,5 @@
+import 'server-only'
+
 /**
  * Transactional email helpers using Resend.
  * All functions are no-ops if RESEND_API_KEY is not set,

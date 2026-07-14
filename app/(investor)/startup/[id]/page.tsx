@@ -53,17 +53,20 @@ export default function StartupProfilePage() {
     setError(null)
     try {
       const supabase = createClient()
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+      if (sessionError) throw sessionError
+      const token = sessionData.session?.access_token
+      if (!token) throw new Error('Please sign in again')
 
-      // Increment view count
-      await supabase.rpc('increment_startup_view', { startup_id: id })
+      void fetch(`/api/startups/${id}/view`, { method: 'POST' }).catch(() => null)
 
-      const { data, error: fetchError } = await supabase
-        .from('startups')
-        .select('*, users(full_name, avatar_url, email)')
-        .eq('id', id)
-        .maybeSingle()
-      if (fetchError) throw fetchError
-      setStartup(data as StartupDetail | null)
+      const detailRes = await fetch(`/api/startups/${id}/detail`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
+      })
+      const detailJson = (await detailRes.json()) as { startup?: StartupDetail; error?: string }
+      if (!detailRes.ok || detailJson.error) throw new Error(detailJson.error ?? 'Failed to load startup')
+      setStartup(detailJson.startup ?? null)
 
       // Check existing interest
       if (investor) {
@@ -110,39 +113,53 @@ export default function StartupProfilePage() {
     setExpressing(true)
     try {
       const supabase = createClient()
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+      if (sessionError) throw sessionError
+      const token = sessionData.session?.access_token
+      if (!token) throw new Error('Please sign in again')
 
-      const { data: match, error: matchError } = await supabase
-        .from('matches')
-        .insert({ startup_id: startup.id, investor_id: investor.id, status: 'pending' })
-        .select('id')
-        .single()
-      if (matchError) throw matchError
-
-      await supabase
-        .from('investors')
-        .update({ credits: investor.credits - 1 })
-        .eq('id', investor.id)
-
-      // Notify founder
-      const founderUserId = startup.user_id
-      const investorWithUser = investor as typeof investor & { users?: { full_name: string | null } | null }
-      await notify(
-        founderUserId,
-        'new_interest',
-        `${investorWithUser.users?.full_name ?? 'An investor'} expressed interest in ${startup.name}`,
-        '/interests',
-        'sendNewInterest',
-        {
-          to: startup.users?.email ?? '',
-          founderName: startup.users?.full_name ?? 'Founder',
-          investorName: investorWithUser.users?.full_name ?? 'An investor',
-          startupName: startup.name,
+      const interestRes = await fetch('/api/matches/express-interest', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-      )
+        body: JSON.stringify({ startupId: startup.id }),
+      })
+      const interestJson = (await interestRes.json()) as {
+        matchId?: string
+        alreadyExists?: boolean
+        error?: string
+      }
+      if (!interestRes.ok || interestJson.error || !interestJson.matchId) {
+        throw new Error(interestJson.error ?? 'Failed to express interest')
+      }
+
+      if (!interestJson.alreadyExists) {
+        // Notify founder
+        const founderUserId = startup.user_id
+        const investorWithUser = investor as typeof investor & { users?: { full_name: string | null } | null }
+        await notify(
+          founderUserId,
+          'new_interest',
+          `${investorWithUser.users?.full_name ?? 'An investor'} expressed interest in ${startup.name}`,
+          '/interests',
+          'sendNewInterest',
+          {
+            to: startup.users?.email ?? '',
+            founderName: startup.users?.full_name ?? 'Founder',
+            investorName: investorWithUser.users?.full_name ?? 'An investor',
+            startupName: startup.name,
+          },
+        )
+      }
 
       setInterest('pending')
-      setMatchId(match.id)
-      showToast('Interest sent! The founder will review your request.', 'success')
+      setMatchId(interestJson.matchId)
+      showToast(
+        interestJson.alreadyExists ? 'Interest already sent.' : 'Interest sent! The founder will review your request.',
+        'success',
+      )
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Failed to express interest', 'error')
     } finally {

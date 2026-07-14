@@ -65,14 +65,13 @@ function AvatarUpload({
 
 export default function SettingsPage() {
   const router = useRouter()
-  const { user, startup, loading, refresh } = useUser()
+  const { user, loading, refresh } = useUser()
   const { showToast } = useToast()
 
   const [fullName, setFullName]     = useState('')
   const [email, setEmail]           = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [emailPrefs, setEmailPrefs] = useState(true)
-  const [pauseListing, setPauseListing] = useState(false)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [saving, setSaving]         = useState(false)
@@ -87,13 +86,12 @@ export default function SettingsPage() {
       setFullName(user.full_name ?? '')
       setEmail(user.email)
     }
-    if (startup) setPauseListing(!startup.is_active)
     try {
       setEmailPrefs(JSON.parse(localStorage.getItem(PREFS_KEY) ?? 'true') as boolean)
     } catch {
       setEmailPrefs(true)
     }
-  }, [user, startup])
+  }, [user])
 
   useEffect(() => {
     if (passwordResetCooldown <= 0) return
@@ -136,14 +134,6 @@ export default function SettingsPage() {
       if (email !== user.email) {
         const { error: emailError } = await supabase.auth.updateUser({ email: email.trim() })
         if (emailError) throw emailError
-      }
-
-      if (user.role === 'founder' && startup) {
-        const { error: startupError } = await supabase
-          .from('startups')
-          .update({ is_active: !pauseListing })
-          .eq('id', startup.id)
-        if (startupError) throw startupError
       }
 
       localStorage.setItem(PREFS_KEY, JSON.stringify(emailPrefs))
@@ -293,28 +283,6 @@ export default function SettingsPage() {
                 }`} />
               </button>
             </label>
-
-            {user?.role === 'founder' && startup && (
-              <label className="flex cursor-pointer items-center justify-between rounded-input border border-glass-border bg-[rgba(255,255,255,0.03)] px-4 py-3">
-                <div>
-                  <p className="text-[13px] font-medium text-cream">Pause listing</p>
-                  <p className="text-[12px] text-cream-subtle">Hide your startup from investor browse</p>
-                </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={pauseListing}
-                  onClick={() => setPauseListing(!pauseListing)}
-                  className={`relative h-5 w-9 shrink-0 rounded-full transition-colors duration-200 ${
-                    pauseListing ? 'bg-[rgba(255,69,58,0.7)]' : 'bg-[rgba(255,255,255,0.12)]'
-                  }`}
-                >
-                  <span className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-cream shadow transition-transform duration-200 ${
-                    pauseListing ? 'translate-x-4' : 'translate-x-0'
-                  }`} />
-                </button>
-              </label>
-            )}
 
             <Button type="submit" fullWidth disabled={saving}>
               {saving ? 'Savingâ€¦' : 'Save profile'}
