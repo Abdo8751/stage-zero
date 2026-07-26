@@ -43,8 +43,11 @@ export async function POST(request: Request) {
     return NextResponse.json(result)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Setup failed'
-    const status = /not confirmed/i.test(message) ? 403 : 500
-    return NextResponse.json({ error: message }, { status })
+    const emailNotConfirmed = /not confirmed/i.test(message)
+    return NextResponse.json(
+      { error: emailNotConfirmed ? 'Email not confirmed' : 'Profile setup failed' },
+      { status: emailNotConfirmed ? 403 : 500 },
+    )
   }
 }
 

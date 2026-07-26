@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { useToast } from '@/components/ui/Toast'
+import { AuthShell } from '@/components/AuthShell'
 import type { UserRole } from '@/lib/types'
 import { Rocket, Briefcase } from 'lucide-react'
 
@@ -247,29 +248,29 @@ function LoginForm() {
 
   if (showRoleSelector) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center px-5 py-16">
+      <AuthShell kicker="Account setup" wide>
         <div className="mb-10 text-center">
-          <h1 className="text-[30px] font-bold tracking-[-0.03em] text-text-primary sm:text-[36px]">Complete your profile</h1>
-          <p className="mt-2.5 text-[14px] text-text-secondary">Select your role to continue.</p>
+          <h1 className="font-serif text-[38px] font-semibold tracking-[-.04em] text-ink">Complete your profile</h1>
+          <p className="mt-2.5 text-[14px] text-ink/60">Select your role to continue.</p>
         </div>
 
         <div className="grid w-full max-w-lg gap-4 sm:grid-cols-2">
           <button type="button" onClick={() => handleRoleSelection('founder')} disabled={loading} className="w-full text-left focus:outline-none">
             <Card hoverable className="h-full">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[rgba(212,168,83,0.12)] border border-[rgba(212,168,83,0.20)]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-amber/30 bg-amber/15">
                 <Rocket className="h-5 w-5 text-gold" />
               </div>
-              <h2 className="mt-4 text-[17px] font-semibold tracking-[-0.02em] text-text-primary">I&apos;m a Founder</h2>
-              <p className="mt-1.5 text-[13px] leading-relaxed text-text-secondary">List your startup and connect with verified investors.</p>
+              <h2 className="mt-4 text-[17px] font-semibold tracking-[-0.02em] text-ink">I&apos;m a Founder</h2>
+              <p className="mt-1.5 text-[13px] font-normal leading-relaxed text-ink/60">List your startup and connect with verified investors.</p>
             </Card>
           </button>
           <button type="button" onClick={() => handleRoleSelection('investor')} disabled={loading} className="w-full text-left focus:outline-none">
             <Card hoverable className="h-full">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[rgba(212,168,83,0.12)] border border-[rgba(212,168,83,0.20)]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-amber/30 bg-amber/15">
                 <Briefcase className="h-5 w-5 text-gold" />
               </div>
-              <h2 className="mt-4 text-[17px] font-semibold tracking-[-0.02em] text-text-primary">I&apos;m an Investor</h2>
-              <p className="mt-1.5 text-[13px] leading-relaxed text-text-secondary">Browse curated startups and express verified interest.</p>
+              <h2 className="mt-4 text-[17px] font-semibold tracking-[-0.02em] text-ink">I&apos;m an Investor</h2>
+              <p className="mt-1.5 text-[13px] font-normal leading-relaxed text-ink/60">Browse curated startups and express verified interest.</p>
             </Card>
           </button>
         </div>
@@ -297,24 +298,19 @@ function LoginForm() {
             Cancel and log out
           </button>
         </div>
-      </div>
+      </AuthShell>
     )
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-5 py-16">
-      <div className="pointer-events-none absolute h-[400px] w-[400px] rounded-full bg-[radial-gradient(circle,rgba(212,168,83,0.05)_0%,transparent_65%)] blur-3xl" />
-
-      <div className="relative w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-5 flex items-center justify-center gap-1">
-            <span className="text-[15px] font-black tracking-[-0.04em] text-cream uppercase">STAGE ZERO</span>
-          </div>
-          <h1 className="text-[28px] font-black tracking-tightest text-cream">Welcome back</h1>
-          <p className="mt-1.5 text-[13px] text-cream-muted">Sign in to your account</p>
+    <AuthShell kicker="Welcome back">
+      <div>
+        <div className="mb-7">
+          <h1 className="font-serif text-[38px] font-semibold tracking-[-.04em] text-ink">Welcome back</h1>
+          <p className="mt-3 text-[15px] font-normal leading-6 text-ink/60">Pick up where the conversation left off.</p>
         </div>
 
-        <Card>
+        <Card className="border-0 bg-transparent p-0 shadow-none">
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <Input
               label="Email"
@@ -338,7 +334,7 @@ function LoginForm() {
             <div className="flex justify-end">
               <Link
                 href="/forgot-password"
-                className="text-[12px] text-text-tertiary hover:text-gold transition-colors underline underline-offset-4"
+                className="text-[12px] font-semibold text-blue-accent transition-colors hover:underline"
               >
                 Forgot password?
               </Link>
@@ -356,9 +352,9 @@ function LoginForm() {
           </form>
 
           <div className="my-5 flex items-center gap-3">
-            <div className="h-px flex-1 bg-glass-border" />
-            <span className="text-[11px] uppercase tracking-[0.10em] text-text-tertiary">or</span>
-            <div className="h-px flex-1 bg-glass-border" />
+            <div className="h-px flex-1 bg-ink/10" />
+            <span className="text-[11px] uppercase tracking-[0.10em] text-ink/40">or</span>
+            <div className="h-px flex-1 bg-ink/10" />
           </div>
 
           <Button type="button" variant="secondary" fullWidth disabled={loading} onClick={handleGoogleLogin}>
@@ -366,14 +362,14 @@ function LoginForm() {
           </Button>
         </Card>
 
-        <p className="mt-6 text-center text-[13px] text-text-secondary">
+        <p className="mt-6 text-center text-[13px] text-ink/60">
           No account?{' '}
-          <Link href="/signup" className="font-medium text-text-primary hover:text-gold transition-colors underline underline-offset-4">
+          <Link href="/signup" className="font-semibold text-blue-accent transition-colors hover:underline">
             Sign up free
           </Link>
         </p>
       </div>
-    </div>
+    </AuthShell>
   )
 }
 

@@ -120,23 +120,26 @@ export default function EditProfilePage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:py-12">
+    <div className="relative mx-auto w-full max-w-3xl px-4 pb-16 pt-28 sm:px-6">
+      <div className="paper-grain pointer-events-none fixed inset-0 -z-10 opacity-20" />
       <button
         type="button"
         onClick={() => router.push('/dashboard')}
-        className="mb-5 flex items-center gap-1.5 text-[13px] text-cream-muted hover:text-cream transition-colors"
+        className="mb-6 flex items-center gap-1.5 text-[13px] text-ink/60 transition-colors hover:text-ink"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         Back to dashboard
       </button>
-      <h1 className="text-3xl sm:text-4xl text-text-primary">Edit profile</h1>
+      <p className="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-blue-accent">Founder profile</p>
+      <h1 className="mt-4 font-serif text-[clamp(2.7rem,6vw,4rem)] font-semibold tracking-[-.04em] text-ink">Edit startup profile</h1>
+      <p className="mt-4 max-w-xl text-[15px] font-normal leading-7 text-ink/60">Keep your profile concise, current, and ready for a thoughtful review.</p>
 
-      <Card className="mt-8">
+      <Card className="mt-8 p-6 sm:p-9">
         <form onSubmit={handleSave} className="space-y-6">
           <Input label="Startup name" value={name} onChange={(e) => setName(e.target.value)} required />
           <Input label="Tagline" value={tagline} onChange={(e) => setTagline(e.target.value)} />
           <div>
-            <p className="mb-2.5 text-xs font-normal font-body text-[rgba(255,255,255,0.6)]">Sector</p>
+            <p className="mb-2.5 text-[13px] font-semibold text-ink/75">Sector</p>
             <div className="flex flex-wrap gap-2">
               {SECTORS.map((s) => (
                 <button
@@ -145,8 +148,8 @@ export default function EditProfilePage() {
                   onClick={() => toggleSector(s)}
                   className={`rounded-[8px] border px-3 py-1.5 text-xs transition-all font-body ${
                     sector.includes(s)
-                      ? 'border-gold bg-gold/20 text-gold shadow-[0_0_8px_rgba(201,168,76,0.2)]'
-                      : 'border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)] text-text-secondary hover:text-text-primary'
+                      ? 'border-blue-accent bg-blue-accent/10 text-blue-accent'
+                      : 'border-ink/12 bg-paper/60 text-ink/60 hover:border-ink/25 hover:text-ink'
                   }`}
                 >
                   {s}
@@ -155,11 +158,11 @@ export default function EditProfilePage() {
             </div>
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-normal font-body text-[rgba(255,255,255,0.6)]">Stage</label>
+            <label className="mb-2 block text-[13px] font-semibold text-ink/75">Stage</label>
             <select
               value={stage}
               onChange={(e) => setStage(e.target.value as StartupStage)}
-              className="w-full bg-[rgba(255,255,255,0.06)] backdrop-blur-[10px] border border-[rgba(255,255,255,0.12)] rounded-[8px] px-4 py-3 font-body font-light text-sm text-[rgba(255,255,255,0.9)] placeholder:text-[rgba(255,255,255,0.35)] focus:border-[rgba(201,168,76,0.6)] focus:ring-[3px] focus:ring-[rgba(201,168,76,0.1)] focus:outline-none transition-all [&>option]:bg-[#0a0f1a] [&>option]:text-white"
+              className="w-full rounded-[10px] border border-ink/15 bg-warm-cream/80 px-4 py-3.5 text-sm text-ink outline-none transition focus:border-blue-accent focus:ring-2 focus:ring-blue-accent/20"
             >
               {STARTUP_STAGES.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -179,15 +182,15 @@ export default function EditProfilePage() {
           <Input label="Website" value={websiteUrl} onChange={(e) => setWebsiteUrl(e.target.value)} />
           <Textarea label="Traction" value={traction} onChange={(e) => setTraction(e.target.value)} />
           <div>
-            <label className="mb-1.5 block text-xs font-normal font-body text-[rgba(255,255,255,0.6)]">Pitch deck (PDF)</label>
+            <label className="mb-2 block text-[13px] font-semibold text-ink/75">Pitch deck (PDF)</label>
             <input
               type="file"
               accept=".pdf"
               onChange={(e) => setPitchFile(e.target.files?.[0] ?? null)}
-              className="w-full text-sm text-text-secondary font-body file:mr-4 file:py-2 file:px-4 file:rounded-[8px] file:border-0 file:text-xs file:font-semibold file:bg-[rgba(255,255,255,0.08)] file:text-text-primary file:hover:bg-[rgba(255,255,255,0.12)] file:cursor-pointer"
+              className="w-full text-sm text-ink/60 file:mr-4 file:cursor-pointer file:rounded-full file:border-0 file:bg-warm-cream file:px-4 file:py-2 file:text-xs file:font-semibold file:text-ink hover:file:bg-amber/20"
             />
             {startup.pitch_deck_url && (
-              <p className="mt-1.5 text-xs text-gold font-body">Current deck uploaded</p>
+              <p className="mt-1.5 text-xs text-amber">Current deck uploaded</p>
             )}
           </div>
           <Button type="submit" fullWidth disabled={saving}>

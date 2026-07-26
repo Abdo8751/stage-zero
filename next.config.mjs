@@ -1,23 +1,40 @@
+function getSupabaseEndpoint() {
+  const configuredUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  if (!configuredUrl) return null
+
+  try {
+    const url = new URL(configuredUrl)
+    if (url.protocol !== 'https:') return null
+    return { hostname: url.hostname, origin: url.origin }
+  } catch {
+    return null
+  }
+}
+
+const supabaseEndpoint = getSupabaseEndpoint()
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'your-project.supabase.co',
-      },
-    ],
+    remotePatterns: supabaseEndpoint
+      ? [{ protocol: 'https', hostname: supabaseEndpoint.hostname }]
+      : [],
   },
   async headers() {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseOrigin = supabaseUrl ? new URL(supabaseUrl).origin : 'https://*.supabase.co'
+    const imageSources = ["'self'", 'data:', 'blob:']
+    const connectSources = ["'self'", 'https://api.resend.com']
+    if (supabaseEndpoint) {
+      imageSources.push(supabaseEndpoint.origin)
+      connectSources.push(supabaseEndpoint.origin)
+    }
+
     const csp = [
       "default-src 'self'",
       "base-uri 'self'",
       "frame-ancestors 'none'",
       "object-src 'none'",
-      "img-src 'self' data: blob: https://your-project.supabase.co",
-      `connect-src 'self' ${supabaseOrigin} https://api.resend.com`,
+      `img-src ${imageSources.join(' ')}`,
+      `connect-src ${connectSources.join(' ')}`,
       "font-src 'self' https://fonts.gstatic.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "script-src 'self' 'unsafe-inline'",

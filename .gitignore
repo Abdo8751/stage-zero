@@ -12,6 +12,13 @@ dist
 .next
 out
 *.local
+*.tsbuildinfo
+
+# Local tooling and one-off migration material
+.claude/
+/src/
+/scripts/migration/
+/*.sql
 
 # Editor directories and files
 .vscode/*

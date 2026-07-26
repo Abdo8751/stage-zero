@@ -77,7 +77,7 @@ export function useUser(): UseUserReturn {
           // API unavailable — fall through to direct query below
         }
 
-        // Fallback: direct Supabase query (works once the RLS fix in the required database policy is applied)
+        // Fallback: direct Supabase query when the required database policy is active.
         if (!startupData) {
           const { data } = await supabase
             .from('startups')

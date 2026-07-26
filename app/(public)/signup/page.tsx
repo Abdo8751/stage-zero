@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { useToast } from '@/components/ui/Toast'
+import { AuthShell } from '@/components/AuthShell'
 import { Rocket, Briefcase } from 'lucide-react'
 
 function SignUpForm() {
@@ -138,28 +139,28 @@ function SignUpForm() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-lg px-4 py-12 sm:py-16">
-      <div className="mb-10 text-center">
-        <h1 className="text-3xl sm:text-4xl text-text-primary">Join Stage Zero</h1>
-        <p className="mt-3 text-text-secondary font-body">Egypt&apos;s premium founder-investor network</p>
+    <AuthShell kicker="Create account" wide>
+      <div className="mb-8">
+        <h1 className="font-serif text-[42px] font-semibold tracking-[-.04em] text-ink">Join Stage Zero</h1>
+        <p className="mt-3 text-[15px] font-normal leading-6 text-ink/60">Choose how you want to get started.</p>
       </div>
 
       {step === 'role' && (
         <div className="grid gap-4 sm:grid-cols-2">
           <button type="button" onClick={() => handleRoleSelect('founder')} className="w-full text-left block">
-            <Card hoverable className="h-full">
-              <Rocket className="h-8 w-8 text-gold" />
-              <h2 className="mt-4 text-xl sm:text-2xl text-text-primary">I&apos;m a Founder</h2>
-              <p className="mt-2 text-sm leading-relaxed text-text-secondary font-body font-light">
+            <Card hoverable className="h-full border-ink/10 bg-paper/70">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-warm-cream"><Rocket className="h-5 w-5 text-amber" /></span>
+              <h2 className="mt-7 text-lg font-semibold text-ink">I&apos;m a Founder</h2>
+              <p className="mt-2 text-sm font-normal leading-relaxed text-ink/55">
                 List your startup and connect with verified investors.
               </p>
             </Card>
           </button>
           <button type="button" onClick={() => handleRoleSelect('investor')} className="w-full text-left block">
-            <Card hoverable className="h-full">
-              <Briefcase className="h-8 w-8 text-gold" />
-              <h2 className="mt-4 text-xl sm:text-2xl text-text-primary">I&apos;m an Investor</h2>
-              <p className="mt-2 text-sm leading-relaxed text-text-secondary font-body font-light">
+            <Card hoverable className="h-full border-ink/10 bg-paper/70">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-warm-cream"><Briefcase className="h-5 w-5 text-amber" /></span>
+              <h2 className="mt-7 text-lg font-semibold text-ink">I&apos;m an Investor</h2>
+              <p className="mt-2 text-sm font-normal leading-relaxed text-ink/55">
                 Browse curated startups and express verified interest.
               </p>
             </Card>
@@ -168,11 +169,11 @@ function SignUpForm() {
       )}
 
       {step === 'form' && role && (
-        <Card>
+        <Card className="border-0 bg-transparent p-0 shadow-none">
           <button
             type="button"
             onClick={() => setStep('role')}
-            className="mb-6 text-sm text-text-secondary hover:text-text-primary transition-colors font-body"
+            className="mb-6 text-sm font-medium text-ink/60 transition-colors hover:text-ink"
           >
             ← Change role ({role === 'founder' ? 'Founder' : 'Investor'})
           </button>
@@ -207,20 +208,20 @@ function SignUpForm() {
             />
 
             <div>
-              <label className="flex items-start gap-3 text-sm text-text-secondary cursor-pointer font-body">
+              <label className="flex cursor-pointer items-start gap-3 text-sm text-ink/65">
                 <input
                   type="checkbox"
                   checked={ageConfirmed}
                   onChange={(e) => setAgeConfirmed(e.target.checked)}
-                  className="mt-1 accent-gold rounded border-[rgba(255,255,255,0.15)] bg-[rgba(255,255,255,0.06)]"
+                  className="mt-1 rounded border-ink/15 accent-blue-accent"
                 />
                 <span>I confirm I am 18 years of age or older</span>
               </label>
-              {fieldErrors.age && <p className="mt-1 text-sm text-red-400 font-body">{fieldErrors.age}</p>}
+              {fieldErrors.age && <p className="mt-1 text-sm text-red-700">{fieldErrors.age}</p>}
             </div>
 
             {error && (
-              <p className="rounded-[8px] border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400 font-body">
+              <p className="rounded-xl border border-red-700/20 bg-red-50 px-4 py-3 text-sm text-red-700">
                 {error}
               </p>
             )}
@@ -231,9 +232,9 @@ function SignUpForm() {
           </form>
 
           <div className="my-6 flex items-center gap-4">
-            <div className="h-px flex-1 bg-[rgba(255,255,255,0.12)]" />
-            <span className="text-xs uppercase tracking-wider text-text-tertiary font-body">or</span>
-            <div className="h-px flex-1 bg-[rgba(255,255,255,0.12)]" />
+            <div className="h-px flex-1 bg-ink/10" />
+            <span className="text-xs uppercase tracking-wider text-ink/40">or</span>
+            <div className="h-px flex-1 bg-ink/10" />
           </div>
 
           <Button type="button" variant="secondary" fullWidth disabled={loading} onClick={handleGoogleSignUp}>
@@ -242,13 +243,13 @@ function SignUpForm() {
         </Card>
       )}
 
-      <p className="mt-8 text-center text-sm text-text-secondary font-body">
+      <p className="mt-8 text-center text-sm text-ink/60">
         Already have an account?{' '}
-        <Link href="/login" className="font-medium text-text-primary hover:text-gold transition-colors underline underline-offset-4">
+        <Link href="/login" className="font-semibold text-blue-accent transition-colors hover:underline">
           Log in
         </Link>
       </p>
-    </div>
+    </AuthShell>
   )
 }
 

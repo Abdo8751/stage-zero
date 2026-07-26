@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
+import { AuthShell } from '@/components/AuthShell'
 import { useToast } from '@/components/ui/Toast'
 import { sendPasswordResetEmail } from '@/lib/auth'
 import { validateEmail } from '@/lib/validation'
@@ -62,11 +62,10 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-5 py-16">
-      <Card className="w-full max-w-md">
-        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-text-tertiary">Account recovery</p>
-        <h1 className="mt-2 text-[28px] font-black tracking-tight text-cream">Forgot your password?</h1>
-        <p className="mt-3 text-[14px] leading-relaxed text-cream-muted">
+    <AuthShell kicker="Password recovery">
+        <Link href="/login" className="mb-7 block text-sm font-medium text-ink/60 hover:text-ink">← Back to log in</Link>
+        <h1 className="font-serif text-[38px] font-semibold tracking-[-.04em] text-ink">Forgot your password?</h1>
+        <p className="mt-3 text-[15px] font-normal leading-6 text-ink/60">
           Enter the email on your Stage Zero account and we&apos;ll send a secure reset link.
         </p>
 
@@ -83,7 +82,7 @@ export default function ForgotPasswordPage() {
           />
 
           {message && (
-            <p className="rounded-input border border-[rgba(52,199,89,0.22)] bg-[rgba(52,199,89,0.08)] px-4 py-3 text-[13px] text-[#30D158]">
+            <p className="rounded-xl border border-blue-accent/25 bg-blue-accent/10 px-4 py-3 text-[13px] text-ink">
               {message}
             </p>
           )}
@@ -93,13 +92,7 @@ export default function ForgotPasswordPage() {
           </Button>
         </form>
 
-        <div className="mt-5 flex items-center justify-between text-[13px]">
-          <Link href="/login" className="text-text-secondary hover:text-text-primary transition-colors underline underline-offset-4">
-            Back to login
-          </Link>
-          <span className="text-text-tertiary">Generic response to protect account privacy</span>
-        </div>
-      </Card>
-    </div>
+        <p className="mt-5 text-center text-[12px] font-normal leading-5 text-ink/45">For privacy, the response is the same whether or not an account exists.</p>
+    </AuthShell>
   )
 }

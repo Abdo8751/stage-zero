@@ -209,13 +209,14 @@ export default function OnboardingPage() {
 
   if (done) {
     return (
-      <div className="mx-auto w-full max-w-lg px-4 pt-24 pb-12 flex flex-col items-center text-center">
-        <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[rgba(52,199,89,0.12)] border border-[rgba(52,199,89,0.25)]">
-          <Clock className="h-7 w-7 text-[#30D158]" />
+      <div className="mx-auto flex w-full max-w-2xl flex-col items-center px-4 pb-16 pt-32 text-center">
+        <div className="paper-grain pointer-events-none fixed inset-0 -z-10 opacity-20" />
+        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-blue-accent/25 bg-warm-cream">
+          <Clock className="h-8 w-8 text-blue-accent" />
         </div>
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-cream-muted">Submitted</p>
-        <h1 className="mt-2 text-[28px] font-black tracking-tightest text-cream">Your startup is submitted</h1>
-        <p className="mt-3 text-[14px] leading-relaxed text-cream-muted max-w-sm">
+        <h1 className="mt-4 font-serif text-5xl font-semibold tracking-[-.04em] text-ink">Your startup is submitted</h1>
+        <p className="mt-4 max-w-sm text-[14px] font-normal leading-relaxed text-ink/60">
           Your listing is under review. You can track its status from your dashboard.
         </p>
         <Link href="/dashboard" className="mt-8">
@@ -238,30 +239,31 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 pt-20 pb-12">
+    <div className="relative mx-auto w-full max-w-3xl px-4 pb-16 pt-28 sm:px-6">
+      <div className="paper-grain pointer-events-none fixed inset-0 -z-10 opacity-20" />
       {/* Header */}
       <div className="mb-2">
-        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-cream-muted">Founder onboarding</p>
-        <h1 className="mt-1 text-[30px] font-black tracking-tightest text-cream">
+        <p className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-blue-accent">Founder onboarding · {step} of {STEPS.length}</p>
+        <h1 className="mt-4 font-serif text-[clamp(2.7rem,6vw,4rem)] font-semibold leading-[1.08] tracking-[-.04em] text-ink">
           {STEPS[step - 1]}
         </h1>
       </div>
 
       {/* Progress bar */}
-      <div className="mb-6 flex items-center gap-2">
+      <div className="mb-8 mt-6 flex items-center gap-2">
         {STEPS.map((label, i) => (
           <div key={i} className="flex flex-1 flex-col items-center gap-1">
             <div className={`h-1.5 w-full rounded-full transition-all duration-300 ${
-              i + 1 < step ? 'bg-cream' : i + 1 === step ? 'bg-blue-bright' : 'bg-[rgba(240,230,208,0.10)]'
+              i + 1 < step ? 'bg-ink' : i + 1 === step ? 'bg-blue-accent' : 'bg-ink/10'
             }`} />
-            <span className={`text-[10px] font-medium ${i + 1 === step ? 'text-blue-bright' : i + 1 < step ? 'text-cream-muted' : 'text-cream-subtle'}`}>
+            <span className={`font-mono text-[10px] font-medium ${i + 1 === step ? 'text-blue-accent' : i + 1 < step ? 'text-ink/65' : 'text-ink/35'}`}>
               {i + 1 < step ? <CheckCircle2 className="h-3 w-3" /> : `Step ${i + 1}`}
             </span>
           </div>
         ))}
       </div>
 
-      <Card>
+      <Card className="p-6 sm:p-10">
         {/* â”€â”€ Step 1 â”€â”€ */}
         {step === 1 && (
           <div className="space-y-5">
@@ -279,14 +281,14 @@ export default function OnboardingPage() {
               placeholder="Tell investors a little about yourself..."
             />
             <div>
-              <label className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em] text-cream-subtle">
+              <label className="mb-2 block text-[13px] font-semibold text-ink/75">
                 Profile photo (optional)
               </label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => setAvatarFile(e.target.files?.[0] ?? null)}
-                className="w-full text-[13px] text-cream-muted file:mr-4 file:py-2 file:px-4 file:rounded-btn file:border-0 file:text-[12px] file:font-semibold file:bg-[rgba(240,230,208,0.08)] file:text-cream file:cursor-pointer hover:file:bg-[rgba(240,230,208,0.14)]"
+                className="w-full text-[13px] text-ink/60 file:mr-4 file:cursor-pointer file:rounded-full file:border-0 file:bg-warm-cream file:px-4 file:py-2 file:text-[12px] file:font-semibold file:text-ink hover:file:bg-amber/20"
               />
             </div>
             <Button onClick={saveStep1} disabled={saving} fullWidth>
@@ -311,7 +313,7 @@ export default function OnboardingPage() {
               placeholder="One sentence that says it all"
             />
             <div>
-              <p className="mb-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-cream-subtle">Sector</p>
+              <p className="mb-2 text-[13px] font-semibold text-ink/75">Sector</p>
               <div className="flex flex-wrap gap-2">
                 {SECTORS.map((s) => (
                   <button
@@ -320,8 +322,8 @@ export default function OnboardingPage() {
                     onClick={() => toggleSector(s)}
                     className={`rounded-btn border px-3 py-1.5 text-[12px] font-medium transition-all cursor-pointer ${
                       step2.sector.includes(s)
-                        ? 'border-blue-accent bg-[rgba(75,124,246,0.15)] text-blue-bright'
-                        : 'border-glass-border bg-[rgba(255,255,255,0.04)] text-cream-muted hover:text-cream hover:border-[rgba(240,230,208,0.20)]'
+                        ? 'border-blue-accent bg-blue-accent/10 text-blue-accent'
+                        : 'border-ink/12 bg-paper/60 text-ink/60 hover:border-ink/25 hover:text-ink'
                     }`}
                   >
                     {s}
@@ -331,11 +333,11 @@ export default function OnboardingPage() {
               {errors.sector && <p className="mt-1.5 text-[12px] text-[#FF453A]">{errors.sector}</p>}
             </div>
             <div>
-              <label className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em] text-cream-subtle">Stage</label>
+              <label className="mb-2 block text-[13px] font-semibold text-ink/75">Stage</label>
               <select
                 value={step2.stage}
                 onChange={(e) => setStep2({ ...step2, stage: e.target.value as StartupStage })}
-                className="w-full bg-[rgba(240,228,200,0.07)] border border-[rgba(240,230,208,0.18)] rounded-input px-4 py-3 text-[14px] text-cream focus:border-[rgba(240,230,208,0.50)] focus:outline-none transition-all [&>option]:bg-navy cursor-pointer"
+                className="w-full cursor-pointer rounded-[10px] border border-ink/15 bg-warm-cream/80 px-4 py-3.5 text-[14px] text-ink outline-none transition focus:border-blue-accent focus:ring-2 focus:ring-blue-accent/20"
               >
                 {STARTUP_STAGES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
@@ -385,7 +387,7 @@ export default function OnboardingPage() {
                 {saving ? 'Submittingâ€¦' : 'Submit for review'}
               </Button>
             </div>
-            <p className="text-center text-[12px] text-cream-subtle">
+            <p className="text-center text-[12px] font-normal text-ink/45">
               Your listing will be reviewed within 2â€“3 business days.
             </p>
           </div>

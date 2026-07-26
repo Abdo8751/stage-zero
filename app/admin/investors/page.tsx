@@ -128,8 +128,8 @@ export default function AdminInvestorsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-[26px] font-black tracking-tight text-cream">Investors</h1>
-          <p className="mt-1 text-[13px] text-cream-muted">
+          <h1 className="font-serif text-[36px] font-semibold tracking-[-.04em] text-ink">Investors</h1>
+          <p className="mt-2 text-[13px] font-normal text-ink/60">
             {pendingCount > 0 && <span className="mr-2 font-semibold text-amber">{pendingCount} pending verification Â· </span>}
             {filtered.length} total
           </p>

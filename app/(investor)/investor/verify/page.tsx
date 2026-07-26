@@ -125,20 +125,23 @@ export default function InvestorVerifyPage() {
     investor?.cheque_size?.trim() &&
     investor?.location?.trim(),
   )
-  const isRejected = hasSubmittedApplication && !forceShowForm && investor?.verification_status === 'rejected'
+  const isRejected = hasSubmittedApplication && !forceShowForm && !editModeFromQuery && investor?.verification_status === 'rejected'
 
   if (isRejected) {
     return (
-      <div className="mx-auto w-full max-w-lg px-4 py-16 text-center">
-        <Card>
-          <h1 className="text-2xl text-text-primary font-heading">Verification declined</h1>
-          <p className="mt-4 text-text-secondary font-body font-light">Please update your details and resubmit.</p>
+      <div className="relative mx-auto w-full max-w-2xl px-4 pb-16 pt-32 text-center">
+        <div className="paper-grain pointer-events-none fixed inset-0 -z-10 opacity-20" />
+        <Card className="p-8 sm:p-12">
+          <p className="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-red-700/70">Application update required</p>
+          <h1 className="mt-4 font-serif text-5xl font-semibold tracking-[-.04em] text-ink">Verification declined</h1>
+          <p className="mx-auto mt-5 max-w-md text-[15px] font-normal leading-7 text-ink/65">Please review your existing details, make the requested updates, and resubmit your application.</p>
           <Button className="mt-6" onClick={() => {
             setLinkedin(investor?.linkedin_url ?? '')
             setBio(investor?.bio ?? '')
             setChequeSize(investor?.cheque_size ?? '')
             setLocation(investor?.location ?? '')
             setForceShowForm(true)
+            router.replace('/investor/verify?mode=resubmit')
           }}>
             Edit &amp; resubmit
           </Button>
@@ -156,25 +159,28 @@ export default function InvestorVerifyPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-lg px-4 py-8 sm:py-12">
+    <div className="relative mx-auto w-full max-w-3xl px-4 pb-16 pt-28 sm:px-6">
+      <div className="paper-grain pointer-events-none fixed inset-0 -z-10 opacity-20" />
       <button
         type="button"
         onClick={() => router.push('/')}
-        className="mb-5 flex items-center gap-1.5 text-[13px] text-text-secondary hover:text-text-primary transition-colors"
+        className="mb-6 flex items-center gap-1.5 text-[13px] text-ink/60 transition-colors hover:text-ink"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         Back to home
       </button>
-      <h1 className="text-3xl sm:text-4xl text-text-primary">Investor verification</h1>
-      <p className="mt-2 text-text-secondary font-body font-light">Verify your credentials to access startup listings</p>
+      <p className="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-blue-accent">Investor profile · 01 / 01</p>
+      <h1 className="mt-4 font-serif text-[clamp(2.6rem,6vw,4rem)] font-semibold leading-[1.08] tracking-[-.04em] text-ink">{isEditing ? 'Update your profile' : 'Tell us about yourself'}</h1>
+      <p className="mt-4 max-w-2xl text-[15px] font-normal leading-7 text-ink/65">{isEditing ? 'Your previous answers are ready below. Update what needs attention, then resubmit for review.' : 'Our team reviews each investor personally. Help us understand your background and how you support early teams.'}</p>
       {isEditing && (
-        <div className="mt-4 rounded-card border border-[rgba(75,124,246,0.22)] bg-[rgba(75,124,246,0.08)] px-4 py-3 text-[13px] text-text-secondary">
+        <div className="mt-6 rounded-2xl border border-amber/40 bg-amber/15 px-4 py-3 text-[13px] text-ink/70">
           You&apos;re editing a submitted application. Your investor profile will stay in <span className="text-text-primary">pending review</span> after resubmission.
         </div>
       )}
 
-      <Card className="mt-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <Card className="mt-8 p-6 sm:p-9">
+        <form onSubmit={handleSubmit} className="grid gap-6 sm:grid-cols-2">
+          <div className="sm:col-span-2">
           <Input
             label="LinkedIn URL"
             value={linkedin}
@@ -182,12 +188,15 @@ export default function InvestorVerifyPage() {
             placeholder="https://linkedin.com/in/..."
             error={errors.linkedin}
           />
+          </div>
+          <div className="sm:col-span-2">
           <Textarea
             label="Bio"
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             error={errors.bio}
           />
+          </div>
           <Input
             label="Typical cheque size"
             value={chequeSize}
@@ -202,8 +211,8 @@ export default function InvestorVerifyPage() {
             placeholder="Cairo, Egypt"
             error={errors.location}
           />
-          <Button type="submit" fullWidth disabled={saving}>
-            {saving ? 'Submitting...' : 'Submit for review'}
+          <Button type="submit" className="sm:col-span-2 sm:w-fit" disabled={saving}>
+            {saving ? 'Submitting...' : isEditing ? 'Resubmit for review' : 'Submit for review'}
           </Button>
         </form>
       </Card>

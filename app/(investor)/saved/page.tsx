@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase'
 import { useUser } from '@/hooks/useUser'
 import { StartupCard } from '@/components/StartupCard'
 import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
 import type { Startup } from '@/lib/types'
 import { ArrowLeft } from 'lucide-react'
 
@@ -80,28 +81,31 @@ export default function SavedPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-12">
+    <div className="relative mx-auto w-full max-w-6xl px-4 pb-16 pt-28 sm:px-6">
+      <div className="paper-grain pointer-events-none fixed inset-0 -z-10 opacity-20" />
       <button
         type="button"
         onClick={() => router.push('/browse')}
-        className="mb-5 flex items-center gap-1.5 text-[13px] text-text-secondary hover:text-text-primary transition-colors"
+        className="mb-6 flex items-center gap-1.5 text-[13px] text-ink/60 transition-colors hover:text-ink"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         Back to browse
       </button>
-      <h1 className="text-3xl sm:text-4xl">Saved list</h1>
-      <p className="mt-2 text-muted">Startups you bookmarked</p>
+      <p className="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-blue-accent">Investor space</p>
+      <h1 className="mt-4 font-serif text-[clamp(2.7rem,6vw,4rem)] font-semibold tracking-[-.04em] text-ink">Saved startups</h1>
+      <p className="mt-3 text-[15px] font-normal text-ink/60">Startups you bookmarked for a closer look.</p>
 
-      {(loading || userLoading) && <p className="mt-8 text-muted">Loading...</p>}
-      {error && <p className="mt-8 text-red-600">{error}</p>}
+      {(loading || userLoading) && <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{[1,2,3].map((item) => <div key={item} className="shimmer h-64 rounded-card" />)}</div>}
+      {error && <p className="mt-8 rounded-xl border border-red-700/20 bg-red-50 px-4 py-3 text-red-700">{error}</p>}
 
       {!loading && !userLoading && startups.length === 0 && (
-        <div className="mt-12 text-center">
-          <p className="text-muted">No saved startups yet.</p>
+        <Card className="mt-10 py-12 text-center sm:py-16">
+          <p className="font-serif text-3xl font-semibold tracking-[-.035em] text-ink">No saved startups yet</p>
+          <p className="mt-3 text-sm font-normal text-ink/60">Save a startup from the marketplace to return to it here.</p>
           <Link href="/browse" className="mt-6 inline-block">
             <Button>Browse startups</Button>
           </Link>
-        </div>
+        </Card>
       )}
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -111,7 +115,7 @@ export default function SavedPage() {
             <button
               type="button"
               onClick={() => void handleRemove(startup.id)}
-              className="mt-2 text-sm text-red-600 hover:underline"
+              className="mt-3 text-sm font-semibold text-red-700 hover:underline"
             >
               Remove from saved
             </button>

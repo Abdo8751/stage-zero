@@ -188,8 +188,8 @@ export default function AdminUsersPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-[26px] font-black tracking-tight text-cream">Users</h1>
-          <p className="mt-1 text-[13px] text-cream-muted">
+          <h1 className="font-serif text-[36px] font-semibold tracking-[-.04em] text-ink">Users</h1>
+          <p className="mt-2 text-[13px] font-normal text-ink/60">
             {loading ? 'Loadingâ€¦' : (
               <>
                 {filtered.length} of {users.length} users

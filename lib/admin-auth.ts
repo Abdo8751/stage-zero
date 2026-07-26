@@ -65,7 +65,8 @@ export function adminCookieOptions() {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax' as const,
-    path: '/admin',
+    // The session is consumed by both /admin pages and /api/admin handlers.
+    path: '/',
     maxAge: ADMIN_SESSION_TTL_SECONDS,
   }
 }

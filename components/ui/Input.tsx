@@ -12,7 +12,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full">
         {label && (
-          <label htmlFor={inputId} className="mb-2 block text-[12px] font-black uppercase tracking-[0.08em] text-cream-subtle">
+          <label htmlFor={inputId} className="mb-2 block text-[13px] font-semibold text-ink/75">
             {label}
           </label>
         )}
@@ -20,19 +20,19 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           className={`
-            w-full bg-[rgba(255,255,255,0.65)] backdrop-blur-[20px]
-            border rounded-input px-4 py-3
-            text-[14px] font-semibold text-cream placeholder:text-cream-subtle
+            w-full bg-warm-cream/80
+            border rounded-[10px] px-4 py-3.5
+            text-[14px] font-medium text-ink placeholder:text-ink/35
             transition-all duration-150 outline-none
             ${error
               ? 'border-[rgba(180,30,20,0.35)] focus:border-[rgba(180,30,20,0.60)] focus:ring-2 focus:ring-[rgba(180,30,20,0.08)]'
-              : 'border-[rgba(4,11,26,0.15)] focus:border-[rgba(4,11,26,0.40)] focus:ring-2 focus:ring-[rgba(4,11,26,0.06)]'
+              : 'border-ink/15 focus:border-blue-accent focus:ring-2 focus:ring-blue-accent/20'
             }
             ${className}
           `}
           {...props}
         />
-        {error && <p className="mt-1.5 text-[12px] text-[#FF453A]">{error}</p>}
+        {error && <p className="mt-1.5 text-[12px] text-red-700">{error}</p>}
       </div>
     )
   }

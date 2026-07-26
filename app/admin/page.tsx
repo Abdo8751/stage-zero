@@ -175,8 +175,8 @@ export default function AdminOverviewPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[26px] font-black tracking-tight text-cream">Dashboard Overview</h1>
-          <p className="mt-1 text-[13px] text-cream-muted">Platform-wide statistics and recent activity</p>
+          <h1 className="font-serif text-[36px] font-semibold tracking-[-.04em] text-ink">Dashboard Overview</h1>
+          <p className="mt-2 text-[13px] font-normal text-ink/60">Platform-wide statistics and recent activity</p>
         </div>
         <button
           onClick={fetchData}

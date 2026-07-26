@@ -9,6 +9,10 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        parchment:      '#EDE0B8',
+        paper:          '#FFFCF0',
+        'warm-cream':   '#FCF2D2',
+        ink:            '#080A14',
         navy:           '#040B1A',
         'navy-surface': '#070F24',
         cream:          '#080A14',
@@ -30,6 +34,8 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-playfair)', 'Georgia', 'serif'],
+        mono: ['var(--font-jetbrains)', 'ui-monospace', 'monospace'],
       },
       letterSpacing: {
         tightest: '-0.05em',

@@ -98,8 +98,8 @@ export default function AdminMessagesPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-heading text-3xl font-bold text-navy">Messages</h1>
-          <p className="mt-1 text-sm text-muted">
+          <h1 className="font-serif text-[36px] font-semibold tracking-[-.04em] text-ink">Messages</h1>
+          <p className="mt-2 text-sm font-normal text-ink/60">
             Recent messages across all chats â€” read only for moderation
           </p>
         </div>

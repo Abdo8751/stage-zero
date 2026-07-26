@@ -64,12 +64,12 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   const Sidebar = (
-    <aside className="flex h-full w-[260px] shrink-0 flex-col border-r border-[rgba(8,10,20,0.12)] bg-[rgba(255,255,255,0.90)] backdrop-blur-[40px]">
+    <aside className="flex h-full w-[260px] shrink-0 flex-col border-r border-ink/10 bg-paper/90 backdrop-blur-[40px]">
       {/* Logo */}
       <div className="flex items-center justify-between border-b border-[rgba(8,10,20,0.10)] px-6 py-5">
         <div>
-          <p className="text-[18px] font-black tracking-[-0.05em] text-[#080A14] uppercase">Stage Zero</p>
-          <p className="mt-0.5 text-[9px] font-black tracking-[0.28em] uppercase text-amber">Admin Panel</p>
+          <p className="font-serif text-[25px] font-semibold tracking-[-.04em] text-ink">Stage Zero</p>
+          <p className="mt-1 font-mono text-[9px] font-bold uppercase tracking-[.22em] text-amber">Admin Panel</p>
         </div>
         <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 text-[rgba(8,10,20,0.45)] hover:text-[#080A14]">
           <X className="h-4 w-4" />
@@ -124,7 +124,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   )
 
   return (
-    <div className="flex min-h-screen" style={{ background: 'inherit' }}>
+    <div className="flex min-h-screen bg-parchment" style={{ background: 'inherit' }}>
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-30 bg-[rgba(8,10,20,0.25)] backdrop-blur-sm lg:hidden" onClick={() => setSidebarOpen(false)} />
@@ -145,14 +145,14 @@ function AdminShell({ children }: { children: React.ReactNode }) {
       {/* Main */}
       <div className="flex flex-1 flex-col min-w-0">
         {/* Mobile top bar */}
-        <header className="sticky top-0 z-20 flex items-center gap-4 border-b border-[rgba(8,10,20,0.10)] bg-[rgba(255,255,255,0.88)] px-5 py-3.5 backdrop-blur-[40px] lg:hidden">
+        <header className="sticky top-0 z-20 flex items-center gap-4 border-b border-ink/10 bg-paper/90 px-5 py-3.5 backdrop-blur-[40px] lg:hidden">
           <button onClick={() => setSidebarOpen(true)} className="rounded-[8px] p-2 text-[rgba(8,10,20,0.60)] hover:bg-[rgba(8,10,20,0.06)] hover:text-[#080A14] transition-colors" aria-label="Open sidebar">
             <Menu className="h-5 w-5" />
           </button>
           <span className="text-[16px] font-black tracking-[-0.04em] text-[#080A14] uppercase">Stage Zero Admin</span>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-5 sm:p-7 lg:p-8">
+        <main className="admin-stage flex-1 overflow-y-auto p-5 sm:p-7 lg:p-8">
           {children}
         </main>
       </div>

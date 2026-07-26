@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, JetBrains_Mono, Playfair_Display } from 'next/font/google'
 import { Navbar } from '@/components/Navbar'
 import { ToastProvider } from '@/components/ui/Toast'
 import { AuthHashErrorRedirect } from '@/components/AuthHashErrorRedirect'
@@ -9,6 +9,16 @@ const inter = Inter({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700'],
   variable: '--font-inter',
+})
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-playfair',
+})
+
+const jetbrains = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains',
 })
 
 export const metadata: Metadata = {
@@ -23,8 +33,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className="min-h-screen bg-bg-base font-sans antialiased">
+    <html lang="en" className={`${inter.variable} ${playfair.variable} ${jetbrains.variable}`}>
+      <body className="min-h-screen bg-parchment font-sans antialiased">
         {/* ── Global animated cream highlights — gentle on parchment base ── */}
         <div className="pointer-events-none fixed inset-0 overflow-hidden" style={{ zIndex: 0 }}>
           {/* Bright white-cream — top-left */}

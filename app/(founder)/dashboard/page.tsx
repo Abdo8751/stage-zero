@@ -1,24 +1,37 @@
 'use client'
 
-import Link from 'next/link'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useUser } from '@/hooks/useUser'
 import { useMatches } from '@/hooks/useMatches'
 import { createClient } from '@/lib/supabase'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { STARTUP_STAGES, STARTUP_STATUS_LABELS, type StartupStatus } from '@/lib/types'
+import { STARTUP_STAGES, type StartupStatus } from '@/lib/types'
 import {
-  Edit3, Eye, Bookmark, TrendingUp, ExternalLink,
-  FileText, Globe, ArrowRight, Zap, Calendar,
-  AlertCircle, CheckCircle2, Clock, RefreshCw,
+  AlertCircle,
+  ArrowRight,
+  Bookmark,
+  CheckCircle2,
+  Edit3,
+  ExternalLink,
+  Eye,
+  FileText,
+  Globe,
+  Inbox,
+  MapPin,
+  MessageSquare,
+  Search,
+  Settings,
+  Sparkles,
+  TrendingUp,
+  type LucideIcon,
 } from 'lucide-react'
 
 function stageLabel(stage: string) {
-  return STARTUP_STAGES.find((s) => s.value === stage)?.label ?? stage
+  return STARTUP_STAGES.find((item) => item.value === stage)?.label ?? stage
 }
 
 function formatRaise(amount: number | null) {
@@ -28,81 +41,189 @@ function formatRaise(amount: number | null) {
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+  return new Date(iso).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
 }
 
 function StatusBadge({ status }: { status: StartupStatus }) {
-  const map: Record<StartupStatus, { label: string; variant: 'success' | 'gold' | 'muted' | 'rejected' | 'blue' }> = {
-    active:             { label: 'Active',             variant: 'success' },
-    pending_review:     { label: 'Pending review',     variant: 'gold' },
-    paused:             { label: 'Paused',             variant: 'muted' },
-    rejected:           { label: 'Rejected',           variant: 'rejected' },
-    changes_requested:  { label: 'Changes requested',  variant: 'blue' },
+  const map: Record<
+    StartupStatus,
+    { label: string; variant: 'success' | 'gold' | 'muted' | 'rejected' | 'blue' }
+  > = {
+    active: { label: 'Live', variant: 'success' },
+    pending_review: { label: 'Pending review', variant: 'gold' },
+    paused: { label: 'Paused', variant: 'muted' },
+    rejected: { label: 'Not approved', variant: 'rejected' },
+    changes_requested: { label: 'Changes requested', variant: 'blue' },
   }
-  const { label, variant } = map[status] ?? { label: status, variant: 'muted' }
-  return <Badge variant={variant}>{label}</Badge>
+  const item = map[status] ?? { label: status, variant: 'muted' as const }
+  return <Badge variant={item.variant}>{item.label}</Badge>
 }
 
-function AvatarDisplay({ avatarUrl, name, size = 'lg' }: { avatarUrl: string | null; name: string | null; size?: 'sm' | 'lg' }) {
-  const initials = (name ?? '?').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
-  const dim = size === 'lg' ? 'h-20 w-20' : 'h-10 w-10'
-  const text = size === 'lg' ? 'text-[28px]' : 'text-[14px]'
+function AvatarDisplay({
+  avatarUrl,
+  name,
+}: {
+  avatarUrl: string | null
+  name: string | null
+}) {
+  const initials = (name ?? '?')
+    .split(' ')
+    .map((word) => word[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
+
   if (avatarUrl) {
     return (
-      <div className={`${dim} rounded-full overflow-hidden border-2 border-[rgba(240,230,208,0.15)] shadow-[0_0_0_4px_rgba(75,124,246,0.15)]`}>
-        <Image src={avatarUrl} alt={name ?? ''} width={80} height={80} className="h-full w-full object-cover" />
+      <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full border-2 border-paper shadow-[0_0_0_1px_rgba(8,10,20,.12)]">
+        <Image
+          src={avatarUrl}
+          alt={name ?? 'Founder'}
+          width={48}
+          height={48}
+          className="h-full w-full object-cover"
+        />
       </div>
     )
   }
+
   return (
-    <div className={`${dim} rounded-full bg-gradient-to-br from-[rgba(75,124,246,0.3)] to-[rgba(75,124,246,0.10)] border-2 border-[rgba(75,124,246,0.35)] shadow-[0_0_0_4px_rgba(75,124,246,0.10)] flex items-center justify-center`}>
-      <span className={`${text} font-black text-blue-bright`}>{initials}</span>
+    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-blue-accent/25 bg-blue-accent/10 text-[14px] font-black text-blue-accent">
+      {initials}
     </div>
   )
 }
 
+function MetricCard({
+  label,
+  value,
+  note,
+  icon: Icon,
+  href,
+}: {
+  label: string
+  value: number
+  note: string
+  icon: LucideIcon
+  href?: string
+}) {
+  const content = (
+    <Card className="h-full transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-accent/25">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="font-mono text-[10px] font-bold uppercase tracking-[.12em] text-ink/45">
+            {label}
+          </p>
+          <p className="mt-4 font-serif text-[42px] leading-none tracking-[-.05em] text-ink">
+            {value}
+          </p>
+        </div>
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-blue-accent/15 bg-blue-accent/[.08]">
+          <Icon className="h-4 w-4 text-blue-accent" />
+        </span>
+      </div>
+      <p className="mt-4 text-[12px] leading-5 text-ink/50">{note}</p>
+    </Card>
+  )
+
+  return href ? (
+    <Link href={href} className="block h-full">
+      {content}
+    </Link>
+  ) : (
+    content
+  )
+}
+
 export default function DashboardPage() {
-  const router = useRouter()
   const { user, startup, loading } = useUser()
-  const { matches } = useMatches('pending')
+  const {
+    matches,
+    loading: matchesLoading,
+    error: matchesError,
+    refresh: refreshMatches,
+  } = useMatches('pending')
   const [acceptedMatches, setAcceptedMatches] = useState(0)
   const [saveCount, setSaveCount] = useState(0)
+  const [statsLoading, setStatsLoading] = useState(true)
+  const [statsError, setStatsError] = useState<string | null>(null)
 
   const fetchStats = useCallback(async () => {
-    if (!startup) return
-    const supabase = createClient()
+    if (!startup) {
+      setStatsLoading(false)
+      return
+    }
 
-    const [{ count: accepted }, { count: saved }] = await Promise.all([
-      supabase.from('matches').select('id', { count: 'exact', head: true }).eq('startup_id', startup.id).eq('status', 'accepted'),
-      supabase.from('saved_startups').select('id', { count: 'exact', head: true }).eq('startup_id', startup.id),
-    ])
-    setAcceptedMatches(accepted ?? 0)
-    setSaveCount(saved ?? 0)
+    setStatsLoading(true)
+    setStatsError(null)
+
+    try {
+      const supabase = createClient()
+      const [acceptedResult, savedResult] = await Promise.all([
+        supabase
+          .from('matches')
+          .select('id', { count: 'exact', head: true })
+          .eq('startup_id', startup.id)
+          .eq('status', 'accepted'),
+        supabase
+          .from('saved_startups')
+          .select('id', { count: 'exact', head: true })
+          .eq('startup_id', startup.id),
+      ])
+
+      if (acceptedResult.error) throw acceptedResult.error
+      if (savedResult.error) throw savedResult.error
+
+      setAcceptedMatches(acceptedResult.count ?? 0)
+      setSaveCount(savedResult.count ?? 0)
+    } catch (error) {
+      setStatsError(error instanceof Error ? error.message : 'Marketplace activity could not be loaded.')
+    } finally {
+      setStatsLoading(false)
+    }
   }, [startup])
 
-  useEffect(() => { void fetchStats() }, [fetchStats])
+  useEffect(() => {
+    void fetchStats()
+  }, [fetchStats])
 
   if (loading) {
     return (
-      <div className="mx-auto w-full max-w-6xl px-4 pt-24 pb-12 space-y-4">
-        <div className="shimmer h-32 rounded-card" />
-        <div className="grid gap-4 sm:grid-cols-3">{[1,2,3].map(i => <div key={i} className="shimmer h-28 rounded-card" />)}</div>
-        <div className="shimmer h-64 rounded-card" />
+      <div className="mx-auto w-full max-w-6xl space-y-5 px-4 pb-12 pt-28 sm:px-6">
+        <div className="shimmer h-28 rounded-card" />
+        <div className="shimmer h-40 rounded-card" />
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {[1, 2, 3, 4].map((item) => (
+            <div key={item} className="shimmer h-40 rounded-card" />
+          ))}
+        </div>
+        <div className="shimmer h-72 rounded-card" />
       </div>
     )
   }
 
   if (!startup) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center px-4 text-center">
-        <Card className="p-10 max-w-md w-full">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(75,124,246,0.12)] border border-[rgba(75,124,246,0.25)]">
-            <Zap className="h-6 w-6 text-blue-bright" />
+      <div className="relative flex min-h-screen flex-col items-center justify-center px-4 text-center">
+        <div className="paper-grain pointer-events-none fixed inset-0 -z-10 opacity-20" />
+        <Card className="w-full max-w-md p-10">
+          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-blue-accent/25 bg-blue-accent/10">
+            <Sparkles className="h-6 w-6 text-blue-accent" />
           </div>
-          <h1 className="text-[24px] font-black tracking-tight text-cream">Complete your profile</h1>
-          <p className="mt-2 text-[14px] text-cream-muted">Finish onboarding to appear in the investor feed.</p>
+          <h1 className="font-serif text-[34px] font-semibold tracking-[-.04em] text-ink">
+            Complete your startup
+          </h1>
+          <p className="mt-3 text-[14px] leading-6 text-ink/60">
+            Finish onboarding so the Stage Zero team can review your profile.
+          </p>
           <Link href="/onboarding" className="mt-6 block">
-            <Button fullWidth>Continue onboarding <ArrowRight className="ml-2 h-4 w-4" /></Button>
+            <Button fullWidth>
+              Continue onboarding <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </Link>
         </Card>
       </div>
@@ -110,203 +231,489 @@ export default function DashboardPage() {
   }
 
   const status = (startup.status ?? 'pending_review') as StartupStatus
+  const firstName = user?.full_name?.split(' ')[0] ?? 'Founder'
   const memberSince = user?.created_at ? formatDate(user.created_at) : null
+  const activityUnavailable = status !== 'active'
+  const activityNote = (emptyCopy: string) =>
+    activityUnavailable ? 'Marketplace activity begins when your listing is live.' : emptyCopy
+
+  const statusContent: Record<
+    StartupStatus,
+    {
+      eyebrow: string
+      title: string
+      description: string
+      className: string
+      iconClassName: string
+    }
+  > = {
+    pending_review: {
+      eyebrow: 'Review in progress',
+      title: 'Your startup profile is pending review.',
+      description:
+        'Your information is saved. We will let you know when the listing is ready for approved investors.',
+      className: 'border-amber/30 bg-amber/[.08]',
+      iconClassName: 'border-amber/25 bg-amber/10 text-amber',
+    },
+    active: {
+      eyebrow: 'Marketplace status',
+      title: 'Your startup is live.',
+      description:
+        'Approved investors can now discover your profile and express interest in a private introduction.',
+      className: 'border-emerald-700/20 bg-emerald-50/70',
+      iconClassName: 'border-emerald-700/20 bg-emerald-100 text-emerald-700',
+    },
+    paused: {
+      eyebrow: 'Marketplace status',
+      title: 'Your startup listing is paused.',
+      description:
+        'Your information is still saved, but the listing is not currently visible in Browse.',
+      className: 'border-ink/12 bg-paper/70',
+      iconClassName: 'border-ink/10 bg-warm-cream text-ink/55',
+    },
+    changes_requested: {
+      eyebrow: 'Action needed',
+      title: 'A few changes are needed before your listing can go live.',
+      description:
+        startup.rejection_reason ??
+        'Review the feedback, update your startup profile, and resubmit it for review.',
+      className: 'border-blue-accent/25 bg-blue-accent/[.07]',
+      iconClassName: 'border-blue-accent/20 bg-blue-accent/10 text-blue-accent',
+    },
+    rejected: {
+      eyebrow: 'Review decision',
+      title: 'Your startup was not approved.',
+      description:
+        startup.rejection_reason ??
+        'Review the decision, update your startup information, and resubmit when ready.',
+      className: 'border-red-700/20 bg-red-50/70',
+      iconClassName: 'border-red-700/15 bg-red-100 text-red-700',
+    },
+  }
+
+  const currentStatus = statusContent[status]
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 pt-20 pb-16 sm:px-6">
+    <div className="relative mx-auto w-full max-w-7xl px-4 pb-20 pt-28 sm:px-6">
+      <div className="paper-grain pointer-events-none fixed inset-0 -z-10 opacity-20" />
 
-      {/* ── Rejection / Changes banner ─────────────── */}
-      {(status === 'rejected' || status === 'changes_requested') && (
-        <div className={`mb-5 flex flex-col gap-3 rounded-card border p-5 sm:flex-row sm:items-start sm:justify-between ${
-          status === 'rejected'
-            ? 'border-[rgba(255,69,58,0.25)] bg-[rgba(255,69,58,0.06)]'
-            : 'border-[rgba(75,124,246,0.25)] bg-[rgba(75,124,246,0.06)]'
-        }`}>
-          <div className="flex gap-3">
-            <AlertCircle className={`h-5 w-5 mt-0.5 shrink-0 ${status === 'rejected' ? 'text-[#FF453A]' : 'text-blue-bright'}`} />
-            <div>
-              <p className="text-[14px] font-bold text-cream">
-                {status === 'rejected' ? 'Your listing was not approved' : 'Changes have been requested'}
-              </p>
-              {startup.rejection_reason && (
-                <p className="mt-1 text-[13px] text-cream-muted">
-                  <strong className="text-cream">Reason:</strong> {startup.rejection_reason}
-                </p>
-              )}
-            </div>
-          </div>
-          <Link href="/profile/edit" className="shrink-0">
+      <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="font-mono text-[10px] font-bold uppercase tracking-[.15em] text-blue-accent">
+            Founder workspace
+          </p>
+          <h1 className="mt-4 font-serif text-[clamp(2.7rem,6vw,4.5rem)] font-semibold leading-[.95] tracking-[-.05em] text-ink">
+            Your startup at a glance.
+          </h1>
+          <p className="mt-4 max-w-xl text-[15px] leading-6 text-ink/60">
+            Welcome back, {firstName}. Keep your profile current and follow every serious investor
+            introduction from one calm workspace.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/profile/edit">
+            <Button variant="secondary" size="sm">
+              <Edit3 className="h-3.5 w-3.5" />
+              Edit startup
+            </Button>
+          </Link>
+          <Link href="/interests">
             <Button size="sm">
-              <Edit3 className="mr-1.5 h-3.5 w-3.5" />
-              Edit &amp; resubmit
+              <Inbox className="h-3.5 w-3.5" />
+              View interests
+              {matches.length > 0 && (
+                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-navy px-1 text-[9px] font-black text-white">
+                  {matches.length > 9 ? '9+' : matches.length}
+                </span>
+              )}
             </Button>
           </Link>
         </div>
-      )}
+      </header>
 
-      {/* ── Profile header ─────────────────────────── */}
-      <Card className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-[rgba(75,124,246,0.06)] via-transparent to-[rgba(240,230,208,0.03)] pointer-events-none" />
-        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <AvatarDisplay avatarUrl={user?.avatar_url ?? null} name={user?.full_name ?? null} size="lg" />
+      <Card className="mt-8" padding="sm">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <AvatarDisplay avatarUrl={user?.avatar_url ?? null} name={user?.full_name ?? null} />
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-[26px] font-black tracking-tight text-cream leading-none">{user?.full_name ?? 'Founder'}</h1>
+                <p className="text-[14px] font-bold text-ink">{user?.full_name ?? 'Founder'}</p>
                 <Badge variant="blue">Founder</Badge>
-                <StatusBadge status={status} />
               </div>
-              <p className="mt-1 text-[14px] text-cream-muted">{user?.email}</p>
-              {memberSince && (
-                <div className="mt-2 flex items-center gap-1.5 text-[12px] text-cream-subtle">
-                  <Calendar className="h-3.5 w-3.5" />
-                  <span>Member since {memberSince}</span>
-                </div>
+              <p className="mt-1 text-[12px] text-ink/50">
+                {startup.name}
+                {memberSince ? ` · Member since ${memberSince}` : ''}
+              </p>
+            </div>
+          </div>
+          <StatusBadge status={status} />
+        </div>
+      </Card>
+
+      <section
+        className={`mt-5 rounded-card border p-5 sm:p-7 ${currentStatus.className}`}
+        aria-labelledby="startup-status-title"
+      >
+        <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          <div className="flex max-w-3xl items-start gap-4">
+            <span
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border ${currentStatus.iconClassName}`}
+            >
+              {status === 'active' ? (
+                <CheckCircle2 className="h-5 w-5" />
+              ) : (
+                <AlertCircle className="h-5 w-5" />
               )}
+            </span>
+            <div>
+              <p className="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-ink/45">
+                {currentStatus.eyebrow}
+              </p>
+              <h2
+                id="startup-status-title"
+                className="mt-2 font-serif text-[clamp(1.7rem,4vw,2.5rem)] font-semibold leading-tight tracking-[-.035em] text-ink"
+              >
+                {currentStatus.title}
+              </h2>
+              <p className="mt-2 max-w-2xl text-[13px] leading-6 text-ink/60">
+                {currentStatus.description}
+              </p>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2 sm:shrink-0">
-            <Link href="/settings"><Button variant="secondary" size="sm"><Edit3 className="mr-1.5 h-3.5 w-3.5" />Edit profile</Button></Link>
-            <Link href="/interests"><Button size="sm">View interests{matches.length > 0 && <span className="ml-2 flex h-4 w-4 items-center justify-center rounded-full bg-navy text-[10px] font-black">{matches.length}</span>}</Button></Link>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            {status === 'active' && (
+              <Link href={`/startup/${startup.id}`}>
+                <Button size="sm">
+                  View live listing <ArrowRight className="h-3.5 w-3.5" />
+                </Button>
+              </Link>
+            )}
+            <Link href="/profile/edit">
+              <Button variant={status === 'active' ? 'secondary' : 'primary'} size="sm">
+                {status === 'rejected' || status === 'changes_requested'
+                  ? 'Edit & resubmit'
+                  : 'Edit startup'}
+              </Button>
+            </Link>
           </div>
         </div>
-      </Card>
+      </section>
 
-      {/* ── Stats ──────────────────────────────────── */}
-      <div className="mt-5 grid gap-4 sm:grid-cols-4">
-        <Card>
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.10em] text-cream-subtle">Profile views</p>
-              <p className="mt-2 text-[36px] font-black tracking-tightest text-cream leading-none">{startup.view_count ?? 0}</p>
-            </div>
-            <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[rgba(75,124,246,0.12)] border border-[rgba(75,124,246,0.20)]">
-              <Eye className="h-4 w-4 text-blue-bright" />
-            </div>
+      <section className="mt-5" aria-labelledby="activity-heading">
+        <div className="mb-4 flex items-end justify-between gap-3">
+          <div>
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-ink/40">
+              Marketplace activity
+            </p>
+            <h2
+              id="activity-heading"
+              className="mt-2 font-serif text-[28px] font-semibold tracking-[-.035em] text-ink"
+            >
+              What investors are doing
+            </h2>
           </div>
-        </Card>
-        <Card>
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.10em] text-cream-subtle">Saved by</p>
-              <p className="mt-2 text-[36px] font-black tracking-tightest text-cream leading-none">{saveCount}</p>
-            </div>
-            <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[rgba(232,165,60,0.12)] border border-[rgba(232,165,60,0.20)]">
-              <Bookmark className="h-4 w-4 text-amber" />
-            </div>
-          </div>
-        </Card>
-        <Card>
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.10em] text-cream-subtle">Pending</p>
-              <p className="mt-2 text-[36px] font-black tracking-tightest text-cream leading-none">{matches.length}</p>
-              <Link href="/interests" className="mt-1.5 flex items-center gap-1 text-[12px] text-blue-bright hover:underline">Inbox <ArrowRight className="h-3 w-3" /></Link>
-            </div>
-            <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[rgba(52,199,89,0.10)] border border-[rgba(52,199,89,0.20)]">
-              <TrendingUp className="h-4 w-4 text-[#30D158]" />
-            </div>
-          </div>
-        </Card>
-        <Card>
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.10em] text-cream-subtle">Matches</p>
-              <p className="mt-2 text-[36px] font-black tracking-tightest text-cream leading-none">{acceptedMatches}</p>
-              <Link href="/chat" className="mt-1.5 flex items-center gap-1 text-[12px] text-blue-bright hover:underline">Open chats <ArrowRight className="h-3 w-3" /></Link>
-            </div>
-            <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[rgba(75,124,246,0.12)] border border-[rgba(75,124,246,0.20)]">
-              <CheckCircle2 className="h-4 w-4 text-blue-bright" />
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* ── Active listing ─────────────────────────── */}
-      <div className="mt-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-[18px] font-black tracking-tight text-cream">Your listing</h2>
-          <Link href="/profile/edit"><Button variant="ghost" size="sm"><Edit3 className="mr-1.5 h-3.5 w-3.5" />Edit startup</Button></Link>
+          {(statsError || matchesError) && (
+            <button
+              type="button"
+              onClick={() => void Promise.all([fetchStats(), refreshMatches()])}
+              className="text-[12px] font-semibold text-red-700 transition hover:text-red-900"
+            >
+              Some activity could not load · Retry
+            </button>
+          )}
         </div>
-        <Card>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex items-start gap-4">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] bg-[rgba(75,124,246,0.14)] border border-[rgba(75,124,246,0.25)] text-blue-bright font-black text-[22px]">
-                {startup.name[0]}
-              </div>
-              <div>
-                <h3 className="text-[20px] font-black tracking-tight text-cream">{startup.name}</h3>
-                {startup.tagline && <p className="mt-1 text-[14px] text-cream-muted max-w-lg">{startup.tagline}</p>}
-                <div className="mt-2.5 flex flex-wrap gap-2">
-                  <Badge variant="gold">{stageLabel(startup.stage)}</Badge>
-                  {startup.sector.map((s) => <Badge key={s} variant="muted">{s}</Badge>)}
+
+        {statsLoading || matchesLoading ? (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {[1, 2, 3, 4].map((item) => (
+              <div key={item} className="shimmer h-40 rounded-card" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <MetricCard
+              label="Profile views"
+              value={startup.view_count ?? 0}
+              note={activityNote(
+                startup.view_count > 0 ? 'Recorded listing views.' : 'No profile views recorded yet.',
+              )}
+              icon={Eye}
+            />
+            <MetricCard
+              label="Saved by investors"
+              value={saveCount}
+              note={activityNote(
+                saveCount > 0 ? 'Investors have saved this startup.' : 'No investors have saved it yet.',
+              )}
+              icon={Bookmark}
+            />
+            <MetricCard
+              label="Pending interest"
+              value={matches.length}
+              note={activityNote(
+                matches.length > 0
+                  ? 'Requests waiting for your response.'
+                  : 'No requests need your attention.',
+              )}
+              icon={Inbox}
+              href="/interests"
+            />
+            <MetricCard
+              label="Accepted matches"
+              value={acceptedMatches}
+              note={activityNote(
+                acceptedMatches > 0
+                  ? 'Private conversations are open.'
+                  : 'No investor conversations are open yet.',
+              )}
+              icon={MessageSquare}
+              href="/chat"
+            />
+          </div>
+        )}
+      </section>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,.75fr)]">
+        <section aria-labelledby="listing-heading">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <p className="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-ink/40">
+                Startup profile
+              </p>
+              <h2
+                id="listing-heading"
+                className="mt-2 font-serif text-[30px] font-semibold tracking-[-.035em] text-ink"
+              >
+                Your listing
+              </h2>
+            </div>
+            <Link href="/profile/edit">
+              <Button variant="ghost" size="sm">
+                <Edit3 className="h-3.5 w-3.5" />
+                Edit
+              </Button>
+            </Link>
+          </div>
+
+          <Card className="h-[calc(100%-4.75rem)]">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex items-start gap-4">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[15px] border border-blue-accent/20 bg-blue-accent/10 font-serif text-[24px] font-semibold text-blue-accent">
+                  {startup.name[0]?.toUpperCase()}
+                </div>
+                <div>
+                  <h3 className="font-serif text-[29px] font-semibold tracking-[-.035em] text-ink">
+                    {startup.name}
+                  </h3>
+                  {startup.tagline && (
+                    <p className="mt-1 max-w-xl text-[14px] leading-6 text-ink/60">
+                      {startup.tagline}
+                    </p>
+                  )}
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Badge variant="gold">{stageLabel(startup.stage)}</Badge>
+                    {startup.sector.map((sector) => (
+                      <Badge key={sector} variant="muted">
+                        {sector}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               </div>
+              <StatusBadge status={status} />
             </div>
-            <StatusBadge status={status} />
-          </div>
 
-          {(startup.problem || startup.solution || startup.traction) && (
-            <div className="mt-6 grid gap-5 border-t border-[rgba(240,230,208,0.06)] pt-6 sm:grid-cols-2">
-              {startup.problem   && <div><p className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.10em] text-cream-subtle">Problem</p><p className="text-[13px] leading-relaxed text-cream-muted">{startup.problem}</p></div>}
-              {startup.solution  && <div><p className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.10em] text-cream-subtle">Solution</p><p className="text-[13px] leading-relaxed text-cream-muted">{startup.solution}</p></div>}
-              {startup.traction  && <div className="sm:col-span-2"><p className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.10em] text-cream-subtle">Traction</p><p className="text-[13px] leading-relaxed text-cream-muted">{startup.traction}</p></div>}
-            </div>
-          )}
-
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(240,230,208,0.06)] pt-5">
-            <div className="flex items-center gap-1.5">
-              <TrendingUp className="h-4 w-4 text-amber" />
-              <span className="text-[15px] font-bold text-amber">Raising {formatRaise(startup.raise_amount)}</span>
-            </div>
-            <div className="flex flex-wrap items-center gap-3">
-              {startup.website_url && <a href={startup.website_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-[13px] text-cream-muted hover:text-cream transition-colors"><Globe className="h-3.5 w-3.5" />Website<ExternalLink className="h-3 w-3" /></a>}
-              {startup.pitch_deck_url && <a href={startup.pitch_deck_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-[13px] text-blue-bright hover:text-cream transition-colors"><FileText className="h-3.5 w-3.5" />Pitch deck<ExternalLink className="h-3 w-3" /></a>}
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* ── Recent activity ────────────────────────── */}
-      <div className="mt-6">
-        <h2 className="mb-4 text-[18px] font-black tracking-tight text-cream">Recent interest</h2>
-        <Card>
-          {matches.length === 0 ? (
-            <div className="py-6 text-center">
-              <p className="text-[14px] text-cream-muted">No investor interest yet — your listing is {status === 'active' ? 'live' : 'pending review'}.</p>
-              <Link href="/explore" className="mt-3 inline-flex items-center gap-1.5 text-[13px] text-blue-bright hover:underline">Explore other startups <ArrowRight className="h-3.5 w-3.5" /></Link>
-            </div>
-          ) : (
-            <ul className="divide-y divide-[rgba(240,230,208,0.06)]">
-              {matches.slice(0, 6).map((m) => (
-                <li key={m.id} className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(52,199,89,0.10)] border border-[rgba(52,199,89,0.20)] text-[11px] font-black text-[#30D158]">
-                      {(m.investors?.users?.full_name ?? 'I')[0].toUpperCase()}
-                    </div>
-                    <p className="text-[13px] font-semibold text-cream">
-                      {m.investors?.users?.full_name ?? 'An investor'}{' '}
-                      <span className="font-normal text-cream-muted">expressed interest</span>
+            {(startup.problem || startup.solution || startup.traction) && (
+              <div className="mt-6 grid gap-5 border-t border-ink/10 pt-6 sm:grid-cols-2">
+                {startup.problem && (
+                  <div>
+                    <p className="font-mono text-[10px] font-bold uppercase tracking-[.12em] text-ink/40">
+                      Problem
                     </p>
+                    <p className="mt-2 text-[13px] leading-6 text-ink/65">{startup.problem}</p>
                   </div>
-                  <span className="shrink-0 text-[12px] text-cream-subtle">{formatDate(m.created_at)}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
-      </div>
+                )}
+                {startup.solution && (
+                  <div>
+                    <p className="font-mono text-[10px] font-bold uppercase tracking-[.12em] text-ink/40">
+                      Solution
+                    </p>
+                    <p className="mt-2 text-[13px] leading-6 text-ink/65">{startup.solution}</p>
+                  </div>
+                )}
+                {startup.traction && (
+                  <div className="sm:col-span-2">
+                    <p className="font-mono text-[10px] font-bold uppercase tracking-[.12em] text-ink/40">
+                      Traction
+                    </p>
+                    <p className="mt-2 text-[13px] leading-6 text-ink/65">{startup.traction}</p>
+                  </div>
+                )}
+              </div>
+            )}
 
-      {/* ── Explore CTA ───────────────────────────── */}
-      <Card className="mt-6 flex flex-col items-center justify-between gap-4 sm:flex-row" padding="md">
-        <div>
-          <p className="text-[15px] font-bold text-cream">See what other founders are building</p>
-          <p className="mt-0.5 text-[13px] text-cream-muted">Browse the marketplace to see your competition and find inspiration.</p>
-        </div>
-        <Link href="/explore" className="shrink-0">
-          <Button variant="secondary" size="sm">Explore startups <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Button>
-        </Link>
-      </Card>
+            <div className="mt-6 flex flex-col gap-4 border-t border-ink/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="font-mono text-[10px] font-bold uppercase tracking-[.12em] text-ink/40">
+                  Current raise
+                </p>
+                <p className="mt-1 text-[15px] font-bold text-ink">
+                  {formatRaise(startup.raise_amount)}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {startup.website_url && (
+                  <a
+                    href={startup.website_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-[12px] font-semibold text-ink/55 transition hover:text-ink"
+                  >
+                    <Globe className="h-3.5 w-3.5" />
+                    Website
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
+                {startup.pitch_deck_url && (
+                  <a
+                    href={startup.pitch_deck_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-[12px] font-semibold text-blue-accent transition hover:text-blue-bright"
+                  >
+                    <FileText className="h-3.5 w-3.5" />
+                    Pitch deck
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
+              </div>
+            </div>
+          </Card>
+        </section>
+
+        <aside className="space-y-6">
+          <section aria-labelledby="recent-interest-heading">
+            <div className="mb-4">
+              <p className="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-ink/40">
+                Introductions
+              </p>
+              <h2
+                id="recent-interest-heading"
+                className="mt-2 font-serif text-[30px] font-semibold tracking-[-.035em] text-ink"
+              >
+                Recent interest
+              </h2>
+            </div>
+            <Card>
+              {matchesError ? (
+                <div className="py-5 text-center">
+                  <p className="text-[13px] text-red-700">Investor interest could not be loaded.</p>
+                </div>
+              ) : matchesLoading ? (
+                <div className="space-y-3">
+                  {[1, 2].map((item) => (
+                    <div key={item} className="shimmer h-16 rounded-xl" />
+                  ))}
+                </div>
+              ) : matches.length === 0 ? (
+                <div className="py-5 text-center">
+                  <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-warm-cream">
+                    <Inbox className="h-4 w-4 text-amber" />
+                  </span>
+                  <p className="mt-4 text-[14px] font-bold text-ink">No interest received yet</p>
+                  <p className="mt-2 text-[12px] leading-5 text-ink/50">
+                    {status === 'active'
+                      ? 'New verified investor requests will appear here.'
+                      : 'Requests can begin once your listing is live.'}
+                  </p>
+                </div>
+              ) : (
+                <ul className="divide-y divide-ink/10">
+                  {matches.slice(0, 4).map((match) => {
+                    const investorName = match.investors?.users?.full_name ?? 'Verified investor'
+                    return (
+                      <li key={match.id} className="py-4 first:pt-0 last:pb-0">
+                        <div className="flex items-start gap-3">
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-blue-accent/15 bg-blue-accent/[.08] text-[11px] font-black text-blue-accent">
+                            {investorName[0]?.toUpperCase()}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-[13px] font-bold text-ink">{investorName}</p>
+                            <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-ink/45">
+                              {match.investors?.location && (
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="h-3 w-3" />
+                                  {match.investors.location}
+                                </span>
+                              )}
+                              {match.investors?.cheque_size && (
+                                <span>{match.investors.cheque_size}</span>
+                              )}
+                              <span>{formatDate(match.created_at)}</span>
+                            </div>
+                            <Link
+                              href="/interests"
+                              className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-blue-accent hover:underline"
+                            >
+                              View request <ArrowRight className="h-3 w-3" />
+                            </Link>
+                          </div>
+                        </div>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+              <Link
+                href="/interests"
+                className="mt-5 flex items-center justify-between border-t border-ink/10 pt-4 text-[12px] font-bold text-ink/60 transition hover:text-ink"
+              >
+                View all interests <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </Card>
+          </section>
+
+          <section aria-labelledby="quick-actions-heading">
+            <h2
+              id="quick-actions-heading"
+              className="mb-3 font-mono text-[10px] font-bold uppercase tracking-[.14em] text-ink/40"
+            >
+              Quick actions
+            </h2>
+            <Card padding="sm">
+              <nav className="divide-y divide-ink/10" aria-label="Founder quick actions">
+                {[
+                  { href: '/profile/edit', label: 'Edit startup', icon: Edit3 },
+                  { href: '/interests', label: 'View interests', icon: Inbox },
+                  { href: '/chat', label: 'Open founder chats', icon: MessageSquare },
+                  { href: '/browse', label: 'Browse startups', icon: Search },
+                  { href: '/settings', label: 'Account settings', icon: Settings },
+                ].map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="flex items-center gap-3 py-3 text-[12px] font-semibold text-ink/60 transition first:pt-1 last:pb-1 hover:text-ink"
+                  >
+                    <item.icon className="h-3.5 w-3.5 text-blue-accent" />
+                    <span className="flex-1">{item.label}</span>
+                    <ArrowRight className="h-3.5 w-3.5 text-ink/30" />
+                  </Link>
+                ))}
+                {status === 'active' && (
+                  <Link
+                    href={`/startup/${startup.id}`}
+                    className="flex items-center gap-3 py-3 text-[12px] font-semibold text-ink/60 transition last:pb-1 hover:text-ink"
+                  >
+                    <TrendingUp className="h-3.5 w-3.5 text-blue-accent" />
+                    <span className="flex-1">View live listing</span>
+                    <ArrowRight className="h-3.5 w-3.5 text-ink/30" />
+                  </Link>
+                )}
+              </nav>
+            </Card>
+          </section>
+        </aside>
+      </div>
     </div>
   )
 }

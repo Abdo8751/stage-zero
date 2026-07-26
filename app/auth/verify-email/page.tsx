@@ -10,9 +10,8 @@ import {
   setPendingVerificationEmail,
 } from '@/lib/auth'
 import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
-import { Input } from '@/components/ui/Input'
 import { useToast } from '@/components/ui/Toast'
+import { AuthShell } from '@/components/AuthShell'
 import type { UserRole } from '@/lib/types'
 
 function getFriendlyError(message: string) {
@@ -166,19 +165,18 @@ function VerifyEmailContent() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-5 py-16">
-      <Card className="w-full max-w-md">
-        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-text-tertiary">Email verification</p>
-        <h1 className="mt-2 text-[28px] font-black tracking-tight text-cream">Verify your email</h1>
-        <p className="mt-3 text-[14px] leading-relaxed text-cream-muted">
+    <AuthShell kicker="Email verification">
+        <h1 className="font-serif text-[38px] font-semibold tracking-[-.04em] text-ink">Verify your email</h1>
+        <p className="mt-3 text-[15px] font-normal leading-6 text-ink/60">
           Enter the 8-digit code we sent to{' '}
-          <span className="font-semibold text-cream">{normalizedEmail || 'your email address'}</span>.
+          <span className="font-semibold text-ink">{normalizedEmail || 'your email address'}</span>.
         </p>
 
-        <div className="mt-6">
-          <Input
+        <div className="relative mt-8">
+          <label htmlFor="verification-code" className="sr-only">8-digit verification code</label>
+          <input
+            id="verification-code"
             ref={inputRef}
-            label="Verification code"
             type="text"
             inputMode="numeric"
             autoComplete="one-time-code"
@@ -190,13 +188,23 @@ function VerifyEmailContent() {
                 void handleVerify()
               }
             }}
-            placeholder="123456"
-            error={error ?? undefined}
             maxLength={8}
+            aria-invalid={!!error}
+            aria-describedby={error ? 'verification-error' : undefined}
+            className="absolute inset-0 z-10 h-full w-full cursor-text opacity-0"
           />
+          <div aria-hidden="true" className="flex gap-1.5 sm:gap-2">
+            {Array.from({ length: 8 }, (_, index) => (
+              <span key={index} className={`flex h-12 min-w-0 flex-1 items-center justify-center rounded-[10px] border bg-warm-cream font-mono text-xl font-bold text-ink transition ${error ? 'border-red-700' : index === code.length ? 'border-blue-accent ring-2 ring-blue-accent/20' : 'border-ink/15'}`}>
+                {code[index] ?? ''}
+              </span>
+            ))}
+          </div>
         </div>
 
-        {message && <p className="mt-4 rounded-input border border-[rgba(52,199,89,0.22)] bg-[rgba(52,199,89,0.08)] px-4 py-3 text-[13px] text-[#30D158]">{message}</p>}
+        {error && <p id="verification-error" role="alert" className="mt-4 rounded-xl border border-red-700/20 bg-red-50 px-4 py-3 text-[13px] text-red-700">{error}</p>}
+
+        {message && <p className="mt-4 rounded-xl border border-blue-accent/25 bg-blue-accent/10 px-4 py-3 text-[13px] text-ink">{message}</p>}
 
         <Button className="mt-5" fullWidth disabled={!canVerify} onClick={handleVerify}>
           {loading ? 'Verifying…' : 'Verify email'}
@@ -211,13 +219,12 @@ function VerifyEmailContent() {
           </Button>
         </div>
 
-        <p className="mt-4 text-[12px] text-text-tertiary">
+        <p className="mt-4 text-[12px] text-ink/45">
           {roleParam === 'founder'
             ? 'After verification, we will continue your founder onboarding.'
             : 'After verification, we will continue your investor flow.'}
         </p>
-      </Card>
-    </div>
+    </AuthShell>
   )
 }
 

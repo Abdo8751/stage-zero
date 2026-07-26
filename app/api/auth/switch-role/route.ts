@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       .eq('id', user.id)
 
     if (updateError) {
-      return NextResponse.json({ error: updateError.message }, { status: 500 })
+      return NextResponse.json({ error: 'Role update failed' }, { status: 500 })
     }
 
     // Ensure an investor row exists when switching to investor
@@ -69,8 +69,7 @@ export async function POST(request: Request) {
       newRole,
       nextRoute: newRole === 'founder' ? '/dashboard' : getInvestorRoute(investorStatus),
     })
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Switch failed'
-    return NextResponse.json({ error: message }, { status: 500 })
+  } catch {
+    return NextResponse.json({ error: 'Role switch failed' }, { status: 500 })
   }
 }

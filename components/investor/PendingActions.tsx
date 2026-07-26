@@ -18,13 +18,13 @@ export function PendingActions() {
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         <Link
           href="/investor/verify?edit=1"
-          className="inline-flex w-full items-center justify-center rounded-btn border border-[rgba(255,255,255,0.18)] bg-[#040B1A] px-5 py-3 text-[14px] font-black tracking-[-0.02em] text-white shadow-[0_0_0_1px_rgba(240,230,208,0.10)_inset,0_6px_24px_rgba(0,0,0,0.65),0_1px_0_rgba(255,255,255,0.18)_inset] transition-all duration-150 hover:border-[rgba(240,218,150,0.50)] hover:bg-[#061228] hover:shadow-[0_0_28px_rgba(240,218,150,0.28),0_6px_24px_rgba(0,0,0,0.60)]"
+          className="inline-flex w-full items-center justify-center rounded-full border border-blue-accent bg-blue-accent px-5 py-3 text-[14px] font-semibold text-white shadow-[0_8px_24px_rgba(75,124,246,.20)] transition hover:border-blue-bright hover:bg-blue-bright"
         >
           Edit application
         </Link>
         <Link
           href="/browse"
-          className="inline-flex w-full items-center justify-center rounded-btn border border-[rgba(255,255,255,0.35)] bg-[rgba(255,255,255,0.12)] px-5 py-3 text-[14px] font-black tracking-[-0.02em] text-white shadow-[0_1px_0_rgba(255,255,255,0.20)_inset,0_4px_16px_rgba(0,0,0,0.30)] transition-all duration-150 hover:bg-[rgba(255,255,255,0.20)] hover:border-[rgba(255,255,255,0.55)] hover:shadow-[0_1px_0_rgba(255,255,255,0.28)_inset,0_6px_20px_rgba(0,0,0,0.28)]"
+          className="inline-flex w-full items-center justify-center rounded-full border border-ink/15 bg-paper px-5 py-3 text-[14px] font-semibold text-ink transition hover:border-ink/25 hover:bg-warm-cream"
         >
           Back to opportunities
         </Link>
@@ -33,7 +33,7 @@ export function PendingActions() {
       <button
         type="button"
         onClick={handleSignOut}
-        className="mt-5 text-[13px] text-text-secondary hover:text-text-primary transition-colors"
+        className="mt-5 text-[13px] text-ink/55 transition-colors hover:text-ink"
       >
         Sign out
       </button>

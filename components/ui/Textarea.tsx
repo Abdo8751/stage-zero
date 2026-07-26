@@ -12,7 +12,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div className="w-full">
         {label && (
-          <label htmlFor={inputId} className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em] text-cream-subtle">
+          <label htmlFor={inputId} className="mb-2 block text-[13px] font-semibold text-ink/75">
             {label}
           </label>
         )}
@@ -21,19 +21,19 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           id={inputId}
           className={`
             min-h-[110px] w-full resize-y
-            bg-[rgba(4,11,26,0.6)] backdrop-blur-[20px]
-            border rounded-input px-4 py-3
-            text-[14px] text-cream placeholder:text-cream-subtle
+            bg-warm-cream/80
+            border rounded-[10px] px-4 py-3.5
+            text-[14px] text-ink placeholder:text-ink/35
             transition-all duration-150 outline-none
             ${error
               ? 'border-[rgba(255,69,58,0.4)] focus:border-[rgba(255,69,58,0.7)] focus:ring-2 focus:ring-[rgba(255,69,58,0.10)]'
-              : 'border-glass-border focus:border-[rgba(75,124,246,0.5)] focus:ring-2 focus:ring-[rgba(75,124,246,0.10)]'
+              : 'border-ink/15 focus:border-blue-accent focus:ring-2 focus:ring-blue-accent/20'
             }
             ${className}
           `}
           {...props}
         />
-        {error && <p className="mt-1.5 text-[12px] text-[#FF453A]">{error}</p>}
+        {error && <p className="mt-1.5 text-[12px] text-red-700">{error}</p>}
       </div>
     )
   }

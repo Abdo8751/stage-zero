@@ -21,7 +21,7 @@ export async function GET(request: Request) {
 
     let query = supabase
       .from('startups')
-      .select('id, user_id, name, tagline, sector, stage, raise_amount, website_url, logo_url, description, is_featured, created_at')
+      .select('id, name, tagline, sector, stage, raise_amount, website_url, logo_url, description, is_featured, created_at')
       .eq('is_active', true)
       .eq('status', 'active')
       .order('created_at', { ascending: false })

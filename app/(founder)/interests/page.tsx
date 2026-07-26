@@ -100,11 +100,12 @@ export default function InterestsPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 pt-20 pb-16 sm:px-6">
+    <div className="relative mx-auto w-full max-w-4xl px-4 pb-16 pt-28 sm:px-6">
+      <div className="paper-grain pointer-events-none fixed inset-0 -z-10 opacity-20" />
       <div className="mb-8">
-        <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-cream-muted">Inbox</p>
-        <h1 className="text-[32px] font-black tracking-tightest text-cream">Interest requests</h1>
-        <p className="mt-1 text-[14px] text-cream-muted">Review investors who want to connect with you.</p>
+        <p className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-blue-accent">Founder space · Inbox</p>
+        <h1 className="mt-4 font-serif text-[clamp(2.7rem,6vw,4rem)] font-semibold tracking-[-.04em] text-ink">Investor interests</h1>
+        <p className="mt-3 text-[15px] font-normal text-ink/60">Review verified investors who want to connect with you.</p>
       </div>
 
       {loading && (
@@ -115,10 +116,10 @@ export default function InterestsPage() {
       {error && <p className="text-[#FF453A]">{error}</p>}
 
       {!loading && matches.length === 0 && (
-        <Card className="py-12 text-center">
-          <User className="mx-auto mb-3 h-8 w-8 text-cream-subtle" />
-          <p className="text-[15px] font-bold text-cream">No pending interest requests</p>
-          <p className="mt-1 text-[13px] text-cream-muted">Keep your profile active and up to date to attract investors.</p>
+        <Card className="py-12 text-center sm:py-16">
+          <span className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-warm-cream"><User className="h-6 w-6 text-amber" /></span>
+          <p className="font-serif text-3xl font-semibold tracking-[-.035em] text-ink">No pending interest requests</p>
+          <p className="mt-3 text-[13px] font-normal text-ink/60">Keep your profile active and up to date to attract investors.</p>
           <Link href="/profile/edit" className="mt-5 inline-block">
             <Button variant="secondary" size="sm">Edit your listing</Button>
           </Link>

@@ -183,18 +183,18 @@ export default function StartupProfilePage() {
 
   if (id.startsWith('pick-')) {
     return (
-      <div className="mx-auto max-w-lg px-4 pt-24 pb-12 text-center">
+      <div className="relative mx-auto max-w-lg px-4 pb-12 pt-32 text-center">
         <Card>
-          <h1 className="text-[22px] font-black tracking-tight text-cream">Stage Zero Pick</h1>
-          <p className="mt-3 text-[14px] text-cream-muted">This is a curated preview. Browse live listings below.</p>
+          <h1 className="font-serif text-[34px] font-semibold tracking-[-.04em] text-ink">Stage Zero Pick</h1>
+          <p className="mt-3 text-[14px] font-normal text-ink/60">This is a curated preview. Browse live listings below.</p>
           <Button className="mt-6" onClick={() => router.push('/browse')}>View all startups</Button>
         </Card>
       </div>
     )
   }
 
-  if (loading) return <div className="mx-auto max-w-3xl px-4 pt-24 space-y-4"><div className="shimmer h-48 rounded-card" /><div className="shimmer h-64 rounded-card" /></div>
-  if (error || !startup) return <div className="pt-24 text-center text-[#FF453A]">{error ?? 'Startup not found'}</div>
+  if (loading) return <div className="mx-auto max-w-3xl space-y-4 px-4 pt-32"><div className="shimmer h-48 rounded-card" /><div className="shimmer h-64 rounded-card" /></div>
+  if (error || !startup) return <div className="pt-32 text-center text-red-700">{error ?? 'Startup not found'}</div>
 
   const interestButton = {
     idle:     { label: "I'm interested (1 credit)", disabled: !isVerified || expressing },
@@ -204,20 +204,21 @@ export default function StartupProfilePage() {
   }[interest]
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 pt-20 pb-16 sm:px-6">
-      <button onClick={() => router.back()} className="mb-6 flex items-center gap-1.5 text-[13px] text-cream-muted hover:text-cream transition-colors cursor-pointer">
+    <div className="relative mx-auto w-full max-w-4xl px-4 pb-16 pt-28 sm:px-6">
+      <div className="paper-grain pointer-events-none fixed inset-0 -z-10 opacity-20" />
+      <button onClick={() => router.back()} className="mb-6 flex cursor-pointer items-center gap-1.5 text-[13px] text-ink/60 transition-colors hover:text-ink">
         <ArrowLeft className="h-3.5 w-3.5" /> Back
       </button>
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="glass-light flex items-start justify-between gap-4 rounded-[28px] p-6 sm:p-9">
         <div className="flex items-start gap-4">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[16px] bg-[rgba(75,124,246,0.14)] border border-[rgba(75,124,246,0.25)] text-blue-bright font-black text-[24px]">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-blue-accent/25 bg-blue-accent/10 text-[24px] font-semibold text-blue-accent">
             {startup.name[0]}
           </div>
           <div>
-            <h1 className="text-[28px] font-black tracking-tight text-cream">{startup.name}</h1>
-            {startup.tagline && <p className="mt-1 text-[15px] text-cream-muted">{startup.tagline}</p>}
+            <h1 className="font-serif text-[42px] font-semibold leading-none tracking-[-.04em] text-ink">{startup.name}</h1>
+            {startup.tagline && <p className="mt-3 text-[15px] font-normal text-ink/60">{startup.tagline}</p>}
             <div className="mt-2.5 flex flex-wrap gap-2">
               <Badge variant="gold">{stageLabel(startup.stage)}</Badge>
               {startup.sector.map((s) => <Badge key={s} variant="muted">{s}</Badge>)}
@@ -227,13 +228,13 @@ export default function StartupProfilePage() {
       </div>
 
       {/* Meta */}
-      <div className="mt-6 flex flex-wrap gap-4 border-y border-[rgba(240,230,208,0.06)] py-4">
+      <div className="mt-5 flex flex-wrap gap-4 border-y border-ink/10 py-5">
         <div className="flex items-center gap-1.5">
           <TrendingUp className="h-4 w-4 text-amber" />
           <span className="text-[14px] font-bold text-amber">Raising {formatRaise(startup.raise_amount)}</span>
         </div>
         {startup.website_url && (
-          <a href={startup.website_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-[13px] text-cream-muted hover:text-cream transition-colors">
+          <a href={startup.website_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-[13px] text-ink/60 transition-colors hover:text-ink">
             <Globe className="h-3.5 w-3.5" /> Website <ExternalLink className="h-3 w-3" />
           </a>
         )}
@@ -242,29 +243,29 @@ export default function StartupProfilePage() {
       {/* Details */}
       <div className="mt-6 space-y-6">
         {startup.problem && (
-          <Card padding="md">
-            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.10em] text-cream-subtle">Problem</p>
-            <p className="text-[14px] leading-relaxed text-cream-muted">{startup.problem}</p>
+          <Card padding="lg">
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-blue-accent">Problem</p>
+            <p className="mt-4 text-[15px] font-normal leading-7 text-ink/65">{startup.problem}</p>
           </Card>
         )}
         {startup.solution && (
-          <Card padding="md">
-            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.10em] text-cream-subtle">Solution</p>
-            <p className="text-[14px] leading-relaxed text-cream-muted">{startup.solution}</p>
+          <Card padding="lg">
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-blue-accent">Solution</p>
+            <p className="mt-4 text-[15px] font-normal leading-7 text-ink/65">{startup.solution}</p>
           </Card>
         )}
         {startup.traction && (
-          <Card padding="md">
-            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.10em] text-cream-subtle">Traction &amp; funding</p>
-            <p className="text-[14px] leading-relaxed text-cream-muted whitespace-pre-wrap">{startup.traction}</p>
+          <Card padding="lg">
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-blue-accent">Traction &amp; funding</p>
+            <p className="mt-4 whitespace-pre-wrap text-[15px] font-normal leading-7 text-ink/65">{startup.traction}</p>
           </Card>
         )}
 
         {/* Pitch deck — verified investors only */}
         {isVerified && startup.pitch_deck_url && (
           <Card padding="md">
-            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.10em] text-cream-subtle">Pitch deck</p>
-            <a href={startup.pitch_deck_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-[14px] text-blue-bright hover:underline">
+            <p className="mb-2 font-mono text-[10px] font-bold uppercase tracking-[.14em] text-blue-accent">Pitch deck</p>
+            <a href={startup.pitch_deck_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-[14px] font-semibold text-blue-accent hover:underline">
               <FileText className="h-4 w-4" /> View pitch deck (PDF) <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </Card>
@@ -273,14 +274,14 @@ export default function StartupProfilePage() {
         {/* Founder info — verified investors only */}
         {isVerified && (
           <Card padding="md">
-            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.10em] text-cream-subtle">Founder</p>
+            <p className="mb-3 font-mono text-[10px] font-bold uppercase tracking-[.14em] text-blue-accent">Founder</p>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-b from-[#F5EDDB] to-[#D5C8A8] text-[13px] font-black text-navy">
                 {startup.users?.full_name?.[0] ?? '?'}
               </div>
               <div>
-                <p className="text-[14px] font-semibold text-cream">{startup.users?.full_name ?? 'Founder'}</p>
-                <p className="text-[13px] text-cream-muted">{startup.users?.email}</p>
+                <p className="text-[14px] font-semibold text-ink">{startup.users?.full_name ?? 'Founder'}</p>
+                <p className="text-[13px] font-normal text-ink/60">{startup.users?.email}</p>
               </div>
             </div>
           </Card>
@@ -293,7 +294,7 @@ export default function StartupProfilePage() {
           onClick={handleInterest}
           disabled={interestButton.disabled}
           fullWidth
-          className={interest === 'accepted' ? 'bg-[rgba(52,199,89,0.15)] text-[#30D158] border border-[rgba(52,199,89,0.25)]' : ''}
+          className={interest === 'accepted' ? 'border border-blue-accent/25 bg-blue-accent/10 text-blue-accent' : ''}
         >
           {expressing ? 'Sending…' : interestButton.label}
         </Button>
@@ -303,19 +304,19 @@ export default function StartupProfilePage() {
           fullWidth
           className="inline-flex items-center gap-1.5 justify-center"
         >
-          <Bookmark className={`h-4 w-4 ${saved ? 'fill-cream text-cream' : ''}`} />
+          <Bookmark className={`h-4 w-4 ${saved ? 'fill-blue-accent text-blue-accent' : ''}`} />
           {saved ? 'Saved' : 'Save to list'}
         </Button>
       </div>
 
       {interest === 'idle' && !isVerified && (
-        <p className="mt-3 text-center text-[13px] text-cream-subtle">Complete verification to express interest.</p>
+        <p className="mt-3 text-center text-[13px] text-ink/45">Complete verification to express interest.</p>
       )}
       {interest === 'idle' && isVerified && investor && investor.credits === 0 && (
-        <p className="mt-3 text-center text-[13px] text-[#FF453A]">No credits remaining. <button onClick={() => router.push('/upgrade')} className="underline cursor-pointer">Upgrade to get more.</button></p>
+        <p className="mt-3 text-center text-[13px] text-red-700">No credits remaining. <button onClick={() => router.push('/upgrade')} className="cursor-pointer underline">Upgrade to get more.</button></p>
       )}
       {interest === 'idle' && isVerified && investor && investor.credits > 0 && (
-        <p className="mt-3 text-center text-[13px] text-cream-subtle">You have {investor.credits} credit{investor.credits !== 1 ? 's' : ''} remaining.</p>
+        <p className="mt-3 text-center text-[13px] text-ink/45">You have {investor.credits} credit{investor.credits !== 1 ? 's' : ''} remaining.</p>
       )}
 
       {interest === 'accepted' && matchId && (

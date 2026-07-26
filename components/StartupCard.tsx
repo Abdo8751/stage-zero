@@ -1,9 +1,7 @@
 import Link from 'next/link'
-import { Badge } from '@/components/ui/Badge'
-import { Card } from '@/components/ui/Card'
+import { Bookmark, BookmarkCheck, ChevronRight, TrendingUp } from 'lucide-react'
 import type { Startup, StartupStage } from '@/lib/types'
 import { STARTUP_STAGES } from '@/lib/types'
-import { Bookmark, TrendingUp } from 'lucide-react'
 
 interface StartupCardProps {
   startup: Startup
@@ -14,7 +12,7 @@ interface StartupCardProps {
 }
 
 function stageLabel(stage: StartupStage): string {
-  return STARTUP_STAGES.find((s) => s.value === stage)?.label ?? stage
+  return STARTUP_STAGES.find((item) => item.value === stage)?.label ?? stage
 }
 
 function formatRaise(amount: number | null): string {
@@ -23,52 +21,85 @@ function formatRaise(amount: number | null): string {
   return `EGP ${(amount / 1_000).toFixed(0)}K`
 }
 
-export function StartupCard({ startup, href, onSave, isSaved, showSave }: StartupCardProps) {
-  const content = (
-    <Card hoverable className="flex h-full flex-col">
-      {/* Header row */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-[rgba(75,124,246,0.12)] border border-[rgba(75,124,246,0.20)] text-blue-bright font-black text-[15px]">
-          {startup.name[0]}
-        </div>
-        <Badge variant="gold">{stageLabel(startup.stage)}</Badge>
-      </div>
+export function StartupCard({
+  startup,
+  href,
+  onSave,
+  isSaved = false,
+  showSave = false,
+}: StartupCardProps) {
+  return (
+    <article className="flex h-full flex-col overflow-hidden rounded-[20px] border border-ink/10 bg-paper transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_32px_rgba(8,10,20,.10)]">
+      <div className="flex flex-1 flex-col p-5">
+        <div className="flex items-start gap-3">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-blue-accent/20 bg-blue-accent/10 font-serif text-xl font-bold text-blue-accent">
+            {startup.name.slice(0, 1).toUpperCase()}
+          </span>
 
-      {/* Text */}
-      <div className="mt-4 flex-1">
-        <h3 className="text-[16px] font-bold tracking-tight text-cream leading-snug">{startup.name}</h3>
+          <div className="min-w-0 flex-1">
+            <h3 className="truncate font-serif text-[19px] font-semibold leading-snug tracking-[-.025em] text-ink">
+              {startup.name}
+            </h3>
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {startup.sector.slice(0, 2).map((sector) => (
+                <span
+                  key={sector}
+                  className="rounded-full border border-ink/12 px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[.1em] text-ink/50"
+                >
+                  {sector}
+                </span>
+              ))}
+              <span className="rounded-full border border-blue-accent/30 px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[.1em] text-blue-accent">
+                {stageLabel(startup.stage)}
+              </span>
+            </div>
+          </div>
+
+          {showSave && onSave && (
+            <button
+              type="button"
+              onClick={onSave}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-all ${
+                isSaved
+                  ? 'border-blue-accent bg-blue-accent text-white'
+                  : 'border-ink/15 bg-warm-cream text-ink/45 hover:border-blue-accent/40 hover:text-blue-accent'
+              }`}
+              aria-label={isSaved ? `Remove ${startup.name} from saved startups` : `Save ${startup.name}`}
+              aria-pressed={isSaved}
+            >
+              {isSaved ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
+            </button>
+          )}
+        </div>
+
         {startup.tagline && (
-          <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-cream-muted">{startup.tagline}</p>
+          <p className="mt-4 flex-1 line-clamp-3 text-[13px] leading-[1.65] text-ink/65">
+            {startup.tagline}
+          </p>
         )}
-      </div>
 
-      {/* Sectors */}
-      <div className="mt-4 flex flex-wrap gap-1.5">
-        {startup.sector.slice(0, 3).map((s) => (
-          <Badge key={s} variant="muted">{s}</Badge>
-        ))}
-      </div>
-
-      {/* Footer */}
-      <div className="mt-4 flex items-center justify-between border-t border-[rgba(240,230,208,0.06)] pt-4">
-        <div className="flex items-center gap-1.5">
+        <div className="mt-5 flex items-center gap-2 border-t border-ink/10 pt-4">
           <TrendingUp className="h-3.5 w-3.5 text-amber" />
-          <span className="text-[13px] font-bold text-amber">{formatRaise(startup.raise_amount)}</span>
+          <span className="font-mono text-[10px] font-bold uppercase tracking-[.08em] text-ink/40">
+            Raising
+          </span>
+          <span className="ml-auto text-[12px] font-semibold text-amber">
+            {formatRaise(startup.raise_amount)}
+          </span>
         </div>
-        {showSave && onSave && (
-          <button
-            type="button"
-            onClick={(e) => { e.preventDefault(); onSave() }}
-            className="flex items-center gap-1 text-[12px] text-cream-subtle hover:text-cream transition-colors cursor-pointer"
-          >
-            <Bookmark className={`h-3.5 w-3.5 ${isSaved ? 'fill-cream text-cream' : ''}`} />
-            <span>{isSaved ? 'Saved' : 'Save'}</span>
-          </button>
-        )}
       </div>
-    </Card>
-  )
 
-  if (href) return <Link href={href} className="block h-full">{content}</Link>
-  return content
+      {href && (
+        <div className="border-t border-ink/10 bg-warm-cream/50 p-4">
+          <Link
+            href={href}
+            className="flex w-full items-center justify-between rounded-full bg-blue-accent px-4 py-2.5 text-[12px] font-semibold text-white transition-all hover:bg-blue-bright hover:shadow-[0_4px_14px_rgba(75,124,246,.3)]"
+          >
+            View full profile
+            <ChevronRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      )}
+    </article>
+  )
 }

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { useToast } from '@/components/ui/Toast'
+import { AuthShell } from '@/components/AuthShell'
 
 function ResetPasswordForm() {
   const router = useRouter()
@@ -77,11 +78,11 @@ function ResetPasswordForm() {
 
   if (expired || !sessionValid) {
     return (
-      <div className="mx-auto w-full max-w-md px-4 py-12 sm:py-16">
-        <Card>
+      <AuthShell kicker="Reset password">
+        <Card className="border-0 bg-transparent p-0 text-center shadow-none">
           <div className="space-y-4 text-center">
-            <h1 className="text-[28px] font-black tracking-tight text-cream">Reset link expired</h1>
-            <p className="text-[14px] leading-relaxed text-cream-muted">
+            <h1 className="font-serif text-[38px] font-semibold tracking-[-.04em] text-ink">Reset link expired</h1>
+            <p className="text-[14px] font-normal leading-relaxed text-ink/60">
               This reset link is missing, invalid, or already used. Please request a new one from the login page.
             </p>
             <Link href="/forgot-password" className="inline-flex text-[13px] text-text-primary underline underline-offset-4">
@@ -89,17 +90,17 @@ function ResetPasswordForm() {
             </Link>
           </div>
         </Card>
-      </div>
+      </AuthShell>
     )
   }
 
   if (success) {
     return (
-      <div className="mx-auto w-full max-w-md px-4 py-12 sm:py-16">
-        <Card>
+      <AuthShell kicker="Reset password">
+        <Card className="border-0 bg-transparent p-0 text-center shadow-none">
           <div className="space-y-4 text-center">
-            <h1 className="text-[28px] font-black tracking-tight text-cream">Password updated successfully</h1>
-            <p className="text-[14px] leading-relaxed text-cream-muted">
+            <h1 className="font-serif text-[38px] font-semibold tracking-[-.04em] text-ink">Password updated successfully</h1>
+            <p className="text-[14px] font-normal leading-relaxed text-ink/60">
               Your password is now updated. Please sign in again with the new password.
             </p>
             <Link href="/login" className="inline-flex text-[13px] text-text-primary underline underline-offset-4">
@@ -107,24 +108,24 @@ function ResetPasswordForm() {
             </Link>
           </div>
         </Card>
-      </div>
+      </AuthShell>
     )
   }
 
   return (
-    <div className="mx-auto w-full max-w-md px-4 py-12 sm:py-16">
-      <div className="mb-10 text-center">
+    <AuthShell kicker="Reset password">
+      <div className="mb-8">
         <Link
           href="/login"
           className="mb-6 inline-flex items-center gap-1.5 text-[13px] text-text-secondary hover:text-text-primary transition-colors"
         >
           ← Back to login
         </Link>
-        <h1 className="text-3xl sm:text-4xl">Reset password</h1>
-        <p className="mt-3 text-muted">Choose a new password for your account</p>
+        <h1 className="font-serif text-[38px] font-semibold tracking-[-.04em] text-ink">Create a new password</h1>
+        <p className="mt-3 text-[15px] font-normal leading-6 text-ink/60">Choose a strong password you haven&apos;t used before.</p>
       </div>
 
-      <Card>
+      <Card className="border-0 bg-transparent p-0 shadow-none">
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="relative">
             <Input
@@ -165,7 +166,7 @@ function ResetPasswordForm() {
             </button>
           </div>
 
-          <p className="text-[12px] leading-relaxed text-text-secondary">
+          <p className="text-[12px] font-normal leading-relaxed text-ink/55">
             Password requirements: at least 8 characters.
           </p>
 
@@ -174,7 +175,7 @@ function ResetPasswordForm() {
           </Button>
         </form>
       </Card>
-    </div>
+    </AuthShell>
   )
 }
 

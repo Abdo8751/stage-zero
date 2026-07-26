@@ -49,12 +49,12 @@ function AvatarUpload({
       </button>
       <input ref={ref} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && onChange(e.target.files[0])} />
       <div>
-        <p className="text-[14px] font-semibold text-cream">{name ?? 'Your name'}</p>
+        <p className="text-[14px] font-semibold text-ink">{name ?? 'Your name'}</p>
 
         <button
           type="button"
           onClick={() => ref.current?.click()}
-          className="mt-1 text-[12px] text-blue-bright hover:underline cursor-pointer"
+          className="mt-1 cursor-pointer text-[12px] font-semibold text-blue-accent hover:underline"
         >
           Change photo
         </button>
@@ -219,26 +219,28 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-lg px-4 pt-20 pb-16">
+    <div className="relative mx-auto w-full max-w-3xl px-4 pb-16 pt-28 sm:px-6">
+      <div className="paper-grain pointer-events-none fixed inset-0 -z-10 opacity-20" />
 
       <div className="mb-8">
         <button
           type="button"
           onClick={() => router.push(user?.role === 'investor' ? '/browse' : '/dashboard')}
-          className="mb-4 flex items-center gap-1.5 text-[13px] text-cream-muted hover:text-cream transition-colors"
+          className="mb-5 flex items-center gap-1.5 text-[13px] text-ink/60 transition-colors hover:text-ink"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Back
         </button>
-        <h1 className="text-[32px] font-black tracking-tightest text-cream">Settings</h1>
-        <p className="mt-1 text-[14px] text-cream-muted">Manage your profile and account preferences.</p>
+        <p className="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-blue-accent">Account</p>
+        <h1 className="mt-4 font-serif text-[clamp(2.7rem,6vw,4rem)] font-semibold tracking-[-.04em] text-ink">Settings</h1>
+        <p className="mt-3 text-[15px] font-normal text-ink/60">Manage your profile and account preferences.</p>
       </div>
 
       {/* â”€â”€ Profile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section>
         <div className="mb-3 flex items-center gap-2">
-          <User className="h-4 w-4 text-blue-bright" />
-          <h2 className="text-[13px] font-bold uppercase tracking-[0.10em] text-blue-bright">Profile</h2>
+          <User className="h-4 w-4 text-blue-accent" />
+          <h2 className="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-blue-accent">Profile</h2>
         </div>
         <Card>
           <form onSubmit={handleSaveProfile} className="space-y-5">
@@ -264,10 +266,10 @@ export default function SettingsPage() {
             />
 
             {/* Notification pref */}
-            <label className="flex cursor-pointer items-center justify-between rounded-input border border-glass-border bg-[rgba(255,255,255,0.03)] px-4 py-3">
+            <label className="flex cursor-pointer items-center justify-between rounded-xl border border-ink/10 bg-warm-cream/45 px-4 py-3">
               <div className="flex items-center gap-2">
-                <Bell className="h-4 w-4 text-cream-muted" />
-                <span className="text-[13px] font-medium text-cream">Email notifications</span>
+                <Bell className="h-4 w-4 text-ink/55" />
+                <span className="text-[13px] font-medium text-ink">Email notifications</span>
               </div>
               <button
                 type="button"
@@ -278,7 +280,7 @@ export default function SettingsPage() {
                   emailPrefs ? 'bg-blue-accent' : 'bg-[rgba(255,255,255,0.12)]'
                 }`}
               >
-                <span className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-cream shadow transition-transform duration-200 ${
+                <span className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-paper shadow transition-transform duration-200 ${
                   emailPrefs ? 'translate-x-4' : 'translate-x-0'
                 }`} />
               </button>
@@ -294,11 +296,11 @@ export default function SettingsPage() {
       {/* â”€â”€ Password â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section className="mt-6">
         <div className="mb-3 flex items-center gap-2">
-          <Lock className="h-4 w-4 text-blue-bright" />
-          <h2 className="text-[13px] font-bold uppercase tracking-[0.10em] text-blue-bright">Password</h2>
+          <Lock className="h-4 w-4 text-blue-accent" />
+          <h2 className="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-blue-accent">Password</h2>
         </div>
         <Card>
-          <p className="text-[13px] leading-relaxed text-cream-muted">
+          <p className="text-[13px] font-normal leading-relaxed text-ink/60">
             Send a secure password-reset link to your account email{user?.email ? ` (${maskEmail(user.email)})` : ''}.
           </p>
           {((user as any)?.identities?.length === 1) && (user as any).identities[0]?.provider !== 'email' ? (

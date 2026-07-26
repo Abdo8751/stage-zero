@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { AuthShell } from '@/components/AuthShell'
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -38,18 +39,16 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="w-full max-w-sm">
+    <AuthShell kicker="Internal access">
+      <div>
         {/* Logo */}
         <div className="mb-10 text-center">
-          <h1 className="font-heading text-4xl font-bold text-text-primary">
-            STAGE <span className="italic font-light text-gold font-heading">Zero</span>
-          </h1>
-          <p className="mt-1 font-body text-xs tracking-wider uppercase text-text-secondary">Admin Panel</p>
+          <h1 className="font-serif text-4xl font-semibold tracking-[-.04em] text-ink">Stage Zero</h1>
+          <p className="mt-2 font-mono text-[10px] font-bold uppercase tracking-[.16em] text-amber">Admin Panel</p>
         </div>
 
         {/* Login card */}
-        <Card className="p-8">
+        <Card className="border-0 bg-transparent p-0 shadow-none">
           <form onSubmit={handleSubmit} className="space-y-6">
             <Input
               id="admin-password"
@@ -62,7 +61,7 @@ export default function AdminLoginPage() {
             />
 
             {error && (
-              <p className="rounded-[8px] border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400 font-body">
+              <p className="rounded-xl border border-red-700/20 bg-red-50 px-4 py-3 text-sm text-red-700">
                 {error}
               </p>
             )}
@@ -77,10 +76,10 @@ export default function AdminLoginPage() {
           </form>
         </Card>
 
-        <p className="mt-6 text-center text-xs text-text-tertiary font-body">
+        <p className="mt-6 text-center text-xs text-ink/45">
           Internal access only. Unauthorized access is prohibited.
         </p>
       </div>
-    </div>
+    </AuthShell>
   )
 }
