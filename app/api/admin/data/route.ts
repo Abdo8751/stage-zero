@@ -73,7 +73,7 @@ export async function GET(request: Request) {
     if (type === 'users') {
       const [{ data: usersData }, { data: startups }, { data: investors }] = await Promise.all([
         supabase.from('users').select('id, full_name, email, role, is_verified, is_banned, created_at').order('created_at', { ascending: false }),
-        supabase.from('startups').select('id, user_id, name, tagline, sector, stage, status, raise_amount, website_url, is_active, created_at'),
+        supabase.from('startups').select('id, user_id, name, tagline, sector, stage, status, team_size, cofounder_count, raise_amount, website_url, is_active, created_at'),
         supabase.from('investors').select('id, user_id, verification_status, credits, cheque_size, location, linkedin_url'),
       ])
 

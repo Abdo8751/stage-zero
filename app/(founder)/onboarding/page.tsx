@@ -19,12 +19,12 @@ import { CheckCircle2, ArrowRight, Clock } from 'lucide-react'
 const DRAFT_KEY = 'stage-zero-onboarding-draft'
 
 interface Step1Data { full_name: string; bio: string }
-interface Step2Data { name: string; tagline: string; sector: Sector[]; stage: StartupStage; problem: string; solution: string }
+interface Step2Data { name: string; tagline: string; sector: Sector[]; stage: StartupStage; team_size: string; cofounder_count: string; problem: string; solution: string }
 interface Step3Data { raise_amount: string; fund_usage: string; website_url: string; traction: string }
 interface Draft { step: number; step1: Step1Data; step2: Step2Data; step3: Step3Data }
 
 const defaultStep1: Step1Data = { full_name: '', bio: '' }
-const defaultStep2: Step2Data = { name: '', tagline: '', sector: [], stage: 'pre_seed', problem: '', solution: '' }
+const defaultStep2: Step2Data = { name: '', tagline: '', sector: [], stage: 'pre_seed', team_size: '', cofounder_count: '', problem: '', solution: '' }
 const defaultStep3: Step3Data = { raise_amount: '', fund_usage: '', website_url: '', traction: '' }
 
 function loadDraft(): Draft | null {
@@ -59,9 +59,9 @@ export default function OnboardingPage() {
     const draft = loadDraft()
     if (draft) {
       setStep(draft.step)
-      setStep1(draft.step1)
-      setStep2(draft.step2)
-      setStep3(draft.step3)
+      setStep1({ ...defaultStep1, ...draft.step1 })
+      setStep2({ ...defaultStep2, ...draft.step2 })
+      setStep3({ ...defaultStep3, ...draft.step3 })
     } else if (user?.full_name) {
       setStep1((s) => ({ ...s, full_name: user.full_name ?? '' }))
     }
@@ -116,11 +116,20 @@ export default function OnboardingPage() {
     }
   }
 
-  /* â”€â”€ Step 2: startup basics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Step 2: startup basics ─────────────────────────────── */
   const saveStep2 = async () => {
     const errs: Record<string, string> = {}
+    const teamSize   = parseInt(step2.team_size, 10)
+    const cofounders = parseInt(step2.cofounder_count, 10)
+
     if (!step2.name.trim())             errs.name = 'Startup name is required'
     if (step2.sector.length === 0)      errs.sector = 'Select at least one sector'
+    if (!Number.isInteger(teamSize) || teamSize < 1)
+      errs.team_size = 'Enter the total number of people (at least 1)'
+    if (!Number.isInteger(cofounders) || cofounders < 1)
+      errs.cofounder_count = 'Enter the number of co-founders (at least 1)'
+    if (!errs.team_size && !errs.cofounder_count && cofounders > teamSize)
+      errs.cofounder_count = 'Co-founders cannot exceed total team size'
     if (!step2.problem.trim())          errs.problem = 'Problem is required'
     if (!step2.solution.trim())         errs.solution = 'Solution is required'
     setErrors(errs)
@@ -138,6 +147,8 @@ export default function OnboardingPage() {
         tagline: step2.tagline.trim() || null,
         sector: step2.sector,
         stage: step2.stage,
+        team_size: teamSize,
+        cofounder_count: cofounders,
         problem: step2.problem.trim(),
         solution: step2.solution.trim(),
       }
@@ -342,6 +353,31 @@ export default function OnboardingPage() {
                 {STARTUP_STAGES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Input
+                label="Team size"
+                type="number"
+                min={1}
+                step={1}
+                value={step2.team_size}
+                onChange={(e) => setStep2({ ...step2, team_size: e.target.value })}
+                error={errors.team_size}
+                placeholder="e.g. 6"
+              />
+              <Input
+                label="Number of co-founders"
+                type="number"
+                min={1}
+                step={1}
+                value={step2.cofounder_count}
+                onChange={(e) => setStep2({ ...step2, cofounder_count: e.target.value })}
+                error={errors.cofounder_count}
+                placeholder="e.g. 2"
+              />
+            </div>
+            <p className="-mt-2 text-[12px] font-normal text-ink/45">
+              Team size counts everyone working on the startup today, including the founding team.
+            </p>
             <Textarea label="Problem" value={step2.problem} onChange={(e) => setStep2({ ...step2, problem: e.target.value })} error={errors.problem} placeholder="What problem are you solving?" />
             <Textarea label="Solution" value={step2.solution} onChange={(e) => setStep2({ ...step2, solution: e.target.value })} error={errors.solution} placeholder="How does your product solve it?" />
             <div className="flex gap-3 pt-1">

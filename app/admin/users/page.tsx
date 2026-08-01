@@ -15,6 +15,8 @@ interface StartupInfo {
   sector: string[]
   stage: string
   status: string
+  team_size: number
+  cofounder_count: number
   raise_amount: number | null
   website_url: string | null
   is_active: boolean
@@ -497,6 +499,18 @@ export default function AdminUsersPage() {
                   <span className="text-[14px] font-bold text-amber">Raising {formatRaise(modal.startup.raise_amount)}</span>
                 </div>
               )}
+
+              {/* Team */}
+              <div className="flex flex-wrap gap-6">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.10em] text-cream-subtle mb-1">Team size</p>
+                  <p className="text-[13px] text-cream">{modal.startup.team_size}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.10em] text-cream-subtle mb-1">Co-founders</p>
+                  <p className="text-[13px] text-cream">{modal.startup.cofounder_count}</p>
+                </div>
+              </div>
 
               {/* Links */}
               <div className="flex flex-wrap gap-3">

@@ -14,6 +14,7 @@ import { useToast } from '@/components/ui/Toast'
 import {
   TrendingUp, Globe, FileText, ExternalLink,
   Bookmark, CheckCircle2, Clock, XCircle, ArrowLeft,
+  Users, UserPlus,
 } from 'lucide-react'
 
 interface StartupDetail extends Startup {
@@ -30,6 +31,29 @@ function formatRaise(amount: number | null) {
   if (!amount) return 'Undisclosed'
   if (amount >= 1_000_000) return `EGP ${(amount / 1_000_000).toFixed(1)}M`.replace('.0M', 'M')
   return `EGP ${(amount / 1_000).toFixed(0)}K`
+}
+
+// Renders the free-text traction field, bolding any line that starts with a
+// "Traction:" or "Fund usage:" / "Funding:" label so they read as sub-headings.
+function renderTraction(text: string) {
+  return text.split('\n').map((line, i) => {
+    const m = line.match(/^(traction|fund usage|funding)\b\s*:?/i)
+    if (m) {
+      const label = m[0]
+      const rest = line.slice(label.length)
+      return (
+        <p key={i} className="whitespace-pre-wrap text-[15px] leading-7 text-ink/65">
+          <span className="font-semibold text-ink">{label}</span>
+          {rest}
+        </p>
+      )
+    }
+    return (
+      <p key={i} className="whitespace-pre-wrap text-[15px] leading-7 text-ink/65">
+        {line}
+      </p>
+    )
+  })
 }
 
 export default function StartupProfilePage() {
@@ -180,6 +204,8 @@ export default function StartupProfilePage() {
   }
 
   const isVerified = investor?.verification_status === 'approved'
+  const isFounderOwner = user?.role === 'founder' && Boolean(user?.is_verified) && startup?.user_id === user.id
+  const canSeePrivate = isVerified || isFounderOwner
 
   if (id.startsWith('pick-')) {
     return (
@@ -228,7 +254,7 @@ export default function StartupProfilePage() {
       </div>
 
       {/* Meta */}
-      <div className="mt-5 flex flex-wrap gap-4 border-y border-ink/10 py-5">
+      <div className="mt-5 flex flex-wrap items-center gap-4 border-y border-ink/10 py-5">
         <div className="flex items-center gap-1.5">
           <TrendingUp className="h-4 w-4 text-amber" />
           <span className="text-[14px] font-bold text-amber">Raising {formatRaise(startup.raise_amount)}</span>
@@ -238,31 +264,52 @@ export default function StartupProfilePage() {
             <Globe className="h-3.5 w-3.5" /> Website <ExternalLink className="h-3 w-3" />
           </a>
         )}
+
+        {/* Team composition — numerals lead, labels support */}
+        <div className="flex w-full items-center justify-between rounded-2xl border border-ink/10 bg-warm-cream px-4 py-3 shadow-[0_3px_10px_rgba(8,10,20,.05)] sm:ml-auto sm:w-auto sm:justify-start sm:gap-5">
+          <span className="flex items-baseline gap-1.5">
+            <Users className="h-3.5 w-3.5 shrink-0 self-center text-ink/40" />
+            <b className="font-mono text-[18px] font-bold leading-none text-ink">{startup.team_size}</b>
+            <span className="text-[12px] text-ink/60">{startup.team_size === 1 ? 'person' : 'people'}</span>
+          </span>
+          <span className="h-5 w-px shrink-0 bg-ink/15" />
+          <span className="flex items-baseline gap-1.5">
+            <UserPlus className="h-3.5 w-3.5 shrink-0 self-center text-ink/40" />
+            <b className="font-mono text-[18px] font-bold leading-none text-ink">{startup.cofounder_count}</b>
+            <span className="text-[12px] text-ink/60">co-founder{startup.cofounder_count === 1 ? '' : 's'}</span>
+          </span>
+        </div>
       </div>
 
-      {/* Details */}
+      {/* Details — one continuous block, sections split by hairlines */}
       <div className="mt-6 space-y-6">
-        {startup.problem && (
+        {(startup.problem || startup.solution || startup.traction) && (
           <Card padding="lg">
-            <p className="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-blue-accent">Problem</p>
-            <p className="mt-4 text-[15px] font-normal leading-7 text-ink/65">{startup.problem}</p>
-          </Card>
-        )}
-        {startup.solution && (
-          <Card padding="lg">
-            <p className="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-blue-accent">Solution</p>
-            <p className="mt-4 text-[15px] font-normal leading-7 text-ink/65">{startup.solution}</p>
-          </Card>
-        )}
-        {startup.traction && (
-          <Card padding="lg">
-            <p className="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-blue-accent">Traction &amp; funding</p>
-            <p className="mt-4 whitespace-pre-wrap text-[15px] font-normal leading-7 text-ink/65">{startup.traction}</p>
+            <div className="divide-y divide-ink/10">
+              {startup.problem && (
+                <section className="py-7 first:pt-0 last:pb-0">
+                  <h3 className="font-serif text-2xl font-semibold text-ink">Problem</h3>
+                  <p className="mt-4 whitespace-pre-wrap text-[15px] font-normal leading-7 text-ink/65">{startup.problem}</p>
+                </section>
+              )}
+              {startup.solution && (
+                <section className="py-7 first:pt-0 last:pb-0">
+                  <h3 className="font-serif text-2xl font-semibold text-ink">Solution</h3>
+                  <p className="mt-4 whitespace-pre-wrap text-[15px] font-normal leading-7 text-ink/65">{startup.solution}</p>
+                </section>
+              )}
+              {startup.traction && (
+                <section className="py-7 first:pt-0 last:pb-0">
+                  <h3 className="font-serif text-2xl font-semibold text-ink">Traction &amp; funding</h3>
+                  <div className="mt-4 space-y-2">{renderTraction(startup.traction)}</div>
+                </section>
+              )}
+            </div>
           </Card>
         )}
 
-        {/* Pitch deck — verified investors only */}
-        {isVerified && startup.pitch_deck_url && (
+        {/* Pitch deck — verified investors & owner founders only */}
+        {canSeePrivate && startup.pitch_deck_url && (
           <Card padding="md">
             <p className="mb-2 font-mono text-[10px] font-bold uppercase tracking-[.14em] text-blue-accent">Pitch deck</p>
             <a href={startup.pitch_deck_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-[14px] font-semibold text-blue-accent hover:underline">
@@ -271,8 +318,8 @@ export default function StartupProfilePage() {
           </Card>
         )}
 
-        {/* Founder info — verified investors only */}
-        {isVerified && (
+        {/* Founder info — verified investors & owner founders only */}
+        {canSeePrivate && (
           <Card padding="md">
             <p className="mb-3 font-mono text-[10px] font-bold uppercase tracking-[.14em] text-blue-accent">Founder</p>
             <div className="flex items-center gap-3">
@@ -281,7 +328,6 @@ export default function StartupProfilePage() {
               </div>
               <div>
                 <p className="text-[14px] font-semibold text-ink">{startup.users?.full_name ?? 'Founder'}</p>
-                <p className="text-[13px] font-normal text-ink/60">{startup.users?.email}</p>
               </div>
             </div>
           </Card>

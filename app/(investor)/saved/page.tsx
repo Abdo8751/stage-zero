@@ -110,16 +110,14 @@ export default function SavedPage() {
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {startups.map((startup) => (
-          <div key={startup.id} className="relative">
-            <StartupCard startup={startup} href={`/startup/${startup.id}`} />
-            <button
-              type="button"
-              onClick={() => void handleRemove(startup.id)}
-              className="mt-3 text-sm font-semibold text-red-700 hover:underline"
-            >
-              Remove from saved
-            </button>
-          </div>
+          <StartupCard
+            key={startup.id}
+            startup={startup}
+            href={`/startup/${startup.id}`}
+            showSave
+            isSaved
+            onSave={() => void handleRemove(startup.id)}
+          />
         ))}
       </div>
     </div>

@@ -49,6 +49,8 @@ export interface Startup {
   stage: StartupStage
   status: StartupStatus
   rejection_reason: string | null
+  team_size: number
+  cofounder_count: number
   problem: string | null
   solution: string | null
   raise_amount: number | null
@@ -136,6 +138,8 @@ export interface StartupInsert {
   sector?: string[]
   stage?: StartupStage
   status?: StartupStatus
+  team_size: number
+  cofounder_count: number
   problem?: string | null
   solution?: string | null
   raise_amount?: number | null

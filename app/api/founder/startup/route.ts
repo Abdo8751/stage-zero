@@ -101,11 +101,36 @@ export async function PATCH(request: Request) {
       ? Math.max(0, Math.floor(body.raise_amount))
       : null
 
+    const cleanCount = (value: unknown, max: number) => {
+      const parsed = typeof value === 'number' ? value : Number(value)
+      if (!Number.isFinite(parsed)) return null
+      const rounded = Math.floor(parsed)
+      if (rounded < 1) return null
+      return Math.min(rounded, max)
+    }
+
+    const teamSize   = cleanCount(body.team_size, 100000)
+    const cofounders = cleanCount(body.cofounder_count, 50)
+
+    if (teamSize === null) {
+      return NextResponse.json({ error: 'Team size is required and must be at least 1' }, { status: 400, headers: PRIVATE_JSON_HEADERS })
+    }
+
+    if (cofounders === null) {
+      return NextResponse.json({ error: 'Number of co-founders is required and must be at least 1' }, { status: 400, headers: PRIVATE_JSON_HEADERS })
+    }
+
+    if (cofounders > teamSize) {
+      return NextResponse.json({ error: 'Co-founders cannot exceed team size' }, { status: 400, headers: PRIVATE_JSON_HEADERS })
+    }
+
     const update: Record<string, unknown> = {
       name: cleanText(body.name, 120),
       tagline: cleanText(body.tagline, 180),
       sector: cleanStringArray(body.sector, 8, 80),
       stage: cleanText(body.stage, 40),
+      team_size: teamSize,
+      cofounder_count: cofounders,
       problem: cleanText(body.problem, 4000),
       solution: cleanText(body.solution, 4000),
       raise_amount: raiseAmount,

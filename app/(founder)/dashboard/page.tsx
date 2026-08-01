@@ -553,13 +553,31 @@ export default function DashboardPage() {
             )}
 
             <div className="mt-6 flex flex-col gap-4 border-t border-ink/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="font-mono text-[10px] font-bold uppercase tracking-[.12em] text-ink/40">
-                  Current raise
-                </p>
-                <p className="mt-1 text-[15px] font-bold text-ink">
-                  {formatRaise(startup.raise_amount)}
-                </p>
+              <div className="flex flex-wrap gap-x-10 gap-y-4">
+                <div>
+                  <p className="font-mono text-[10px] font-bold uppercase tracking-[.12em] text-ink/40">
+                    Current raise
+                  </p>
+                  <p className="mt-1 text-[15px] font-bold text-ink">
+                    {formatRaise(startup.raise_amount)}
+                  </p>
+                </div>
+                <div>
+                  <p className="font-mono text-[10px] font-bold uppercase tracking-[.12em] text-ink/40">
+                    Team size
+                  </p>
+                  <p className="mt-1 text-[15px] font-bold text-ink">
+                    {startup.team_size}
+                  </p>
+                </div>
+                <div>
+                  <p className="font-mono text-[10px] font-bold uppercase tracking-[.12em] text-ink/40">
+                    Co-founders
+                  </p>
+                  <p className="mt-1 text-[15px] font-bold text-ink">
+                    {startup.cofounder_count}
+                  </p>
+                </div>
               </div>
               <div className="flex flex-wrap gap-3">
                 {startup.website_url && (

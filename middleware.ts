@@ -53,7 +53,13 @@ export async function middleware(request: NextRequest) {
     const isAdminApi   = pathname.startsWith('/api/admin')
     const hasAdminAuth = Boolean(request.cookies.get('stage_zero_admin')?.value)
 
-    if (!hasAdminAuth && !isAdminLogin) {
+    // The login/logout endpoints must stay reachable without a cookie:
+    // /api/admin/login is what ISSUES the cookie, so gating it behind the
+    // cookie deadlocks sign-in. These routes do their own auth internally.
+    const isAdminAuthEndpoint =
+      pathname === '/api/admin/login' || pathname === '/api/admin/logout'
+
+    if (!hasAdminAuth && !isAdminLogin && !isAdminAuthEndpoint) {
       // API routes: return 401 JSON instead of redirect
       if (isAdminApi) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

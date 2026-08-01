@@ -23,12 +23,15 @@ export default function EditProfilePage() {
   const [tagline, setTagline] = useState('')
   const [sector, setSector] = useState<Sector[]>([])
   const [stage, setStage] = useState<StartupStage>('pre_seed')
+  const [teamSize, setTeamSize] = useState('')
+  const [cofounderCount, setCofounderCount] = useState('')
   const [problem, setProblem] = useState('')
   const [solution, setSolution] = useState('')
   const [raiseAmount, setRaiseAmount] = useState('')
   const [websiteUrl, setWebsiteUrl] = useState('')
   const [traction, setTraction] = useState('')
   const [pitchFile, setPitchFile] = useState<File | null>(null)
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
     if (startup) {
@@ -36,6 +39,8 @@ export default function EditProfilePage() {
       setTagline(startup.tagline ?? '')
       setSector((startup.sector ?? []) as Sector[])
       setStage(startup.stage)
+      setTeamSize(startup.team_size.toString())
+      setCofounderCount(startup.cofounder_count.toString())
       setProblem(startup.problem ?? '')
       setSolution(startup.solution ?? '')
       setRaiseAmount(startup.raise_amount?.toString() ?? '')
@@ -53,6 +58,20 @@ export default function EditProfilePage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user || !startup) return
+
+    const parsedTeamSize   = parseInt(teamSize, 10)
+    const parsedCofounders = parseInt(cofounderCount, 10)
+    const errs: Record<string, string> = {}
+
+    if (!Number.isInteger(parsedTeamSize) || parsedTeamSize < 1)
+      errs.team_size = 'Enter the total number of people (at least 1)'
+    if (!Number.isInteger(parsedCofounders) || parsedCofounders < 1)
+      errs.cofounder_count = 'Enter the number of co-founders (at least 1)'
+    if (!errs.team_size && !errs.cofounder_count && parsedCofounders > parsedTeamSize)
+      errs.cofounder_count = 'Co-founders cannot exceed total team size'
+
+    setErrors(errs)
+    if (Object.keys(errs).length) return
 
     setSaving(true)
     try {
@@ -81,6 +100,8 @@ export default function EditProfilePage() {
           tagline: tagline.trim() || null,
           sector,
           stage,
+          team_size: parsedTeamSize,
+          cofounder_count: parsedCofounders,
           problem: problem.trim(),
           solution: solution.trim(),
           raise_amount: parseInt(raiseAmount.replace(/\D/g, ''), 10) || null,
@@ -170,6 +191,30 @@ export default function EditProfilePage() {
                 </option>
               ))}
             </select>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2">
+            <Input
+              label="Team size"
+              type="number"
+              min={1}
+              step={1}
+              value={teamSize}
+              onChange={(e) => setTeamSize(e.target.value)}
+              error={errors.team_size}
+              placeholder="e.g. 6"
+              required
+            />
+            <Input
+              label="Number of co-founders"
+              type="number"
+              min={1}
+              step={1}
+              value={cofounderCount}
+              onChange={(e) => setCofounderCount(e.target.value)}
+              error={errors.cofounder_count}
+              placeholder="e.g. 2"
+              required
+            />
           </div>
           <Textarea label="Problem" value={problem} onChange={(e) => setProblem(e.target.value)} />
           <Textarea label="Solution" value={solution} onChange={(e) => setSolution(e.target.value)} />

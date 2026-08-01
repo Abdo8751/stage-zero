@@ -33,17 +33,33 @@ export async function GET(request: Request, { params }: { params: { id: string }
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401, headers: PRIVATE_JSON_HEADERS })
     }
 
-    const { data: investor, error: investorError } = await supabase
-      .from('investors')
-      .select('id, verification_status')
-      .eq('user_id', user.id)
+    const { data: profile, error: profileError } = await supabase
+      .from('users')
+      .select('role, id, is_verified')
+      .eq('id', user.id)
       .maybeSingle()
 
-    if (investorError) {
+    if (profileError) {
       return NextResponse.json({ error: 'Unable to load startup' }, { status: 500, headers: PRIVATE_JSON_HEADERS })
     }
 
-    if (investor?.verification_status !== 'approved') {
+    const isFounder = profile?.role === 'founder'
+    const isVerifiedFounder = isFounder && Boolean(profile?.is_verified)
+
+    // For non-founders, look up investor verification. Founders skip this.
+    let investorVerification: string | null | undefined
+    if (!isFounder) {
+      const { data: investor } = await supabase
+        .from('investors')
+        .select('verification_status')
+        .eq('user_id', user.id)
+        .maybeSingle()
+      investorVerification = investor?.verification_status
+    }
+
+    // Verified founders and approved investors may read details.
+    // Unverified investors (and unverified founders) are rejected with a clear message.
+    if (!isVerifiedFounder && investorVerification !== 'approved') {
       return NextResponse.json({ error: 'Investor approval required' }, { status: 403, headers: PRIVATE_JSON_HEADERS })
     }
 
@@ -57,6 +73,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
         sector,
         stage,
         status,
+        team_size,
+        cofounder_count,
         problem,
         solution,
         raise_amount,
@@ -79,6 +97,11 @@ export async function GET(request: Request, { params }: { params: { id: string }
     }
 
     if (!startup) {
+      return NextResponse.json({ error: 'Startup not found' }, { status: 404, headers: PRIVATE_JSON_HEADERS })
+    }
+
+    // Founders may only view their own startup through this endpoint.
+    if (isFounder && startup.user_id !== user.id) {
       return NextResponse.json({ error: 'Startup not found' }, { status: 404, headers: PRIVATE_JSON_HEADERS })
     }
 
